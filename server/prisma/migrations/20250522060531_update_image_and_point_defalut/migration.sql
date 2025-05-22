@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `customer` MODIFY `image` VARCHAR(191) NULL,
+    MODIFY `point` INTEGER NOT NULL DEFAULT 0;

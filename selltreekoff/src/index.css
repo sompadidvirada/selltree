@@ -1,0 +1,12 @@
+.app,
+.content {
+  height: 100%;
+  width: 100%;
+  font-family: "Source San Pro", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+body {
+  margin: 0;
+  padding: 0;
+}
