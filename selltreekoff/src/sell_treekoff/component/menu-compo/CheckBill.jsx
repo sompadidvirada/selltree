@@ -152,8 +152,8 @@ const CheckBill = () => {
                   CUSTOMER ID: {userInfo?.id || 0}
                 </Typography>
                 <Typography fontSize={18}>
-                  BILL NO: #{userInfo?.bill[0]?.id || 0} | TIME{" "}
-                  {userInfo?.bill[0]?.billDate || "UNKNOW"}
+                  BILL NO : #{userInfo?.bill?.id || 0} | TIME{" "}
+                  {userInfo?.bill?.billDate || "UNKNOW"}
                 </Typography>
                 <Typography
                   fontFamily="Noto Sans Lao"
@@ -161,7 +161,7 @@ const CheckBill = () => {
                   color="rgb(26, 167, 8)"
                   fontWeight="bold"
                 >
-                  ແຕ້ມສະສົມ: {(userInfo?.point || 0).toLocaleString()} ຄະແນນ
+                  ແຕ້ມສະສົມ: {(userInfo?.point[0]?.point || 0).toLocaleString()} ຄະແນນ
                 </Typography>
               </Box>
             </Box>

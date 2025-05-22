@@ -1,16 +1,15 @@
 import { Box, Breadcrumbs, Card, CardContent, Typography } from "@mui/material";
-import {
-  Outlet,
-  Link as RouterLink,
-  useLocation,
-} from "react-router-dom";
+import { Outlet, Link as RouterLink, useLocation } from "react-router-dom";
 import PersonIcon from "@mui/icons-material/Person";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import LocalAtmIcon from "@mui/icons-material/LocalAtm";
 import { NavLink } from "react-router-dom";
+import useTreekoffStorage from "../../zustand/storageTreekoff";
 
 const MenuDetailAndBread = ({ selectOnline }) => {
   const location = useLocation();
+  const userBill = useTreekoffStorage((s)=>s.userBill)
+  const userInfo = useTreekoffStorage((s)=>s.userInfo)
   return (
     <Box
       sx={{
@@ -66,7 +65,9 @@ const MenuDetailAndBread = ({ selectOnline }) => {
               })}
             >
               <PersonIcon />
-              <Typography fontFamily={"Noto Sans Lao"}>ເຂົ້າຊູ່ສະມາຊິກລູກຄ້າ</Typography>
+              <Typography fontFamily={"Noto Sans Lao"}>
+                ເຂົ້າຊູ່ສະມາຊິກລູກຄ້າ
+              </Typography>
             </NavLink>
             <NavLink
               to="/productdetail"
@@ -82,7 +83,9 @@ const MenuDetailAndBread = ({ selectOnline }) => {
               })}
             >
               <LocalAtmIcon />
-              <Typography fontFamily={"Noto Sans Lao"}>ລາຍການບິນສິນຄ້າ</Typography>
+              <Typography fontFamily={"Noto Sans Lao"}>
+                ລາຍການບິນສິນຄ້າ
+              </Typography>
             </NavLink>
             <NavLink
               to="/checkbill"

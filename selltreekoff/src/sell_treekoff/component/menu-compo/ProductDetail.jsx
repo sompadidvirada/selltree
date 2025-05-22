@@ -62,7 +62,7 @@ const ProductDetail = () => {
         point: 0,
         totalSpent: 0,
         createDate: "",
-        bill: [],
+        bill: null,
       });
     }
   }, [userInfo]);
@@ -289,8 +289,8 @@ const ProductDetail = () => {
               </Box>
               <Typography variant="h5">CUSTOMER ID: {userInfo?.id}</Typography>
               <Typography variant="h5">
-                BILL NO: #{userInfo?.bill[0]?.id} | TIME{" "}
-                {userInfo?.bill[0]?.billDate}
+                BILL NO: #{userInfo?.bill?.id} | TIME{" "}
+                {userInfo?.bill?.billDate}
               </Typography>
             </Box>
             {userBill.length > 0 && (
@@ -558,7 +558,6 @@ const ProductDetail = () => {
                   labelId="Sweet-Detail-label"
                   id="Sweet-select"
                   sx={{
-                    color: "white",
                     fontFamily: "Noto Serif Lao",
                     width: "50%",
                     alignSelf: "center",

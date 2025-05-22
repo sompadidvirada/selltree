@@ -1,3 +1,4 @@
+require("dotenv").config(); // 👈 Add this at the very top
 const express = require("express");
 const app = express();
 const fs = require("fs");

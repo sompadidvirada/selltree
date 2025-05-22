@@ -31,19 +31,19 @@ model Customer {
   image       String?
   phonenumber String
   password    String?
-  point       Int @default(0)
+  point       points[]
   createAt    DateTime       @default(now())
-  bill        CustomerBill[]
+  bill        CustomerBill?  // changed from array to one-to-one
 }
 
 model CustomerBill {
   id         Int       @id @unique @default(autoincrement())
   createAt   DateTime  @default(now())
-  totalMenu  Int
+  totalMenu  Int?
   status     Boolean   @default(true)
   update     DateTime?
   Customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId Int
+  customerId Int       @unique // enforce one-to-one relationship
 }
 
 model Products {
@@ -61,4 +61,12 @@ model Categorys {
   name     String
   products Products[]
   createAt DateTime   @default(now())
+}
+
+model points {
+  id         Int       @id @unique @default(autoincrement())
+  point      Int       @default(0)
+  updateAt   DateTime?
+  Customer   Customer  @relation(fields: [customerId], references: [id])
+  customerId Int
 }

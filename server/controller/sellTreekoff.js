@@ -3,19 +3,76 @@ const prisma = require("../config/prisma");
 exports.CreateUserTreekoff = async (req, res) => {
   try {
     const { username, phonenumber } = req.body;
+    console.log(req.body);
     if (!username || !phonenumber) {
       return res.send("Username or Phonenumber Requier!!");
     }
 
     await prisma.customer.create({
       data: {
-        username,
-        phonenumber,
+        username: username,
+        phonenumber: phonenumber,
+        point: {
+          create: {
+            point: 0,
+          },
+        },
       },
     });
     res.send("Create User Sucess.");
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "error server" });
+  }
+};
+
+exports.getUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id || id === null) {
+      return res.send(`Define the ID frist !!`);
+    }
+    const user = await prisma.customer.findFirst({
+      where: {
+        id: Number(id),
+      },
+      include: {
+        bill: true,
+        point: true,
+      },
+    });
+
+    if (!user) {
+      return res.json({ message: "This User is not exit !" });
+    }
+    res.send(user);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: `server error` });
+  }
+};
+
+exports.createBill = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const check = await  prisma.customerBill.findFirst({
+      where: {
+        customerId: Number(userId)
+      }
+    })
+    if (check) {
+      console.log("sendback got bill")
+      return res.send("alrady got bill!!")
+      
+    }
+    await prisma.customerBill.create({
+      data: {
+        customerId: Number(userId),
+      },
+    });
+    res.send("create Bill Success !!");
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: `server error` });
   }
 };

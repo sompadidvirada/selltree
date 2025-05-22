@@ -12,27 +12,73 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
-import { useEffect } from "react";
-import {CustomerInfos} from "../../data/MockData"
+import { useEffect, useState } from "react";
+import { CustomerInfos } from "../../data/MockData";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { createBill, getUser, registerUser } from "../../../api/sellTreekoff";
+import { toast, ToastContainer } from "react-toastify";
+
+const SignupSchema = Yup.object().shape({
+  username: Yup.string().required("Required"),
+  phonenumber: Yup.number().required("Required"),
+});
 
 const Customer = () => {
-
+  const [searchCustomer, setSearchCustomer] = useState("");
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
-  const resetBill = useTreekoffStorage((s)=>s.resetBill)
+  const resetBill = useTreekoffStorage((s) => s.resetBill);
 
-  useEffect(()=>{
-    if(userInfo?.id === 9001) {
-      resetBill()
-      return
+  useEffect(() => {
+    if (userInfo?.id === 9001) {
+      resetBill();
+      return;
     }
-    setUserInfo(CustomerInfos)
-  },[userInfo])
+  }, [userInfo]);
+
   const navigate = useNavigate();
 
-  const createWithUser = () => {
-    navigate("/selltreekoff/productdetail");
+  const createWithUser = async (userId) => {
+    try {
+      await createBill(userId);
+      toast.success("createBillsuccess!!");
+    } catch (err) {
+      console.log(err);
+    }
+    navigate("/productdetail");
   };
+
+  const handleRegister = async (values, resetForm) => {
+    try {
+      const ress = await registerUser(values);
+      toast.success(ress.data);
+    } catch (err) {
+      console.log(err);
+    }
+
+    resetForm();
+  };
+
+  const handleSearch = async (value) => {
+    if (!value || value === "") {
+      return;
+    }
+    try {
+      const userr = await getUser(value);
+      if (userr?.data?.message) {
+        resetBill();
+        setSearchCustomer("");
+        toast.error("This User is not exit!");
+      } else {
+        setUserInfo(userr?.data);
+        setSearchCustomer("");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <Box display="flex" flexDirection="column" gap="40px">
       {/* Seacrh Customer Section. */}
@@ -49,41 +95,52 @@ const Customer = () => {
             ຄົ້ນຫາບັນຊີລູກຄ້າ
           </Typography>
         </Box>
-        <form>
-          <Box display="flex" gap="10px">
-            <input
-              type="number"
-              name="seacrhCustomer"
-              placeholder="ລະບຸຂໍ້ມູນລູກຄ້າ..."
-              style={{
-                fontFamily: "Noto Sans Lao",
-                fontSize: "20px",
-                padding: "8px",
-                width: "30%",
-              }}
-            />
-            <Button variant="outlined" sx={{ height: 50 }}>
-              <SearchIcon sx={{ fontSize: 20 }} />
-              <Typography fontFamily={"Noto Sans Lao"} fontWeight="bold">
-                ຄົ້ນຫາ
-              </Typography>
-            </Button>
-            <Button
-              variant="contained"
-              sx={{ height: 50, bgcolor: "#00a65a" }}
-              onClick={() => createWithUser()}
-            >
-              <Typography fontFamily={"Noto Sans Lao"} fontWeight="bold">
-                ສ້າງບິນໃຫ່ມ
-              </Typography>
-            </Button>
-            <Button variant="contained" sx={{ height: 50, bgcolor: "#3c8dbc" }}>
-              <Typography fontFamily={"Noto Sans Lao"} fontWeight="bold">
-                ສ້າງບິນໃຫ່ມບໍ່ມີໄອດີ
-              </Typography>
-            </Button>
-          </Box>
-        </form>
+        <Box display="flex" gap="10px">
+          <input
+            type="number"
+            name="seacrhCustomer"
+            required
+            value={searchCustomer}
+            onChange={(e) => setSearchCustomer(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault(); // 🛑 Prevent form from refreshing
+                handleSearch(searchCustomer); // 🔍 Call your function
+              }
+            }}
+            placeholder="ລະບຸຂໍ້ມູນລູກຄ້າ..."
+            style={{
+              fontFamily: "Noto Sans Lao",
+              fontSize: "20px",
+              padding: "8px",
+              width: "30%",
+            }}
+          />
+          <Button
+            variant="outlined"
+            sx={{ height: 50 }}
+            onClick={() => handleSearch(searchCustomer)}
+          >
+            <SearchIcon sx={{ fontSize: 20 }} />
+            <Typography fontFamily={"Noto Sans Lao"} fontWeight="bold">
+              ຄົ້ນຫາ
+            </Typography>
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ height: 50, bgcolor: "#00a65a" }}
+            onClick={() => createWithUser(userInfo?.id)}
+          >
+            <Typography fontFamily={"Noto Sans Lao"} fontWeight="bold">
+              ສ້າງບິນໃຫ່ມ
+            </Typography>
+          </Button>
+          <Button variant="contained" sx={{ height: 50, bgcolor: "#3c8dbc" }}>
+            <Typography fontFamily={"Noto Sans Lao"} fontWeight="bold">
+              ສ້າງບິນໃຫ່ມບໍ່ມີໄອດີ
+            </Typography>
+          </Button>
+        </Box>
 
         {/** Output Area */}
         {userInfo ? (
@@ -109,14 +166,18 @@ const Customer = () => {
                 {/* Row: Image */}
                 <Grid2 container alignItems="center" gap={30}>
                   <Grid2>
-                    <Typography color="gray" fontFamily={"Noto Sans Lao"} fontSize={30}>
+                    <Typography
+                      color="gray"
+                      fontFamily={"Noto Sans Lao"}
+                      fontSize={30}
+                    >
                       ຮູບ:
                     </Typography>
                   </Grid2>
                   <Grid2>
                     <Avatar
-                      src={userInfo.image || ""}
-                      alt={userInfo.username || "EMTY"}
+                      src={userInfo?.image || ""}
+                      alt={userInfo?.username || "EMTY"}
                       sx={{ width: 120, height: 120 }}
                     />
                   </Grid2>
@@ -125,7 +186,11 @@ const Customer = () => {
                 {/* Row: ID */}
                 <Grid2 container alignItems="center" gap={33}>
                   <Grid2>
-                    <Typography color="gray" fontSize={30} fontFamily={"Noto Sans Lao"}>
+                    <Typography
+                      color="gray"
+                      fontSize={30}
+                      fontFamily={"Noto Sans Lao"}
+                    >
                       ID:
                     </Typography>
                   </Grid2>
@@ -135,20 +200,24 @@ const Customer = () => {
                       fontSize={30}
                       fontFamily={"Noto Sans Lao"}
                     >
-                      {userInfo.id || "0"}
+                      {userInfo?.id || "0"}
                     </Typography>
                   </Grid2>
                 </Grid2>
                 {/* Row: Name */}
                 <Grid2 container alignItems="center" gap={35}>
                   <Grid2>
-                    <Typography color="gray" fontFamily={"Noto Sans Lao"} fontSize={30}>
+                    <Typography
+                      color="gray"
+                      fontFamily={"Noto Sans Lao"}
+                      fontSize={30}
+                    >
                       ຊື່:
                     </Typography>
                   </Grid2>
                   <Grid2>
                     <Typography fontFamily={"Noto Sans Lao"} fontSize={30}>
-                      {userInfo.username || "EMTY"}
+                      {userInfo?.username || "EMTY"}
                     </Typography>
                   </Grid2>
                 </Grid2>
@@ -156,13 +225,17 @@ const Customer = () => {
                 {/* Row: Phone */}
                 <Grid2 container alignItems="center" gap={30}>
                   <Grid2>
-                    <Typography color="gray" fontFamily={"Noto Sans Lao"} fontSize={30}>
+                    <Typography
+                      color="gray"
+                      fontFamily={"Noto Sans Lao"}
+                      fontSize={30}
+                    >
                       ເບີໂທ:
                     </Typography>
                   </Grid2>
                   <Grid2>
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-                      {userInfo.phonenumber || "EMTY"}
+                      {userInfo?.phonenumber || "EMTY"}
                     </Typography>
                   </Grid2>
                 </Grid2>
@@ -170,7 +243,11 @@ const Customer = () => {
                 {/* Row: Points */}
                 <Grid2 container alignItems="center" gap={22}>
                   <Grid2>
-                    <Typography color="gray" fontFamily={"Noto Sans Lao"} fontSize={30}>
+                    <Typography
+                      color="gray"
+                      fontFamily={"Noto Sans Lao"}
+                      fontSize={30}
+                    >
                       ແຕ້ມສະສົມ:
                     </Typography>
                   </Grid2>
@@ -181,7 +258,9 @@ const Customer = () => {
                       fontSize={30}
                       fontFamily={"Noto Sans Lao"}
                     >
-                      {userInfo.point.toLocaleString() + "ແຕ້ມ" || `0 ແຕ້ມ`}
+                      {userInfo?.point[0]?.point?.toLocaleString() ||
+                        "12 " + "ແຕ້ມ" ||
+                        `0 ແຕ້ມ`}
                     </Typography>
                   </Grid2>
                 </Grid2>
@@ -189,13 +268,18 @@ const Customer = () => {
                 {/* Row: Total Sales */}
                 <Grid2 container alignItems="center" gap={23}>
                   <Grid2>
-                    <Typography color="gray" fontFamily={"Noto Sans Lao"} fontSize={30}>
+                    <Typography
+                      color="gray"
+                      fontFamily={"Noto Sans Lao"}
+                      fontSize={30}
+                    >
                       ມູນຄ່າຂາຍ:
                     </Typography>
                   </Grid2>
                   <Grid2>
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-                      {userInfo.totalSpent.toLocaleString() + "ກີບ" ||
+                      {userInfo?.totalSpent?.toLocaleString() ||
+                        "0 " + "ກີບ" ||
                         `0 ກີບ`}
                     </Typography>
                   </Grid2>
@@ -204,13 +288,25 @@ const Customer = () => {
                 {/* Row: Join Time */}
                 <Grid2 container alignItems="center" gap={23}>
                   <Grid2>
-                    <Typography color="gray" fontFamily={"Noto Sans Lao"} fontSize={30}>
+                    <Typography
+                      color="gray"
+                      fontFamily={"Noto Sans Lao"}
+                      fontSize={30}
+                    >
                       ເວລາຮ່ວມ:
                     </Typography>
                   </Grid2>
                   <Grid2>
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-                      {userInfo.createDate || "UNKNOW"}
+                      {userInfo?.createAt
+                        ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "UNKNOW"}
                     </Typography>
                   </Grid2>
                 </Grid2>
@@ -247,41 +343,39 @@ const Customer = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {userInfo.bill ? (
-                      userInfo.bill.map((row, index) => (
-                        <TableRow key={index} sx={{ backgroundColor: "white" }}>
-                          <TableCell sx={{ color: "black" }}>
-                            <Typography fontFamily={"Noto Sans Lao"}>
-                              {row.billDate || ""}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ color: "black" }}>
-                            <Typography fontFamily={"Noto Sans Lao"}>
-                              {row.id || ""}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ color: "black" }}>
-                            <Typography fontFamily={"Noto Sans Lao"}>
-                              {row.totalMenu || ""}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ color: "black" }}>
-                            <Typography fontFamily={"Noto Sans Lao"}>
-                              {row.totalPrice || ""}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ color: "black" }}>
-                            <Typography fontFamily={"Noto Sans Lao"}>
-                              {row.status || ""}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ color: "black" }}>
-                            <Typography fontFamily={"Noto Sans Lao"}>
-                              {row.update || ""}
-                            </Typography>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                    {userInfo?.bill !== "" ? (
+                      <TableRow sx={{ backgroundColor: "white" }}>
+                        <TableCell sx={{ color: "black" }}>
+                          <Typography fontFamily={"Noto Sans Lao"}>
+                            {userInfo?.bill?.billDate || ""}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "black" }}>
+                          <Typography fontFamily={"Noto Sans Lao"}>
+                            {userInfo?.bill?.id || ""}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "black" }}>
+                          <Typography fontFamily={"Noto Sans Lao"}>
+                            {userInfo?.bill?.totalMenu || ""}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "black" }}>
+                          <Typography fontFamily={"Noto Sans Lao"}>
+                            {userInfo?.bill?.totalPrice || ""}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "black" }}>
+                          <Typography fontFamily={"Noto Sans Lao"}>
+                            {userInfo?.bill?.status || ""}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "black" }}>
+                          <Typography fontFamily={"Noto Sans Lao"}>
+                            {userInfo?.bill?.update || ""}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
                     ) : (
                       <TableRow sx={{ backgroundColor: "white" }}>
                         <TableCell sx={{ color: "black" }}>
@@ -338,54 +432,105 @@ const Customer = () => {
             ກະລຸນາໃສ່ຂໍ້ມູນບັນຊີຂອງທ່ານ:
           </Typography>
 
-          <form>
-            <Box display="flex" flexDirection="column" gap="20px">
-              <Box>
-                <Typography fontFamily={"Noto Sans Lao"} sx={{ fontSize: 30 }}>
-                  ຊື່ :{" "}
-                </Typography>
-                <input
-                  type="number"
-                  name="username"
-                  placeholder="ລະບຸຂໍ້ຊື່ລູກຄ້າ..."
+          <Formik
+            initialValues={{ username: "", phonenumber: "" }}
+            validationSchema={SignupSchema}
+            onSubmit={(values, { resetForm }) =>
+              handleRegister(values, resetForm)
+            }
+          >
+            {() => (
+              <Form>
+                <div
                   style={{
-                    fontFamily: "Noto Sans Lao",
-                    fontSize: "20px",
-                    padding: "8px",
-                    width: "30%",
-                    marginLeft: "60px",
+                    display: "flex",
+                    gap: 50,
+                    marginBottom: 15,
+                    alignContent: "center",
                   }}
-                />
-              </Box>
-              <Box>
-                <Typography fontFamily={"Noto Sans Lao"} sx={{ fontSize: 30 }}>
-                  ເບີໂທ :
-                </Typography>
-                <input
-                  type="number"
-                  name="username"
-                  placeholder="ລະບຸຂໍ້ເບີໂທລູກຄ້າ..."
-                  style={{
-                    fontFamily: "Noto Sans Lao",
-                    fontSize: "20px",
-                    padding: "8px",
-                    width: "30%",
-                    marginLeft: "26px",
-                  }}
-                />
-              </Box>
-            </Box>
-            <Button
-              variant="contained"
-              sx={{ height: 50, bgcolor: "#00a65a", mt: "15px" }}
-            >
-              <Typography fontFamily={"Noto Sans Lao"} fontWeight="bold">
-                ສົ່ງຟອມ
-              </Typography>
-            </Button>
-          </form>
+                >
+                  <label style={{ fontFamily: "Noto Sans Lao", fontSize: 45 }}>
+                    ຊື່:
+                  </label>
+                  <Field
+                    name="username"
+                    type="text"
+                    placeholder="ຊື່ລູກຄ້າ........"
+                    style={{
+                      width: "300px",
+                      height: "40px",
+                      padding: "8px",
+                      fontSize: "25px",
+                      borderRadius: "8px",
+                      marginLeft: 60,
+                      fontFamily: "Noto Sans Lao",
+                    }}
+                  />
+                  <ErrorMessage name="username">
+                    {(msg) => (
+                      <Typography
+                        variant="body2"
+                        color="error"
+                        sx={{
+                          fontSize: "14px",
+                          mt: 1,
+                          ml: 1,
+                          fontFamily: "Noto Sans Lao",
+                        }}
+                      >
+                        ⚠️ {msg}
+                      </Typography>
+                    )}
+                  </ErrorMessage>
+                </div>
+
+                <div style={{ display: "flex", gap: 50 }}>
+                  <label style={{ fontFamily: "Noto Sans Lao", fontSize: 45 }}>
+                    ເບີໂທ:
+                  </label>
+                  <Field
+                    name="phonenumber"
+                    type="text"
+                    placeholder="ເບີໂທລູກຄ້າ........"
+                    style={{
+                      width: "300px",
+                      height: "40px",
+                      padding: "8px",
+                      fontSize: "25px",
+                      borderRadius: "8px",
+                      fontFamily: "Noto Sans Lao",
+                    }}
+                  />
+                  <ErrorMessage name="phonenumber">
+                    {(msg) => (
+                      <Typography
+                        variant="body2"
+                        color="error"
+                        sx={{
+                          fontSize: "14px",
+                          mt: 1,
+                          ml: 1,
+                          fontFamily: "Noto Sans Lao",
+                        }}
+                      >
+                        ⚠️ {"ຕ້ອງເປັນໂຕເລກເທົ່ານັ້ນ"}
+                      </Typography>
+                    )}
+                  </ErrorMessage>
+                </div>
+
+                <Button
+                  variant="contained"
+                  sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}
+                >
+                  ສົ່ງຟອມ
+                </Button>
+              </Form>
+            )}
+          </Formik>
         </Box>
       </Box>
+      <ToastContainer position="top-center" />
     </Box>
   );
 };
