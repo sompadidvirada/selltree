@@ -8,8 +8,8 @@ import useTreekoffStorage from "../../zustand/storageTreekoff";
 
 const MenuDetailAndBread = ({ selectOnline }) => {
   const location = useLocation();
-  const userBill = useTreekoffStorage((s)=>s.userBill)
-  const userInfo = useTreekoffStorage((s)=>s.userInfo)
+  const userBill = useTreekoffStorage((s) => s.userBill)
+  const userInfo = useTreekoffStorage((s) => s.userInfo)
   return (
     <Box
       sx={{
@@ -71,6 +71,12 @@ const MenuDetailAndBread = ({ selectOnline }) => {
             </NavLink>
             <NavLink
               to="/productdetail"
+              onClick={(e) => {
+                if (!userInfo?.bill) {
+                  e.preventDefault();
+                  toast.error("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
+                }
+              }}
               style={({ isActive }) => ({
                 display: "flex",
                 alignItems: "center",
@@ -78,8 +84,10 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                 backgroundColor: isActive ? "green" : "transparent",
                 padding: 8,
                 borderRadius: 5,
-                color: "inherit",
+                color: !userInfo?.bill ? "gray" : "inherit",
                 textDecoration: "none",
+                pointerEvents: !userInfo?.bill ? "none" : "auto",
+                opacity: !userInfo?.bill ? 0.6 : 1,
               })}
             >
               <LocalAtmIcon />
@@ -89,6 +97,12 @@ const MenuDetailAndBread = ({ selectOnline }) => {
             </NavLink>
             <NavLink
               to="/checkbill"
+              onClick={(e) => {
+                if (!userInfo?.bill) {
+                  e.preventDefault();
+                  toast.error("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
+                }
+              }}
               style={({ isActive }) => ({
                 display: "flex",
                 alignItems: "center",
@@ -96,8 +110,10 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                 backgroundColor: isActive ? "green" : "transparent",
                 padding: 8,
                 borderRadius: 5,
-                color: "inherit",
+                color: !userInfo?.bill || !userBill || userBill?.length === 0 ? "gray" : "inherit",
                 textDecoration: "none",
+                pointerEvents: !userInfo?.bill || !userBill || userBill?.length === 0 ? "none" : "auto",
+                opacity: !userInfo?.bill ? 0.6 : 1,
               })}
             >
               <FormatListBulletedIcon />

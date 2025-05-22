@@ -12,3 +12,7 @@ export const getUser = async (id) => {
 export const createBill = async (userId) => {
   return await axios.post(`${envUrl}/createbill`, { userId });
 };
+
+export const deleteBill = async (billId) => {
+  return await axios.delete(`${envUrl}/deletebill/${billId}`)
+}

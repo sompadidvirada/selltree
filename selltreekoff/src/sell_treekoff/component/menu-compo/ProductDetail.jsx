@@ -38,7 +38,7 @@ const ProductDetail = () => {
   const replaceUserBill = useTreekoffStorage((s) => s.replaceUserBill);
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
-
+  const [searchText, setSearchText] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const data = products;
   const totalSum = userBill.reduce((acc, row) => acc + row.price * row.qty, 0);
@@ -114,16 +114,17 @@ const ProductDetail = () => {
     };
 
     setUserBill(newBill); // persist to Zustand
+    setSearchText("")
     setQuantity(1);
     handleClose();
   };
 
   const handleCheckout = () => {
-    if (!userBill || userBill.length === 0) {
+    if (!userBill || userBill?.length === 0) {
       alert("NO ITEM IN BILL");
       return;
     } else {
-      navigate("/selltreekoff/checkbill");
+      navigate("/checkbill");
     }
   };
   return (
@@ -139,37 +140,30 @@ const ProductDetail = () => {
           ຄົ້ນຫາເມນູ
         </Typography>
       </Box>
-      <form>
-        <Box display="flex" gap="10px">
-          <input
-            type="number"
-            name="seacrhCustomer"
-            placeholder="ລະບຸຊື່ເມນູ..."
-            style={{
-              fontFamily: "Noto Sans Lao",
-              fontSize: "20px",
-              padding: "8px",
-              width: "30%",
-            }}
-          />
-          <Button variant="outlined" sx={{ height: 50 }}>
-            <SearchIcon sx={{ fontSize: 20 }} />
-            <Typography fontFamily="Noto Sans Lao" fontWeight="bold">
-              ຄົ້ນຫາ
-            </Typography>
-          </Button>
-          <Button
-            variant="contained"
-            sx={{ height: 50, bgcolor: "#00a65a" }}
-            onClick={() => handleCheckout()}
-          >
-            <LocalAtmIcon />
-            <Typography fontFamily="Noto Sans Lao" fontWeight="bold">
-              CHECKOUT
-            </Typography>
-          </Button>
-        </Box>
-      </form>
+      <Box display="flex" gap="80px" >
+        <input
+          type="text"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value.toLowerCase())}
+          placeholder="ລະບຸຊື່ເມນູ..."
+          style={{
+            fontFamily: "Noto Sans Lao",
+            fontSize: "20px",
+            padding: "8px",
+            width: "30%",
+          }}
+        />
+        <Button
+          variant="contained"
+          sx={{ height: 50, bgcolor: "#00a65a" }}
+          onClick={() => handleCheckout()}
+        >
+          <LocalAtmIcon />
+          <Typography fontFamily="Noto Sans Lao" fontWeight="bold">
+            CHECKOUT
+          </Typography>
+        </Button>
+      </Box>
       <Box>
         <Box display="flex" alignContent="center" gap={2}>
           <MonitorIcon sx={{ fontSize: 35 }} />
@@ -182,84 +176,137 @@ const ProductDetail = () => {
           </Typography>
         </Box>
       </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap", // ✅ allows wrapping
-          gap: 0, // space between tabs
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 1,
-            justifyContent: "flex-start",
-          }}
-        >
-          {categories.map((cat, index) => (
+      {
+        searchText === "" ? (
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap", // ✅ allows wrapping
+              gap: 0, // space between tabs
+            }}
+          >
+
             <Box
-              key={cat}
-              onClick={() => setSelectedTab(index)}
               sx={{
-                px: 4,
-                py: 4,
-                minWidth: 190,
-                borderRadius: "8px",
-                border: "1px solid lightgray",
-                cursor: "pointer",
-                fontSize: 25,
-                fontWeight: selectedTab === index ? "bold" : "normal",
-                color: selectedTab === index ? "green" : "gray",
-                backgroundColor: selectedTab === index ? "#eaffea" : "white",
-                transition: "all 0.2s ease-in-out",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 1,
+                justifyContent: "flex-start",
               }}
             >
-              {cat}
-            </Box>
-          ))}
-        </Box>
 
-        {categories.map((category, index) => (
-          <TabPanel key={category} value={selectedTab} index={index}>
-            <Typography sx={{ fontWeight: "bold", fontSize:30 }}>
-              Category : {category}
+              {categories.map((cat, index) => (
+                <Box
+                  key={cat}
+                  onClick={() => setSelectedTab(index)}
+                  sx={{
+                    px: 4,
+                    py: 4,
+                    minWidth: 190,
+                    borderRadius: "8px",
+                    border: "1px solid lightgray",
+                    cursor: "pointer",
+                    fontSize: 25,
+                    fontWeight: selectedTab === index ? "bold" : "normal",
+                    color: selectedTab === index ? "green" : "gray",
+                    backgroundColor: selectedTab === index ? "#eaffea" : "white",
+                    transition: "all 0.2s ease-in-out",
+                  }}
+                >
+                  {cat}
+                </Box>
+              ))}
+            </Box>
+
+            {categories.map((category, index) => (
+              <TabPanel key={category} value={selectedTab} index={index}>
+                <Typography sx={{ fontWeight: "bold", fontSize: 30 }}>
+                  Category : {category}
+                </Typography>
+                <Grid2 container spacing={3} mt={2}>
+                  {data[category].map((item, i) => (
+                    <Grid2 key={`${item.id}-${i}`}>
+                      <Card onClick={() => handleClickOpen(item)} sx={{ border: '1px solid rgba(1, 1, 1, 0.25)', width: 210, height: 350 }}>
+                        <CardMedia
+                          sx={{
+                            cursor: "pointer"
+                          }}
+                          component="img"
+                          height="200"
+                          image={item.image}
+                          alt={item.name}
+                        />
+                        <CardContent
+                          sx={{
+                            cursor: "pointer",
+                          }}
+                        >
+                          <Typography variant="h6" fontSize={20}>
+                            {item.menuName}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Size: {item.size}
+                          </Typography>
+                          <Typography variant="body1" fontSize={18} color="green">
+                            {item.price?.toLocaleString("id-ID")} KIP
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid2>
+                  ))}
+                </Grid2>
+              </TabPanel>
+            ))}
+          </Box>
+        ) : (
+          <>
+            <Typography fontSize={24} fontWeight="bold" mb={2}>
+              Search results for: {searchText}
             </Typography>
-            <Grid2 container spacing={3} mt={2}>
-              {data[category].map((item, i) => (
-                <Grid2 key={`${item.id}-${i}`}>
-                  <Card onClick={() => handleClickOpen(item)} sx={{ border: '1px solid rgba(1, 1, 1, 0.25)', width:210, height:350}}>
-                    <CardMedia
+            <Grid2 container spacing={3}>
+              {Object.entries(products)
+                .flatMap(([category, items]) =>
+                  items.filter((item) =>
+                    item.menuName.toLowerCase().includes(searchText)
+                  )
+                )
+                .map((item, i) => (
+                  <Grid2 key={`${item.id}-${i}`}>
+                    <Card
+                      onClick={() => handleClickOpen(item)}
                       sx={{
-                        cursor: "pointer"
-                      }}
-                      component="img"
-                      height="200"
-                      image={item.image}
-                      alt={item.name}
-                    />
-                    <CardContent
-                      sx={{
-                        cursor: "pointer",
+                        border: "1px solid rgba(1, 1, 1, 0.25)",
+                        width: 210,
+                        height: 350,
                       }}
                     >
-                      <Typography variant="h6" fontSize={20}>
-                        {item.menuName}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Size: {item.size}
-                      </Typography>
-                      <Typography variant="body1" fontSize={18} color="green">
-                        {item.price?.toLocaleString("id-ID")} KIP
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid2>
-              ))}
+                      <CardMedia
+                        component="img"
+                        height="200"
+                        image={item.image}
+                        alt={item.menuName}
+                        sx={{ cursor: "pointer" }}
+                      />
+                      <CardContent sx={{ cursor: "pointer" }}>
+                        <Typography variant="h6" fontSize={20}>
+                          {item.menuName}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Size: {item.size}
+                        </Typography>
+                        <Typography variant="body1" fontSize={18} color="green">
+                          {item.price?.toLocaleString("id-ID")} KIP
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid2>
+                ))}
             </Grid2>
-          </TabPanel>
-        ))}
-      </Box>
+          </>
+        )
+      }
+
+
       <Box>
         <Box
           sx={{
@@ -289,7 +336,15 @@ const ProductDetail = () => {
               </Box>
               <Typography variant="h5">CUSTOMER ID: {userInfo?.id}</Typography>
               <Typography variant="h5">
-                BILL NO: #{userInfo?.bill?.id} | TIME{" "}
+                BILL NO: #{userInfo?.bill?.id} | TIME {userInfo?.createAt
+                  ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                  : "UNKNOW"}
                 {userInfo?.bill?.billDate}
               </Typography>
             </Box>

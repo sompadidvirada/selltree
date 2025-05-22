@@ -41,15 +41,23 @@ const Customer = () => {
 
   const createWithUser = async (userId) => {
     try {
-      await createBill(userId);
-      toast.success("createBillsuccess!!");
+      if (userInfo?.bill === null) {
+        const res = await createBill(userId);
+        const billData = res?.data;
+        setUserInfo({
+          ...userInfo,
+          bill: billData,
+        });
+      }
     } catch (err) {
       console.log(err);
     }
+
     navigate("/productdetail");
   };
 
   const handleRegister = async (values, resetForm) => {
+    console.log("Submitting form with values:", values); // Add this line
     try {
       const ress = await registerUser(values);
       toast.success(ress.data);
@@ -69,7 +77,10 @@ const Customer = () => {
       if (userr?.data?.message) {
         resetBill();
         setSearchCustomer("");
-        toast.error("This User is not exit!");
+        toast.error("ຂໍ້ມູນລູກຄ້າຄົນນີ້ ບໍ່ມີໃນລະບົບ", {
+          style: { fontFamily: "'Noto Sans Lao', sans-serif" },
+        });
+        ;
       } else {
         setUserInfo(userr?.data);
         setSearchCustomer("");
@@ -300,12 +311,12 @@ const Customer = () => {
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
                       {userInfo?.createAt
                         ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
                         : "UNKNOW"}
                     </Typography>
                   </Grid2>
@@ -346,33 +357,33 @@ const Customer = () => {
                     {userInfo?.bill !== "" ? (
                       <TableRow sx={{ backgroundColor: "white" }}>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.billDate || ""}
+                          <Typography fontFamily={"Noto Sans Lao"} alignSelf="center">
+                            {userInfo?.bill?.createAt ? userInfo.bill.createAt.split("T")[0] : ""}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}>
+                          <Typography fontFamily={"Noto Sans Lao"}  justifySelf="center">
                             {userInfo?.bill?.id || ""}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.totalMenu || ""}
+                          <Typography fontFamily={"Noto Sans Lao"} justifySelf="center">
+                            {userInfo?.bill?.totalMenu || "0"}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ color: "black" }}>
+                          <Typography fontFamily={"Noto Sans Lao"} justifySelf="center">
+                            {userInfo?.bill?.totalPrice || "0"}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
                           <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.totalPrice || ""}
+                            {userInfo?.bill?.status === true ? "ຍັງບໍ່ທັນຊຳລະ" : "." || ""}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
                           <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.status || ""}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.update || ""}
+                            {userInfo?.bill?.update ? userInfo.bill.update.split("T")[0] : ". " || ""}
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -520,6 +531,7 @@ const Customer = () => {
                 </div>
 
                 <Button
+                  type="submit"
                   variant="contained"
                   sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}
                 >

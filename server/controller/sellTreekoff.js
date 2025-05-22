@@ -61,18 +61,35 @@ exports.createBill = async (req, res) => {
       }
     })
     if (check) {
-      console.log("sendback got bill")
-      return res.send("alrady got bill!!")
+      return res.send()
       
     }
-    await prisma.customerBill.create({
+    const bill = await prisma.customerBill.create({
       data: {
         customerId: Number(userId),
       },
     });
-    res.send("create Bill Success !!");
+    res.send(bill);
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: `server error` });
   }
 };
+
+exports.deleteBill = async (req,res) => {
+  try {
+    const id = req.params.id
+    if(!id){
+      return res.send("need ID")
+    }
+    await prisma.customerBill.delete({
+      where:{
+        id: Number(id)
+      }
+    })
+    res.send("DELETE BILL SUCCESS!")
+  }catch(err){
+    console.log(err)
+    return res.status(500).json({message: "server error"})
+  }
+}

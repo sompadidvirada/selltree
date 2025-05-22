@@ -20,61 +20,12 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
+import { deleteBill } from "../../../api/sellTreekoff";
 
 const CheckBill = () => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState([]);
   const [moneyReceived, setMoneyReciept] = useState("");
-  const [rows, setRows] = useState([
-    {
-      id: 1,
-      order: 1,
-      menu: "HOT AMERICANO",
-      price: 12000,
-      qty: 1,
-      img: "/assests/hot-Americano.jpg",
-    },
-    {
-      id: 2,
-      order: 1,
-      menu: "HOT ESSPRESSO",
-      price: 10000,
-      qty: 2,
-      img: "/assests/hot-Americano.jpg",
-    },
-    {
-      id: 3,
-      order: 1,
-      menu: "HOT LATTE",
-      price: 16000,
-      qty: 4,
-      img: "/assests/hot-Americano.jpg",
-    },
-    {
-      id: 4,
-      order: 1,
-      menu: "HOT CAPPUCINO",
-      price: 18000,
-      qty: 3,
-      img: "/assests/hot-Americano.jpg",
-    },
-    {
-      id: 5,
-      order: 1,
-      menu: "HOT GREENTEA",
-      price: 22000,
-      qty: 6,
-      img: "/assests/hot-Americano.jpg",
-    },
-    {
-      id: 6,
-      order: 1,
-      menu: "HOT MOCHA",
-      price: 32000,
-      qty: 2,
-      img: "/assests/hot-Americano.jpg",
-    },
-  ]);
   const [openConfirm, setOpenConfirm] = useState(false);
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const userBill = useTreekoffStorage((s) => s.userBill);
@@ -102,8 +53,9 @@ const CheckBill = () => {
 
   const totalSum = userBill.reduce((acc, row) => acc + row.price * row.qty, 0);
 
-  const confirmClearBill = () => {
+  const confirmClearBill = async () => {
     resetBill();
+    await deleteBill(userInfo?.bill?.id)
     setOpenConfirm(false);
     navigate("/");
   };
@@ -152,8 +104,15 @@ const CheckBill = () => {
                   CUSTOMER ID: {userInfo?.id || 0}
                 </Typography>
                 <Typography fontSize={18}>
-                  BILL NO : #{userInfo?.bill?.id || 0} | TIME{" "}
-                  {userInfo?.bill?.billDate || "UNKNOW"}
+                  BILL NO : #{userInfo?.bill?.id || 0} | TIME {userInfo?.createAt
+                    ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                    : "UNKNOW"}
                 </Typography>
                 <Typography
                   fontFamily="Noto Sans Lao"
@@ -161,7 +120,7 @@ const CheckBill = () => {
                   color="rgb(26, 167, 8)"
                   fontWeight="bold"
                 >
-                  ແຕ້ມສະສົມ: {(userInfo?.point[0]?.point || 0).toLocaleString()} ຄະແນນ
+                  ແຕ້ມສະສົມ: {(userInfo?.point[0]?.point || 0).toLocaleString() || "01"} ຄະແນນ
                 </Typography>
               </Box>
             </Box>

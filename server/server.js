@@ -28,5 +28,5 @@ readdirSync("./routes").forEach((item) => {
 });
 
 app.listen(5520, () => {
-  console.log("This server running in port 5500!!");
+  console.log("This server running in port 5520!!");
 });
