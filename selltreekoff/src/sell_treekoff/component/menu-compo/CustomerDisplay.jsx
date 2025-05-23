@@ -12,6 +12,8 @@ import {
   Checkbox,
   Paper,
 } from "@mui/material";
+import useTreekoffStorage from "../../../zustand/storageTreekoff";
+import { startListening } from "../../../zustand/zustandSync";
 
 const rows = [
   {
@@ -63,13 +65,16 @@ const rows = [
     img: "/assests/hot-Americano.jpg",
   },
 ];
-const totalSum = rows.reduce((acc, row) => acc + row.price * row.qty, 0);
 
 const CustomerDisplay = () => {
 
 
-  const [check, setCheck] = useState("detailUser");
+  const employeeInfo = useTreekoffStorage((s)=>s.employeeInfo)
+  const userBill = useTreekoffStorage((s)=>s.userBill)
+  const [check, setCheck] = useState("detailUser+");
+  const userInfo = useTreekoffStorage((s) => s.userInfo);
   const [selected, setSelected] = useState([]);
+  const totalSum = userBill?.reduce((acc, row) => acc + row.price * row.qty, 0);
 
   const handleSelect = (id) => {
     setSelected((prev) =>
@@ -87,7 +92,7 @@ const CustomerDisplay = () => {
       }}
     >
       {" "}
-      {check === "detailUser" ? (
+      { userInfo && userBill.length === 0 ? (
         <Box>
           <Box
             display="flex"
@@ -125,8 +130,8 @@ const CustomerDisplay = () => {
               </Grid2>
               <Grid2>
                 <Avatar
-                  src="/assests/user.png"
-                  alt="Pao"
+                  src={userInfo?.image}
+                  alt={userInfo?.username}
                   style={{ width: 120, height: 120 }}
                 />
               </Grid2>
@@ -141,7 +146,7 @@ const CustomerDisplay = () => {
               </Grid2>
               <Grid2>
                 <Typography fontWeight="bold" fontSize={30} fontFamily={"Noto Sans Lao"}>
-                  9
+                  {userInfo?.id}
                 </Typography>
               </Grid2>
             </Grid2>
@@ -154,7 +159,7 @@ const CustomerDisplay = () => {
               </Grid2>
               <Grid2>
                 <Typography fontFamily={"Noto Sans Lao"} fontSize={30}>
-                  ທ້າວ ອາດອຟ ນິກເລີ
+                  {userInfo?.username}
                 </Typography>
               </Grid2>
             </Grid2>
@@ -168,7 +173,7 @@ const CustomerDisplay = () => {
               </Grid2>
               <Grid2>
                 <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-                  51778411
+                  {userInfo?.phonenumber}
                 </Typography>
               </Grid2>
             </Grid2>
@@ -187,7 +192,7 @@ const CustomerDisplay = () => {
                   fontSize={30}
                   fontFamily={"Noto Sans Lao"}
                 >
-                  6,000,000 ແຕ້ມ
+                  {userInfo?.point?.point} ແຕ້ມ
                 </Typography>
               </Grid2>
             </Grid2>
@@ -201,7 +206,7 @@ const CustomerDisplay = () => {
               </Grid2>
               <Grid2>
                 <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-                  3,828,000 KIP
+                  {"0"} KIP
                 </Typography>
               </Grid2>
             </Grid2>
@@ -215,13 +220,19 @@ const CustomerDisplay = () => {
               </Grid2>
               <Grid2>
                 <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-                  12:00am 01/09/1939
+                  {new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                 </Typography>
               </Grid2>
             </Grid2>
           </Grid2>
         </Box>
-      ) : check === "checkBill" ? (
+      ) : userBill.length > 0 ? (
         <Box
           sx={{
             padding: 8,
@@ -236,8 +247,8 @@ const CustomerDisplay = () => {
             <Box>
               <Box display="flex" alignContent="center">
                 <Avatar
-                  src="/assests/user.png"
-                  alt="Pao"
+                  src={userInfo?.image}
+                  alt={userInfo?.username}
                   style={{ width: 120, height: 120 }}
                 />
                 <Typography
@@ -245,12 +256,18 @@ const CustomerDisplay = () => {
                   fontSize={15}
                   sx={{ alignSelf: "center", marginLeft: 2 }}
                 >
-                  ທ້າວ ອາດອຟ ນິກເລີ
+                  {userInfo?.username}
                 </Typography>
               </Box>
               <Typography variant="h5">CUSTOMER ID: 9</Typography>
               <Typography variant="h5">
-                BILL NO: #1100683 | TIME 03:23pm 18/05/2025
+                BILL NO: #{userInfo?.bill?.id} | TIME {new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
               </Typography>
             </Box>
             <Box>
@@ -261,18 +278,18 @@ const CustomerDisplay = () => {
                   }}
                   component="img"
                   height="180"
-                  image={"/assests/hot-Americano.jpg"}
+                  image={userBill[0]?.image}
                   alt={"hot americano"}
                 />
               </Card>
-              <Typography variant="h4">HOT AMERICANO [ORIGINAL]</Typography>
+              <Typography variant="h4">{userBill[0]?.menu} [{userBill[0]?.size}]</Typography>
               <Typography
                 sx={{
                   fontSize: "25",
                   justifySelf: "end",
                 }}
               >
-                28,000 KIP X 1 UNIT
+                {userBill[0]?.price.toLocaleString()} KIP X {userBill[0]?.qty} UNIT
               </Typography>
               <Typography
                 sx={{
@@ -281,7 +298,7 @@ const CustomerDisplay = () => {
                   justifySelf: "end",
                 }}
               >
-                28,000 KIP
+                {(userBill[0]?.price * userBill[0]?.qty).toLocaleString()} KIP
               </Typography>
             </Box>
           </Box>
@@ -298,7 +315,7 @@ const CustomerDisplay = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {rows.map((row,index) => {
+                  {userBill.map((row,index) => {
                     const isSelected = selected.includes(row.id);
                     return (
                       <TableRow
@@ -398,7 +415,7 @@ const CustomerDisplay = () => {
               fontFamily: "Noto Sans Lao",
             }}
           >
-            ທ້າວ ອາດອຟ ນິກເລີ
+            {employeeInfo?.username}
           </h2>
           <div
             style={{
@@ -424,7 +441,7 @@ const CustomerDisplay = () => {
                 fontFamily: "Noto Sans Lao",
               }}
             >
-              ສຳນັກງານໃຫ່ຍ
+              {employeeInfo?.brach}
             </h3>
           </div>
         </div>

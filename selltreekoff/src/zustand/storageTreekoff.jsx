@@ -5,6 +5,7 @@ const TreekoffStorage = (set, get) => ({
   userBill: [],
   employeeInfo: null,
   userInfo: null,
+  screenControl: null,
   setUserBill: (newBill) => {
     set((state) => ({
       userBill: [newBill, ...state.userBill], // appends a full bill object
@@ -23,7 +24,11 @@ const TreekoffStorage = (set, get) => ({
     set({
       userBill: [],
       userInfo: null,
+      screenControl:null
     });
+  },
+  setScreenControll: (newData) => {
+    set({ screenControl: newData });
   },
 });
 

@@ -23,9 +23,11 @@ import { useNavigate } from "react-router-dom";
 import { createWaitOrder, deleteBill } from "../../../api/sellTreekoff";
 import ComponentToPrint from "../print-component/ComponentToPrint";
 import { useReactToPrint } from "react-to-print";
+import { toast, ToastContainer } from "react-toastify";
 
 const CheckBill = () => {
-  const brachId = 1;
+
+  const brachId = 2;
   const navigate = useNavigate();
   const [selected, setSelected] = useState([]);
   const [moneyReceived, setMoneyReciept] = useState("");
@@ -65,11 +67,19 @@ const CheckBill = () => {
     setOpenConfirm(false);
     navigate("/");
   };
+
   const handleClearBill = () => {
     setOpenConfirm(true);
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (pay) => {
+
+    if (rawCash < totalSum || rawCash === "") {
+      toast.error("ເງີນທີ່ຮັບຈາກລູກຄ້າ ບໍ່ຖືກຕ້ອງ !!", {
+        style: { fontFamily: "'Noto Sans Lao', sans-serif" },
+      });
+      return
+    }
     try {
       const waitOrder = await createWaitOrder(brachId);
 
@@ -80,7 +90,7 @@ const CheckBill = () => {
         username: userInfo?.username,
         point: userInfo?.point?.point,
         waitNumber: waitOrder?.data?.waitNumber,
-        payment: "CASH",
+        payment: pay,
         menuDetail: userBill || [],
         totalPrice: totalSum || 0,
         cash: rawCash || 0,
@@ -88,7 +98,7 @@ const CheckBill = () => {
       };
 
       setTimeout(() => {
-        
+
         sessionStorage.setItem("CheckuserBill", JSON.stringify(CheckuserBill));
 
         resetBill()
@@ -100,6 +110,9 @@ const CheckBill = () => {
       console.log(err);
     }
   };
+
+  
+
   return (
     <Box>
       {/** STATUS SECTIION */}
@@ -143,14 +156,14 @@ const CheckBill = () => {
                 </Typography>
                 <Typography fontSize={18}>
                   BILL NO : #{userInfo?.bill?.id || 0} | TIME{" "}
-                  {userInfo?.createAt
-                    ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
+                  {userInfo?.bill?.createAt
+                    ? new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
                     : "UNKNOW"}
                 </Typography>
                 <Typography
@@ -262,7 +275,7 @@ const CheckBill = () => {
               variant="contained"
               color="success"
               sx={{ fontFamily: "Noto Sans Lao", fontSize: "18px", width: 100 }}
-              onClick={handleCheckout}
+              onClick={()=>handleCheckout("CASH")}
             >
               ຈ່າຍເງີນ
             </Button>
@@ -275,6 +288,7 @@ const CheckBill = () => {
                 fontWeight: "bold",
                 gap: 1,
               }}
+              onClick={()=> handleCheckout("BCL ONE PAY")}
             >
               {<img src="/assests/bcel.png" style={{ width: 35 }} />}ຈ່າຍຜ່ານ
               ONE PAY
@@ -342,6 +356,8 @@ const CheckBill = () => {
           </Box>
         </Box>
       </Dialog>
+
+      <ToastContainer position="top-center" />
     </Box>
   );
 };

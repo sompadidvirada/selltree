@@ -25,6 +25,7 @@ const SignupSchema = Yup.object().shape({
 });
 
 const Customer = () => {
+  const setScreenControll = useTreekoffStorage((s)=>s.setScreenControll)
   const [searchCustomer, setSearchCustomer] = useState("");
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
@@ -82,6 +83,8 @@ const Customer = () => {
         });
       } else {
         setUserInfo(userr?.data);
+        setScreenControll(userr?.data)
+        console.log("Set screenControl to:", userr?.data);
         setSearchCustomer("");
       }
     } catch (err) {
@@ -101,18 +104,22 @@ const Customer = () => {
       totalSpent: 0,
       createDate: "",
     };
-
     setUserInfo(defaultUser);
     const res = await createBill(9001);
-    const billData = res?.data;
+    const billData = res?.data; 
     setUserInfo({
       ...defaultUser,
       bill: billData,
     });
-
+    
+    setScreenControll({
+      ...defaultUser,
+      bill: billData, 
+    })
+    
     setTimeout(() => {
       navigate("/productdetail");
-    }, 100);
+    }, 200);
   };
   return (
     <Box display="flex" flexDirection="column" gap="40px">

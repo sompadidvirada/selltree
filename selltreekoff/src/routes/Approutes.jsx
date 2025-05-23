@@ -6,6 +6,9 @@ import ProductDetail from "../sell_treekoff/component/menu-compo/ProductDetail"
 import CheckBill from "../sell_treekoff/component/menu-compo/CheckBill"
 import Test from "../sell_treekoff/component/test";
 import ComponentToPrint from "../sell_treekoff/component/print-component/ComponentToPrint";
+import BarestarBill from "../sell_treekoff/component/print-component/BarestarBill";
+import CustomerBill from "../sell_treekoff/component/print-component/CustomerBill";
+import CustomerDisplay from "../sell_treekoff/component/menu-compo/CustomerDisplay";
 
 const router = createBrowserRouter([
   {
@@ -19,8 +22,21 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path:"/customerbill",
-    element: <ComponentToPrint/>  }
+    path: "/customerbill",
+    element: <ComponentToPrint />
+  },
+  {
+    path: "/customerbill",
+    element: <BarestarBill />
+  },
+  {
+    path: "/baristabill",
+    element: <CustomerBill />
+  },
+  {
+    path: "/screencustomer",
+    element: <CustomerDisplay />
+  },
 ]);
 
 const Approutes = () => {

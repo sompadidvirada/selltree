@@ -16,64 +16,20 @@ const SellTreekoff = () => {
   const popupRef = useRef(null);
   const customerRootRef = useRef(null);
 
-const openWindow = () => {
-  const customerWindow = window.open(
-    "",
-    "ໜ້າຕ່າງຂາຍ",
-    "width=800,height=800,left=1000,top=100"
-  );
-
-  if (customerWindow) {
+  const openWindow = () => {
+    const customerWindow = window.open(
+      "/screencustomer", // Use your route here
+      "Customer Display",
+      "width=800,height=800,left=1000,top=100"
+    );
+  
     popupRef.current = customerWindow;
-    customerWindow.document.title = "Customer Display";
-
-    // Prevent duplicate style injection
-    if (!customerWindow.document.getElementById("popup-style")) {
-      const style = customerWindow.document.createElement("style");
-      style.id = "popup-style";
-      style.textContent = `
-        body {
-          margin: 0;
-          padding: 0;
-          background-color: #222d32;
-          font-family: 'Noto Sans Lao', sans-serif;
-        }
-      `;
-      customerWindow.document.head.appendChild(style);
-    }
-
-    // Prevent duplicate React container
-    let container = customerWindow.document.getElementById("customer-root");
-    if (!container) {
-      container = customerWindow.document.createElement("div");
-      container.id = "customer-root";
-      customerWindow.document.body.appendChild(container);
-    }
-
-    // Only create root/render if not already done
-    if (!customerRootRef.current) {
-      const emotionCache = createCache({
-        key: "mui-popup",
-        container: customerWindow.document.head,
-      });
-
-      customerRootRef.current = ReactDOM.createRoot(container);
-      customerRootRef.current.render(
-        <CacheProvider value={emotionCache}>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <CustomerDisplay />
-          </ThemeProvider>
-        </CacheProvider>
-      );
-    }
-  }
-
-  return () => {
-    popupRef.current?.close();
-    customerRootRef.current = null; // cleanup
+    
+    return () => {
+      popupRef.current?.close();
+    };
   };
-};
+  
 
   useEffect(() => {
     openWindow();
