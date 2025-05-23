@@ -5,7 +5,7 @@ import Customer from "../sell_treekoff/component/menu-compo/Customer"
 import ProductDetail from "../sell_treekoff/component/menu-compo/ProductDetail"
 import CheckBill from "../sell_treekoff/component/menu-compo/CheckBill"
 import Test from "../sell_treekoff/component/test";
-import ComponentToPrint from "../sell_treekoff/component/inside-component/ComponentToPrint";
+import ComponentToPrint from "../sell_treekoff/component/print-component/ComponentToPrint";
 
 const router = createBrowserRouter([
   {

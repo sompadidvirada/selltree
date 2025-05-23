@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import ComponentToPrint from "./inside-component/ComponentToPrint";
+import ComponentToPrint from "./print-component/ComponentToPrint";
 
 const Test = () => {
   const componentRef = useRef();

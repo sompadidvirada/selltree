@@ -14,5 +14,9 @@ export const createBill = async (userId) => {
 };
 
 export const deleteBill = async (billId) => {
-  return await axios.delete(`${envUrl}/deletebill/${billId}`)
-}
+  return await axios.delete(`${envUrl}/deletebill/${billId}`);
+};
+
+export const createWaitOrder = async (brachId) => {
+  return await axios.post(`${envUrl}/createwaitorder`, { brachId });
+};

@@ -20,12 +20,12 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
-import { deleteBill } from "../../../api/sellTreekoff";
-import ComponentToPrint from "../inside-component/ComponentToPrint";
+import { createWaitOrder, deleteBill } from "../../../api/sellTreekoff";
+import ComponentToPrint from "../print-component/ComponentToPrint";
 import { useReactToPrint } from "react-to-print";
 
 const CheckBill = () => {
-  const componentRef = useRef();
+  const brachId = 1;
   const navigate = useNavigate();
   const [selected, setSelected] = useState([]);
   const [moneyReceived, setMoneyReciept] = useState("");
@@ -33,6 +33,8 @@ const CheckBill = () => {
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const userBill = useTreekoffStorage((s) => s.userBill);
   const resetBill = useTreekoffStorage((s) => s.resetBill);
+  const employeeInfo = useTreekoffStorage((s) => s.employeeInfo);
+  const [rawCash, setRawCash] = useState();
 
   const handleSelect = (id) => {
     setSelected((prevSelected) =>
@@ -44,6 +46,7 @@ const CheckBill = () => {
 
   const handleChange = (e) => {
     const raw = e.target.value.replace(/,/g, ""); // remove commas
+    setRawCash(raw);
     if (!isNaN(raw)) {
       const number = parseInt(raw, 10);
       if (!isNaN(number)) {
@@ -66,54 +69,33 @@ const CheckBill = () => {
     setOpenConfirm(true);
   };
 
-  const handleCheckout = () => {
-    const userBill = {
-      billId: userInfo?.bill?.id,
-      createAt: userInfo?.bill?.createAt,
-      userId: userInfo?.id,
-      username: userInfo?.username,
-      point: userInfo?.point?.point,
-      waitNumber: 2,
-      payment: "BCEL-ONEPAY",
-      menuDetail: [
-        {
-          id: 1,
-          menuName: "ICE GREEN TEA HONEY LEMON",
-          sweetLevel: "--ທ່າມະດາ--",
-          unit: 3,
-          price: 40000,
-          size: "TALL",
-        },
-        {
-          id: 2,
-          menuName: "ICE GREEN TEA HONEY LEMON",
-          sweetLevel: "--ທ່າມະດາ--",
-          unit: 3,
-          price: 40000,
-          size: "TALL",
-        },
-        {
-          id: 3,
-          menuName: "ICE GREEN TEA HONEY LEMON",
-          sweetLevel: "--ທ່າມະດາ--",
-          unit: 3,
-          price: 40000,
-          size: "TALL",
-        },
-        {
-          id: 4,
-          menuName: "ICE GREEN TEA HONEY LEMON",
-          sweetLevel: "--ທ່າມະດາ--",
-          unit: 3,
-          price: 40000,
-          size: "TALL",
-        },
-      ],
-      totalPrice: 250000,
-      cash: 300000,
-      employeeName: "ທ້າວ ນິກເລີ",
-    }
+  const handleCheckout = async () => {
     try {
+      const waitOrder = await createWaitOrder(brachId);
+
+      const CheckuserBill = {
+        billId: userInfo?.bill?.id,
+        createAt: userInfo?.bill?.createAt,
+        userId: userInfo?.id,
+        username: userInfo?.username,
+        point: userInfo?.point?.point,
+        waitNumber: waitOrder?.data?.waitNumber,
+        payment: "CASH",
+        menuDetail: userBill || [],
+        totalPrice: totalSum || 0,
+        cash: rawCash || 0,
+        employeeName: employeeInfo?.username || "",
+      };
+
+      setTimeout(() => {
+        
+        sessionStorage.setItem("CheckuserBill", JSON.stringify(CheckuserBill));
+
+        resetBill()
+        navigate('/')
+        // Open new tab
+        window.open("/customerbill", "_blank");
+      }, 150);
     } catch (err) {
       console.log(err);
     }
@@ -360,9 +342,6 @@ const CheckBill = () => {
           </Box>
         </Box>
       </Dialog>
-      <div style={{ display: "none" }}>
-        <ComponentToPrint ref={componentRef} />
-      </div>
     </Box>
   );
 };
