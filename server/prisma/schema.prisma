@@ -33,7 +33,7 @@ model Customer {
   password    String?
   point       points[]
   createAt    DateTime       @default(now())
-  bill        CustomerBill?  // changed from array to one-to-one
+  bill        CustomerBill[] 
 }
 
 model CustomerBill {
@@ -43,7 +43,7 @@ model CustomerBill {
   status     Boolean   @default(true)
   update     DateTime?
   Customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId Int       @unique // enforce one-to-one relationship
+  customerId Int       
 }
 
 model Products {

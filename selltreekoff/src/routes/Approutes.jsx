@@ -4,6 +4,7 @@ import SellTreekoff from "../sell_treekoff/SellTreekoff";
 import Customer from "../sell_treekoff/component/menu-compo/Customer"
 import ProductDetail from "../sell_treekoff/component/menu-compo/ProductDetail"
 import CheckBill from "../sell_treekoff/component/menu-compo/CheckBill"
+import Test from "../sell_treekoff/component/test";
 
 const router = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ const router = createBrowserRouter([
       { index: true, element: <Customer /> },
       { path: "productdetail", element: <ProductDetail /> },
       { path: "checkbill", element: <CheckBill /> },
+      { path: "test", element: <Test /> },
     ],
   },
 ]);

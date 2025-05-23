@@ -1,27 +1,22 @@
-import React, { useRef } from 'react';
-import { useReactToPrint } from 'react-to-print';
-import ComponentToPrint from './ComponentToPrint';
+import React, { useRef } from "react";
+import { useReactToPrint } from "react-to-print";
+import ComponentToPrint from "./inside-component/ComponentToPrint";
 
-const Apps = () => {
+
+const Test = () => {
   const componentRef = useRef();
-
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
-    documentTitle: 'Invoice_Print',
   });
-
 
   return (
     <div>
-      <ComponentToPrint
-        ref={componentRef}
-        invoiceId="1001"
-        customerName="John Doe"
-        total="123.45"
-      />
-      <button onClick={handlePrint}>Print Invoice</button>
+      <div>
+      <ComponentToPrint ref={componentRef} />
+      <button onClick={handlePrint}>Print this out!</button>
+    </div>
     </div>
   );
 };
 
-export default Apps;
+export default Test;

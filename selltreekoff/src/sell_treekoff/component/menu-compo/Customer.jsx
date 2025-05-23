@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CustomerInfos } from "../../data/MockData";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -30,10 +30,12 @@ const Customer = () => {
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
   const resetBill = useTreekoffStorage((s) => s.resetBill);
 
+  const hasHandled9001 = useRef(false);
+
   useEffect(() => {
-    if (userInfo?.id === 9001) {
+    if (userInfo?.id === 9001 && !hasHandled9001.current) {
       resetBill();
-      return;
+      hasHandled9001.current = true;
     }
   }, [userInfo]);
 
@@ -41,14 +43,12 @@ const Customer = () => {
 
   const createWithUser = async (userId) => {
     try {
-      if (userInfo?.bill === null) {
-        const res = await createBill(userId);
-        const billData = res?.data;
-        setUserInfo({
-          ...userInfo,
-          bill: billData,
-        });
-      }
+      const res = await createBill(userId);
+      const billData = res?.data;
+      setUserInfo({
+        ...userInfo,
+        bill: billData,
+      });
     } catch (err) {
       console.log(err);
     }
@@ -80,7 +80,6 @@ const Customer = () => {
         toast.error("ຂໍ້ມູນລູກຄ້າຄົນນີ້ ບໍ່ມີໃນລະບົບ", {
           style: { fontFamily: "'Noto Sans Lao', sans-serif" },
         });
-        ;
       } else {
         setUserInfo(userr?.data);
         setSearchCustomer("");
@@ -90,6 +89,31 @@ const Customer = () => {
     }
   };
 
+  const handleCreateNoUser = async () => {
+    hasHandled9001.current = true; // Skip the effect once
+
+    const defaultUser = {
+      id: 9001,
+      username: "USER_FOR_BRANCH_NO_ID_1",
+      image: "",
+      phonenumber: "",
+      point: 0,
+      totalSpent: 0,
+      createDate: "",
+    };
+
+    setUserInfo(defaultUser);
+    const res = await createBill(9001);
+    const billData = res?.data;
+    setUserInfo({
+      ...defaultUser,
+      bill: billData,
+    });
+
+    setTimeout(() => {
+      navigate("/productdetail");
+    }, 100);
+  };
   return (
     <Box display="flex" flexDirection="column" gap="40px">
       {/* Seacrh Customer Section. */}
@@ -139,6 +163,7 @@ const Customer = () => {
           </Button>
           <Button
             variant="contained"
+            disabled={userInfo?.id === 9001 || !userInfo ? true : false}
             sx={{ height: 50, bgcolor: "#00a65a" }}
             onClick={() => createWithUser(userInfo?.id)}
           >
@@ -146,7 +171,11 @@ const Customer = () => {
               ສ້າງບິນໃຫ່ມ
             </Typography>
           </Button>
-          <Button variant="contained" sx={{ height: 50, bgcolor: "#3c8dbc" }}>
+          <Button
+            variant="contained"
+            sx={{ height: 50, bgcolor: "#3c8dbc" }}
+            onClick={handleCreateNoUser}
+          >
             <Typography fontFamily={"Noto Sans Lao"} fontWeight="bold">
               ສ້າງບິນໃຫ່ມບໍ່ມີໄອດີ
             </Typography>
@@ -311,12 +340,12 @@ const Customer = () => {
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
                       {userInfo?.createAt
                         ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                         : "UNKNOW"}
                     </Typography>
                   </Grid2>
@@ -357,33 +386,51 @@ const Customer = () => {
                     {userInfo?.bill !== "" ? (
                       <TableRow sx={{ backgroundColor: "white" }}>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"} alignSelf="center">
-                            {userInfo?.bill?.createAt ? userInfo.bill.createAt.split("T")[0] : ""}
+                          <Typography
+                            fontFamily={"Noto Sans Lao"}
+                            alignSelf="center"
+                          >
+                            {userInfo?.bill?.createAt
+                              ? userInfo.bill.createAt.split("T")[0]
+                              : ""}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}  justifySelf="center">
+                          <Typography
+                            fontFamily={"Noto Sans Lao"}
+                            justifySelf="center"
+                          >
                             {userInfo?.bill?.id || ""}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"} justifySelf="center">
+                          <Typography
+                            fontFamily={"Noto Sans Lao"}
+                            justifySelf="center"
+                          >
                             {userInfo?.bill?.totalMenu || "0"}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"} justifySelf="center">
+                          <Typography
+                            fontFamily={"Noto Sans Lao"}
+                            justifySelf="center"
+                          >
                             {userInfo?.bill?.totalPrice || "0"}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
                           <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.status === true ? "ຍັງບໍ່ທັນຊຳລະ" : "." || ""}
+                            {userInfo?.bill?.status === true
+                              ? "ຍັງບໍ່ທັນຊຳລະ"
+                              : "." || ""}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
                           <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.update ? userInfo.bill.update.split("T")[0] : ". " || ""}
+                            {userInfo?.bill?.update
+                              ? userInfo.bill.update.split("T")[0]
+                              : ". " || ""}
                           </Typography>
                         </TableCell>
                       </TableRow>

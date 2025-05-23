@@ -30,6 +30,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import { useLocation } from "react-router-dom";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 const ProductDetail = () => {
   const navigate = useNavigate();
@@ -114,14 +115,16 @@ const ProductDetail = () => {
     };
 
     setUserBill(newBill); // persist to Zustand
-    setSearchText("")
+    setSearchText("");
     setQuantity(1);
     handleClose();
   };
 
   const handleCheckout = () => {
     if (!userBill || userBill?.length === 0) {
-      alert("NO ITEM IN BILL");
+      toast.error("ກະລຸນາເພີ່ມລາຍການສິນຄ້າກ່ອນ.", {
+        style: { fontFamily: "'Noto Sans Lao', sans-serif" },
+      });
       return;
     } else {
       navigate("/checkbill");
@@ -140,7 +143,7 @@ const ProductDetail = () => {
           ຄົ້ນຫາເມນູ
         </Typography>
       </Box>
-      <Box display="flex" gap="80px" >
+      <Box display="flex" gap="80px">
         <input
           type="text"
           value={searchText}
@@ -176,101 +179,52 @@ const ProductDetail = () => {
           </Typography>
         </Box>
       </Box>
-      {
-        searchText === "" ? (
+      {searchText === "" ? (
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap", // ✅ allows wrapping
+            gap: 0, // space between tabs
+          }}
+        >
           <Box
             sx={{
               display: "flex",
-              flexWrap: "wrap", // ✅ allows wrapping
-              gap: 0, // space between tabs
+              flexWrap: "wrap",
+              gap: 1,
+              justifyContent: "flex-start",
             }}
           >
-
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 1,
-                justifyContent: "flex-start",
-              }}
-            >
-
-              {categories.map((cat, index) => (
-                <Box
-                  key={cat}
-                  onClick={() => setSelectedTab(index)}
-                  sx={{
-                    px: 4,
-                    py: 4,
-                    minWidth: 190,
-                    borderRadius: "8px",
-                    border: "1px solid lightgray",
-                    cursor: "pointer",
-                    fontSize: 25,
-                    fontWeight: selectedTab === index ? "bold" : "normal",
-                    color: selectedTab === index ? "green" : "gray",
-                    backgroundColor: selectedTab === index ? "#eaffea" : "white",
-                    transition: "all 0.2s ease-in-out",
-                  }}
-                >
-                  {cat}
-                </Box>
-              ))}
-            </Box>
-
-            {categories.map((category, index) => (
-              <TabPanel key={category} value={selectedTab} index={index}>
-                <Typography sx={{ fontWeight: "bold", fontSize: 30 }}>
-                  Category : {category}
-                </Typography>
-                <Grid2 container spacing={3} mt={2}>
-                  {data[category].map((item, i) => (
-                    <Grid2 key={`${item.id}-${i}`}>
-                      <Card onClick={() => handleClickOpen(item)} sx={{ border: '1px solid rgba(1, 1, 1, 0.25)', width: 210, height: 350 }}>
-                        <CardMedia
-                          sx={{
-                            cursor: "pointer"
-                          }}
-                          component="img"
-                          height="200"
-                          image={item.image}
-                          alt={item.name}
-                        />
-                        <CardContent
-                          sx={{
-                            cursor: "pointer",
-                          }}
-                        >
-                          <Typography variant="h6" fontSize={20}>
-                            {item.menuName}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            Size: {item.size}
-                          </Typography>
-                          <Typography variant="body1" fontSize={18} color="green">
-                            {item.price?.toLocaleString("id-ID")} KIP
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid2>
-                  ))}
-                </Grid2>
-              </TabPanel>
+            {categories.map((cat, index) => (
+              <Box
+                key={cat}
+                onClick={() => setSelectedTab(index)}
+                sx={{
+                  px: 4,
+                  py: 4,
+                  minWidth: 190,
+                  borderRadius: "8px",
+                  border: "1px solid lightgray",
+                  cursor: "pointer",
+                  fontSize: 25,
+                  fontWeight: selectedTab === index ? "bold" : "normal",
+                  color: selectedTab === index ? "green" : "gray",
+                  backgroundColor: selectedTab === index ? "#eaffea" : "white",
+                  transition: "all 0.2s ease-in-out",
+                }}
+              >
+                {cat}
+              </Box>
             ))}
           </Box>
-        ) : (
-          <>
-            <Typography fontSize={24} fontWeight="bold" mb={2}>
-              Search results for: {searchText}
-            </Typography>
-            <Grid2 container spacing={3}>
-              {Object.entries(products)
-                .flatMap(([category, items]) =>
-                  items.filter((item) =>
-                    item.menuName.toLowerCase().includes(searchText)
-                  )
-                )
-                .map((item, i) => (
+
+          {categories.map((category, index) => (
+            <TabPanel key={category} value={selectedTab} index={index}>
+              <Typography sx={{ fontWeight: "bold", fontSize: 30 }}>
+                Category : {category}
+              </Typography>
+              <Grid2 container spacing={3} mt={2}>
+                {data[category].map((item, i) => (
                   <Grid2 key={`${item.id}-${i}`}>
                     <Card
                       onClick={() => handleClickOpen(item)}
@@ -281,13 +235,19 @@ const ProductDetail = () => {
                       }}
                     >
                       <CardMedia
+                        sx={{
+                          cursor: "pointer",
+                        }}
                         component="img"
                         height="200"
                         image={item.image}
-                        alt={item.menuName}
-                        sx={{ cursor: "pointer" }}
+                        alt={item.name}
                       />
-                      <CardContent sx={{ cursor: "pointer" }}>
+                      <CardContent
+                        sx={{
+                          cursor: "pointer",
+                        }}
+                      >
                         <Typography variant="h6" fontSize={20}>
                           {item.menuName}
                         </Typography>
@@ -301,11 +261,56 @@ const ProductDetail = () => {
                     </Card>
                   </Grid2>
                 ))}
-            </Grid2>
-          </>
-        )
-      }
-
+              </Grid2>
+            </TabPanel>
+          ))}
+        </Box>
+      ) : (
+        <>
+          <Typography fontSize={24} fontWeight="bold" mb={2}>
+            Search results for: {searchText}
+          </Typography>
+          <Grid2 container spacing={3}>
+            {Object.entries(products)
+              .flatMap(([category, items]) =>
+                items.filter((item) =>
+                  item.menuName.toLowerCase().includes(searchText)
+                )
+              )
+              .map((item, i) => (
+                <Grid2 key={`${item.id}-${i}`}>
+                  <Card
+                    onClick={() => handleClickOpen(item)}
+                    sx={{
+                      border: "1px solid rgba(1, 1, 1, 0.25)",
+                      width: 210,
+                      height: 350,
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={item.image}
+                      alt={item.menuName}
+                      sx={{ cursor: "pointer" }}
+                    />
+                    <CardContent sx={{ cursor: "pointer" }}>
+                      <Typography variant="h6" fontSize={20}>
+                        {item.menuName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Size: {item.size}
+                      </Typography>
+                      <Typography variant="body1" fontSize={18} color="green">
+                        {item.price?.toLocaleString("id-ID")} KIP
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid2>
+              ))}
+          </Grid2>
+        </>
+      )}
 
       <Box>
         <Box
@@ -336,14 +341,15 @@ const ProductDetail = () => {
               </Box>
               <Typography variant="h5">CUSTOMER ID: {userInfo?.id}</Typography>
               <Typography variant="h5">
-                BILL NO: #{userInfo?.bill?.id} | TIME {userInfo?.createAt
-                  ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
+                BILL NO : #{userInfo?.bill?.id} | TIME{" "}
+                {userInfo?.bill?.createAt
+                  ? new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
                   : "UNKNOW"}
                 {userInfo?.bill?.billDate}
               </Typography>
@@ -692,6 +698,7 @@ const ProductDetail = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <ToastContainer position="top-center" />
     </Box>
   );
 };
