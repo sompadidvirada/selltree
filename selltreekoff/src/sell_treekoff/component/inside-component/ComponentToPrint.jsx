@@ -1,6 +1,7 @@
 import React, { forwardRef } from "react";
 
-const ComponentToPrint = forwardRef((props, ref) => {
+const ComponentToPrint = forwardRef(({prop}, ref) => {
+
   const userBill =
     {
       billId: "11203",

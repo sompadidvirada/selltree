@@ -23,17 +23,19 @@ model Employye {
   point       Int
   createAt    DateTime @default(now())
   status      Boolean  @default(true)
+  brach       brach?   @relation(fields: [brachId], references: [id])
+  brachId     Int?
 }
 
 model Customer {
-  id          Int            @id @unique @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   username    String
   image       String?
   phonenumber String
   password    String?
-  point       points[]
   createAt    DateTime       @default(now())
-  bill        CustomerBill[] 
+  bill        CustomerBill[]
+  point       points?
 }
 
 model CustomerBill {
@@ -43,7 +45,7 @@ model CustomerBill {
   status     Boolean   @default(true)
   update     DateTime?
   Customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  customerId Int       
+  customerId Int
 }
 
 model Products {
@@ -64,9 +66,24 @@ model Categorys {
 }
 
 model points {
-  id         Int       @id @unique @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   point      Int       @default(0)
   updateAt   DateTime?
-  Customer   Customer  @relation(fields: [customerId], references: [id])
-  customerId Int
+  customerId Int       @unique
+  customer   Customer  @relation(fields: [customerId], references: [id])
+}
+
+model brach {
+  id        Int         @id @unique @default(autoincrement())
+  name      String
+  employyee Employye[]
+  wairoder  waitOrder[]
+}
+
+model waitOrder {
+  id      Int    @id @unique @default(autoincrement())
+  brach   brach @relation(fields: [brachId], references: [id])
+  brachId Int
+  waitNumber  Int 
+  createAt DateTime @default(now())
 }

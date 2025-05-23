@@ -70,7 +70,7 @@ exports.createBill = async (req, res) => {
         customerId: Number(userId),
       },
     });
-    console.log(bill)
+    console.log(bill);
     res.send(bill);
   } catch (err) {
     console.log(err);
@@ -93,5 +93,68 @@ exports.deleteBill = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "server error" });
+  }
+};
+
+exports.createWaitOrder = async (req, res) => {
+  const { brachId } = req.body;
+  try {
+    const has200 = await prisma.waitOrder.findFirst({
+      where: {
+        brachId: Number(brachId),
+        waitNumber: 5,
+      },
+    });
+
+    if (has200) {
+      await prisma.waitOrder.deleteMany({
+        where: {
+          brachId: Number(brachId),
+        },
+      });
+
+      // Step 3: Create a new wait order starting at 1
+      const newWait = await prisma.waitOrder.create({
+        data: {
+          brachId: Number(brachId),
+          waitNumber: 1,
+        },
+      });
+      return res.send(newWait);
+    }
+
+    // Step 4: If not, continue normal queueing
+    const lastOrder = await prisma.waitOrder.findFirst({
+      where: { brachId: Number(brachId) },
+      orderBy: { waitNumber: "desc" },
+    });
+
+    const nextWaitNumber = lastOrder ? lastOrder.waitNumber + 1 : 1;
+
+    const continueWait = await prisma.waitOrder.create({
+      data: {
+        brachId: Number(brachId),
+        waitNumber: nextWaitNumber,
+      },
+    });
+    res.send(continueWait);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: `server error` });
+  }
+};
+
+exports.createBrach = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const createBrachs = await prisma.brach.create({
+      data: {
+        name: name,
+      },
+    });
+    res.send(createBrachs);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: `server error` });
   }
 };

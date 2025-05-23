@@ -14,15 +14,18 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import CheckIcon from "@mui/icons-material/Check";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
 import { deleteBill } from "../../../api/sellTreekoff";
+import ComponentToPrint from "../inside-component/ComponentToPrint";
+import { useReactToPrint } from "react-to-print";
 
 const CheckBill = () => {
+  const componentRef = useRef();
   const navigate = useNavigate();
   const [selected, setSelected] = useState([]);
   const [moneyReceived, setMoneyReciept] = useState("");
@@ -55,12 +58,65 @@ const CheckBill = () => {
 
   const confirmClearBill = async () => {
     resetBill();
-    await deleteBill(userInfo?.bill?.id)
+    await deleteBill(userInfo?.bill?.id);
     setOpenConfirm(false);
     navigate("/");
   };
   const handleClearBill = () => {
     setOpenConfirm(true);
+  };
+
+  const handleCheckout = () => {
+    const userBill = {
+      billId: userInfo?.bill?.id,
+      createAt: userInfo?.bill?.createAt,
+      userId: userInfo?.id,
+      username: userInfo?.username,
+      point: userInfo?.point?.point,
+      waitNumber: 2,
+      payment: "BCEL-ONEPAY",
+      menuDetail: [
+        {
+          id: 1,
+          menuName: "ICE GREEN TEA HONEY LEMON",
+          sweetLevel: "--ທ່າມະດາ--",
+          unit: 3,
+          price: 40000,
+          size: "TALL",
+        },
+        {
+          id: 2,
+          menuName: "ICE GREEN TEA HONEY LEMON",
+          sweetLevel: "--ທ່າມະດາ--",
+          unit: 3,
+          price: 40000,
+          size: "TALL",
+        },
+        {
+          id: 3,
+          menuName: "ICE GREEN TEA HONEY LEMON",
+          sweetLevel: "--ທ່າມະດາ--",
+          unit: 3,
+          price: 40000,
+          size: "TALL",
+        },
+        {
+          id: 4,
+          menuName: "ICE GREEN TEA HONEY LEMON",
+          sweetLevel: "--ທ່າມະດາ--",
+          unit: 3,
+          price: 40000,
+          size: "TALL",
+        },
+      ],
+      totalPrice: 250000,
+      cash: 300000,
+      employeeName: "ທ້າວ ນິກເລີ",
+    }
+    try {
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <Box>
@@ -104,14 +160,15 @@ const CheckBill = () => {
                   CUSTOMER ID: {userInfo?.id || 0}
                 </Typography>
                 <Typography fontSize={18}>
-                  BILL NO : #{userInfo?.bill?.id || 0} | TIME {userInfo?.createAt
+                  BILL NO : #{userInfo?.bill?.id || 0} | TIME{" "}
+                  {userInfo?.createAt
                     ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
                     : "UNKNOW"}
                 </Typography>
                 <Typography
@@ -120,7 +177,9 @@ const CheckBill = () => {
                   color="rgb(26, 167, 8)"
                   fontWeight="bold"
                 >
-                  ແຕ້ມສະສົມ: {(userInfo?.point[0]?.point || 0).toLocaleString() || "01"} ຄະແນນ
+                  ແຕ້ມສະສົມ:{" "}
+                  {(userInfo?.point[0]?.point || 0).toLocaleString() || "01"}{" "}
+                  ຄະແນນ
                 </Typography>
               </Box>
             </Box>
@@ -221,6 +280,7 @@ const CheckBill = () => {
               variant="contained"
               color="success"
               sx={{ fontFamily: "Noto Sans Lao", fontSize: "18px", width: 100 }}
+              onClick={handleCheckout}
             >
               ຈ່າຍເງີນ
             </Button>
@@ -300,6 +360,9 @@ const CheckBill = () => {
           </Box>
         </Box>
       </Dialog>
+      <div style={{ display: "none" }}>
+        <ComponentToPrint ref={componentRef} />
+      </div>
     </Box>
   );
 };
