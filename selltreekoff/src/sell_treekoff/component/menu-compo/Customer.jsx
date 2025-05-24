@@ -20,8 +20,7 @@ import { createBill, getUser, registerUser } from "../../../api/sellTreekoff";
 import { toast, ToastContainer } from "react-toastify";
 import { io } from "socket.io-client";
 
-
-const socket = io('http://localhost:3001');
+const socket = io("http://localhost:3001");
 
 const SignupSchema = Yup.object().shape({
   username: Yup.string().required("Required"),
@@ -29,7 +28,7 @@ const SignupSchema = Yup.object().shape({
 });
 
 const Customer = () => {
-  const setScreenControll = useTreekoffStorage((s) => s.setScreenControll)
+  const setScreenControll = useTreekoffStorage((s) => s.setScreenControll);
   const [searchCustomer, setSearchCustomer] = useState("");
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
@@ -37,29 +36,12 @@ const Customer = () => {
   const navigate = useNavigate();
   const hasHandled9001 = useRef(false);
 
-
   useEffect(() => {
     if (userInfo?.id === 9001 && !hasHandled9001.current) {
       resetBill();
       hasHandled9001.current = true;
     }
   }, [userInfo]);
-
-
-  const createWithUser = async (userId) => {
-    try {
-      const res = await createBill(userId);
-      const billData = res?.data;
-      setUserInfo({
-        ...userInfo,
-        bill: billData,
-      });
-    } catch (err) {
-      console.log(err);
-    }
-
-    navigate("/productdetail");
-  };
 
   const handleRegister = async (values, resetForm) => {
     console.log("Submitting form with values:", values); // Add this line
@@ -73,34 +55,33 @@ const Customer = () => {
     resetForm();
   };
 
-  const handleSearch = async (value) => {
-    if (!value || value === "") {
-      return;
-    }
+  const createWithUser = async (userId) => {
     try {
-      const userr = await getUser(value);
+      const res = await createBill(userId);
+      const billData = res?.data;
 
-      if (userr?.data?.message) {
+      const combineCreate = {
+        ...userInfo,
+        bill: billData,
+      };
 
-        resetBill();
-
-        setSearchCustomer("");
-        toast.error("ຂໍ້ມູນລູກຄ້າຄົນນີ້ ບໍ່ມີໃນລະບົບ", {
-          style: { fontFamily: "'Noto Sans Lao', sans-serif" },
-        });
-      } else {
-        setUserInfo(userr?.data);
-        setScreenControll(userr?.data)
-
-        socket.emit('send-to-popup', { data: "userr?.data" });
-
-        setSearchCustomer("");
+      {
+        /** set local state */
       }
+
+      setUserInfo(combineCreate);
+
+      {
+        /**socket io */
+      }
+
+      socket.emit("send-to-popup-userinfo", { data: combineCreate });
     } catch (err) {
       console.log(err);
     }
-  };
 
+    navigate("/productdetail");
+  };
   const handleCreateNoUser = async () => {
     hasHandled9001.current = true; // Skip the effect once
 
@@ -113,23 +94,67 @@ const Customer = () => {
       totalSpent: 0,
       createDate: "",
     };
-    setUserInfo(defaultUser);
-    const res = await createBill(9001);
-    const billData = res?.data;
-    setUserInfo({
-      ...defaultUser,
-      bill: billData,
-    });
 
-    setScreenControll({
+    setUserInfo(defaultUser);
+
+    const res = await createBill(9001);
+
+    const billData = res?.data;
+
+    const combinedUser = {
       ...defaultUser,
       bill: billData,
-    })
+    };
+
+    setUserInfo(combinedUser);
+
+    setScreenControll({ combinedUser });
+
+    socket.emit("send-to-popup-userinfo", { data: combinedUser });
 
     setTimeout(() => {
       navigate("/productdetail");
     }, 200);
   };
+
+  const handleSearch = async (value) => {
+    if (!value || value === "") {
+      return;
+    }
+    try {
+      const userr = await getUser(value);
+
+      if (userr?.data?.message) {
+        resetBill();
+
+        setSearchCustomer("");
+
+        {
+          /** socket io */
+        }
+
+        socket.emit("send-to-popup-userinfo", { data: "" });
+
+        toast.error("ຂໍ້ມູນລູກຄ້າຄົນນີ້ ບໍ່ມີໃນລະບົບ", {
+          style: { fontFamily: "'Noto Sans Lao', sans-serif" },
+        });
+      } else {
+        setUserInfo(userr?.data);
+        setScreenControll(userr?.data);
+
+        {
+          /** socket io */
+        }
+
+        socket.emit("send-to-popup-userinfo", { data: userr?.data });
+
+        setSearchCustomer("");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <Box display="flex" flexDirection="column" gap="40px">
       {/* Seacrh Customer Section. */}
@@ -356,12 +381,12 @@ const Customer = () => {
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
                       {userInfo?.createAt
                         ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                         : "UNKNOW"}
                     </Typography>
                   </Grid2>
@@ -399,16 +424,14 @@ const Customer = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {userInfo?.bill !== "" ? (
-                      <TableRow sx={{ backgroundColor: "white" }}>
+                    {userInfo?.bill !== null ? (
+                      <TableRow  sx={{ backgroundColor: "white" }}>
                         <TableCell sx={{ color: "black" }}>
                           <Typography
                             fontFamily={"Noto Sans Lao"}
                             alignSelf="center"
                           >
-                            {userInfo?.bill?.createAt
-                              ? userInfo.bill.createAt.split("T")[0]
-                              : ""}
+                            {userInfo?.bill?.createAt ? userInfo?.bill?.createAt.split("T")[0] : ""}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
@@ -424,7 +447,7 @@ const Customer = () => {
                             fontFamily={"Noto Sans Lao"}
                             justifySelf="center"
                           >
-                            {userInfo?.bill?.totalMenu || "0"}
+                            {userInfo?.bill?.totalMenu ?? "0"}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
@@ -432,37 +455,45 @@ const Customer = () => {
                             fontFamily={"Noto Sans Lao"}
                             justifySelf="center"
                           >
-                            {userInfo?.bill?.totalPrice || "0"}
+                            {userInfo?.bill?.totalPrice ?? "0"}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
                           <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.status === true
-                              ? "ຍັງບໍ່ທັນຊຳລະ"
-                              : "." || ""}
+                            {userInfo?.bill?.status === true ? "ຍັງບໍ່ທັນຊຳລະ" : "."}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
                           <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.update
-                              ? userInfo.bill.update.split("T")[0]
-                              : ". " || ""}
+                            {userInfo?.bill?.update ? userInfo?.bill?.update.split("T")[0] : "."}
                           </Typography>
                         </TableCell>
                       </TableRow>
                     ) : (
                       <TableRow sx={{ backgroundColor: "white" }}>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}></Typography>
+                          <Typography
+                            fontFamily={"Noto Sans Lao"}
+                            alignSelf="center"
+                          ></Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}></Typography>
+                          <Typography
+                            fontFamily={"Noto Sans Lao"}
+                            justifySelf="center"
+                          ></Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}></Typography>
+                          <Typography
+                            fontFamily={"Noto Sans Lao"}
+                            justifySelf="center"
+                          ></Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}></Typography>
+                          <Typography
+                            fontFamily={"Noto Sans Lao"}
+                            justifySelf="center"
+                          ></Typography>
                         </TableCell>
                         <TableCell sx={{ color: "black" }}>
                           <Typography fontFamily={"Noto Sans Lao"}></Typography>

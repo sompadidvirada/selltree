@@ -6,11 +6,14 @@ const TreekoffStorage = (set, get) => ({
   employeeInfo: null,
   userInfo: null,
   screenControl: null,
-  setUserBill: (newBill) => {
-    set((state) => ({
-      userBill: [newBill, ...state.userBill], // appends a full bill object
-    }));
-  },
+  setUserBill: (billOrUpdater) => {
+  set((state) => ({
+    userBill:
+      typeof billOrUpdater === "function"
+        ? billOrUpdater(state.userBill)
+        : [billOrUpdater, ...state.userBill],
+  }));
+},
   replaceUserBill: (newArray) => {
     set({ userBill: newArray }); // overwrite entire array
   },

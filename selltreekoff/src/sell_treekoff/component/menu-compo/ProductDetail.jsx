@@ -31,6 +31,10 @@ import { useLocation } from "react-router-dom";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import { createBill } from "../../../api/sellTreekoff";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3001");
 
 const ProductDetail = () => {
   const navigate = useNavigate();
@@ -42,7 +46,8 @@ const ProductDetail = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const data = products;
-  const totalSum = userBill.reduce((acc, row) => acc + row.price * row.qty, 0);
+  const totalSum =
+    userBill.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
   const [selected, setSelected] = useState([]);
   const [open, setOpen] = useState(false);
 
@@ -54,19 +59,34 @@ const ProductDetail = () => {
   const [selectedTab, setSelectedTab] = useState(0);
 
   useEffect(() => {
-    if (!userInfo || Object.keys(userInfo).length === 0) {
-      setUserInfo({
-        id: 9001,
-        username: "USER_FOR_BRANCH_NO_ID_1",
-        image: "",
-        phonenumber: "",
-        point: 0,
-        totalSpent: 0,
-        createDate: "",
-        bill: null,
-      });
-    }
-  }, [userInfo]);
+    const fetchBill = async () => {
+      if (!userInfo || Object.keys(userInfo).length === 0) {
+        const res = await createBill(9001);
+        const defaultBill = res?.data;
+
+        const createDefalutUser = {
+          id: 9001,
+          username: "USER_FOR_BRANCH_NO_ID_1",
+          image: "",
+          phonenumber: "",
+          point: 0,
+          totalSpent: 0,
+          createDate: "",
+          bill: defaultBill,
+        };
+
+        setUserInfo(createDefalutUser);
+
+        {
+          /** socket io */
+        }
+
+        socket.emit("send-to-popup-userInfo", { data: createDefalutUser });
+      }
+    };
+
+    fetchBill();
+  }, []);
 
   const handleClickOpen = (item) => {
     setSelectedItem(item); // store the clicked item
@@ -114,7 +134,29 @@ const ProductDetail = () => {
       sweet: selectedValue || "ທຳມະດາ",
     };
 
-    setUserBill(newBill); // persist to Zustand
+    // Check if the item already exists in userBill (match by id + size + sweetness, etc. as needed)
+
+    setUserBill((prevBills) => {
+      const existingIndex = prevBills.findIndex(
+        (item) =>
+          item.id === newBill.id &&
+          item.size === newBill.size &&
+          item.sweet === newBill.sweet
+      );
+
+      let updatedBills;
+      if (existingIndex !== -1) {
+        updatedBills = [...prevBills];
+        updatedBills[existingIndex].qty += newBill.qty;
+      } else {
+        updatedBills = [...prevBills, newBill];
+      }
+
+      socket.emit("send-to-popup-setUserBill", { data: updatedBills });
+      return updatedBills;
+    });
+
+    // Reset form
     setSearchText("");
     setQuantity(1);
     handleClose();
@@ -379,7 +421,7 @@ const ProductDetail = () => {
                     justifySelf: "end",
                   }}
                 >
-                  {userBill[0]?.price.toLocaleString() || 0} KIP X{" "}
+                  {userBill[0]?.price?.toLocaleString() || 0} KIP X{" "}
                   {userBill[0]?.qty} UNIT
                 </Typography>
                 <Typography

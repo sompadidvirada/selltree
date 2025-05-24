@@ -14,7 +14,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import CheckIcon from "@mui/icons-material/Check";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,9 +24,11 @@ import { createWaitOrder, deleteBill } from "../../../api/sellTreekoff";
 import ComponentToPrint from "../print-component/ComponentToPrint";
 import { useReactToPrint } from "react-to-print";
 import { toast, ToastContainer } from "react-toastify";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3001");
 
 const CheckBill = () => {
-
   const brachId = 2;
   const navigate = useNavigate();
   const [selected, setSelected] = useState([]);
@@ -49,6 +51,8 @@ const CheckBill = () => {
   const handleChange = (e) => {
     const raw = e.target.value.replace(/,/g, ""); // remove commas
     setRawCash(raw);
+    socket.emit("send-to-popup-payment", { data: raw });
+
     if (!isNaN(raw)) {
       const number = parseInt(raw, 10);
       if (!isNaN(number)) {
@@ -62,10 +66,12 @@ const CheckBill = () => {
   const totalSum = userBill.reduce((acc, row) => acc + row.price * row.qty, 0);
 
   const confirmClearBill = async () => {
+    const billId = userInfo?.bill?.id;
+
+    await deleteBill(billId);
     resetBill();
-    await deleteBill(userInfo?.bill?.id);
-    setOpenConfirm(false);
     navigate("/");
+    setOpenConfirm(false);
   };
 
   const handleClearBill = () => {
@@ -73,12 +79,11 @@ const CheckBill = () => {
   };
 
   const handleCheckout = async (pay) => {
-
     if (rawCash < totalSum || rawCash === "") {
       toast.error("ເງີນທີ່ຮັບຈາກລູກຄ້າ ບໍ່ຖືກຕ້ອງ !!", {
         style: { fontFamily: "'Noto Sans Lao', sans-serif" },
       });
-      return
+      return;
     }
     try {
       const waitOrder = await createWaitOrder(brachId);
@@ -98,11 +103,10 @@ const CheckBill = () => {
       };
 
       setTimeout(() => {
-
         sessionStorage.setItem("CheckuserBill", JSON.stringify(CheckuserBill));
 
-        resetBill()
-        navigate('/')
+        resetBill();
+        navigate("/");
         // Open new tab
         window.open("/customerbill", "_blank");
       }, 150);
@@ -110,8 +114,6 @@ const CheckBill = () => {
       console.log(err);
     }
   };
-
-  
 
   return (
     <Box>
@@ -157,13 +159,16 @@ const CheckBill = () => {
                 <Typography fontSize={18}>
                   BILL NO : #{userInfo?.bill?.id || 0} | TIME{" "}
                   {userInfo?.bill?.createAt
-                    ? new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
+                    ? new Date(userInfo?.bill?.createAt).toLocaleString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )
                     : "UNKNOW"}
                 </Typography>
                 <Typography
@@ -275,7 +280,7 @@ const CheckBill = () => {
               variant="contained"
               color="success"
               sx={{ fontFamily: "Noto Sans Lao", fontSize: "18px", width: 100 }}
-              onClick={()=>handleCheckout("CASH")}
+              onClick={() => handleCheckout("CASH")}
             >
               ຈ່າຍເງີນ
             </Button>
@@ -288,7 +293,7 @@ const CheckBill = () => {
                 fontWeight: "bold",
                 gap: 1,
               }}
-              onClick={()=> handleCheckout("BCL ONE PAY")}
+              onClick={() => handleCheckout("BCL ONE PAY")}
             >
               {<img src="/assests/bcel.png" style={{ width: 35 }} />}ຈ່າຍຜ່ານ
               ONE PAY

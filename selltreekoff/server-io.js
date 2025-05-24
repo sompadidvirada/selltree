@@ -14,8 +14,18 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
 
-  socket.on('send-to-popup', (data) => {
+  socket.on('send-to-popup-userinfo', (data) => {
     socket.broadcast.emit('receive-from-main', data);
+  });
+
+  socket.on('send-to-popup-employeeInfo', (data) => {
+    socket.broadcast.emit('receive-from-main', data);
+  });
+  socket.on('send-to-popup-setUserBill', (data) => {
+    socket.broadcast.emit('receive-from-main-userBill', data);
+  });
+  socket.on('send-to-popup-payment', (data) => {
+    socket.broadcast.emit('receive-from-main-payment', data);
   });
 
   socket.on('disconnect', () => {

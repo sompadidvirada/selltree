@@ -32,20 +32,24 @@ exports.getUser = async (req, res) => {
     if (!id || id === null) {
       return res.send(`Define the ID frist !!`);
     }
+
     const user = await prisma.customer.findFirst({
-      where: {
-        id: Number(id),
-      },
-      include: {
-        bill: true,
-        point: true,
-      },
+      where: { id:Number(id) },
+      include: { point: true },
+    });
+    const latestBill = await prisma.customerBill.findFirst({
+      where: { customerId: Number(id) },
+      orderBy: { createAt: "desc" },
     });
 
     if (!user) {
       return res.json({ message: "This User is not exit !" });
     }
-    res.send(user);
+
+    res.json({
+      ...user,
+      bill: latestBill || null, // attach bill as a single object
+    });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: `server error` });
@@ -81,6 +85,7 @@ exports.createBill = async (req, res) => {
 exports.deleteBill = async (req, res) => {
   try {
     const id = req.params.id;
+    console.log(id);
     if (!id) {
       return res.send("need ID");
     }

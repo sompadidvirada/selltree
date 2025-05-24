@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "start-socket": "node server-io.js",
+    "dev-socket": "nodemon server-io.js",
     "start": "node index.js",
     "build": "vite build",
     "lint": "eslint .",
