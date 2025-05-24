@@ -18,6 +18,10 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { createBill, getUser, registerUser } from "../../../api/sellTreekoff";
 import { toast, ToastContainer } from "react-toastify";
+import { io } from "socket.io-client";
+
+
+const socket = io('http://localhost:3001');
 
 const SignupSchema = Yup.object().shape({
   username: Yup.string().required("Required"),
@@ -25,13 +29,14 @@ const SignupSchema = Yup.object().shape({
 });
 
 const Customer = () => {
-  const setScreenControll = useTreekoffStorage((s)=>s.setScreenControll)
+  const setScreenControll = useTreekoffStorage((s) => s.setScreenControll)
   const [searchCustomer, setSearchCustomer] = useState("");
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
   const resetBill = useTreekoffStorage((s) => s.resetBill);
-
+  const navigate = useNavigate();
   const hasHandled9001 = useRef(false);
+
 
   useEffect(() => {
     if (userInfo?.id === 9001 && !hasHandled9001.current) {
@@ -40,7 +45,6 @@ const Customer = () => {
     }
   }, [userInfo]);
 
-  const navigate = useNavigate();
 
   const createWithUser = async (userId) => {
     try {
@@ -75,8 +79,11 @@ const Customer = () => {
     }
     try {
       const userr = await getUser(value);
+
       if (userr?.data?.message) {
+
         resetBill();
+
         setSearchCustomer("");
         toast.error("ຂໍ້ມູນລູກຄ້າຄົນນີ້ ບໍ່ມີໃນລະບົບ", {
           style: { fontFamily: "'Noto Sans Lao', sans-serif" },
@@ -84,7 +91,9 @@ const Customer = () => {
       } else {
         setUserInfo(userr?.data);
         setScreenControll(userr?.data)
-        console.log("Set screenControl to:", userr?.data);
+
+        socket.emit('send-to-popup', { data: "userr?.data" });
+
         setSearchCustomer("");
       }
     } catch (err) {
@@ -106,17 +115,17 @@ const Customer = () => {
     };
     setUserInfo(defaultUser);
     const res = await createBill(9001);
-    const billData = res?.data; 
+    const billData = res?.data;
     setUserInfo({
       ...defaultUser,
       bill: billData,
     });
-    
+
     setScreenControll({
       ...defaultUser,
-      bill: billData, 
+      bill: billData,
     })
-    
+
     setTimeout(() => {
       navigate("/productdetail");
     }, 200);
@@ -347,12 +356,12 @@ const Customer = () => {
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
                       {userInfo?.createAt
                         ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
                         : "UNKNOW"}
                     </Typography>
                   </Grid2>

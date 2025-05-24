@@ -13,68 +13,25 @@ import {
   Paper,
 } from "@mui/material";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
-import { startListening } from "../../../zustand/zustandSync";
+import { io } from "socket.io-client";
 
-const rows = [
-  {
-    id: 1,
-    order: 1,
-    menu: "HOT AMERICANO",
-    price: 12000,
-    qty: 1,
-    img: "/assests/hot-Americano.jpg",
-  },
-  {
-    id: 2,
-    order: 1,
-    menu: "HOT ESSPRESSO",
-    price: 10000,
-    qty: 2,
-    img: "/assests/hot-Americano.jpg",
-  },
-  {
-    id: 3,
-    order: 1,
-    menu: "HOT LATTE",
-    price: 16000,
-    qty: 4,
-    img: "/assests/hot-Americano.jpg",
-  },
-  {
-    id: 4,
-    order: 1,
-    menu: "HOT CAPPUCINO",
-    price: 18000,
-    qty: 3,
-    img: "/assests/hot-Americano.jpg",
-  },
-  {
-    id: 5,
-    order: 1,
-    menu: "HOT GREENTEA",
-    price: 22000,
-    qty: 6,
-    img: "/assests/hot-Americano.jpg",
-  },
-  {
-    id: 6,
-    order: 1,
-    menu: "HOT MOCHA",
-    price: 32000,
-    qty: 2,
-    img: "/assests/hot-Americano.jpg",
-  },
-];
+const socket = io('http://localhost:3001');
 
 const CustomerDisplay = () => {
 
-
-  const employeeInfo = useTreekoffStorage((s)=>s.employeeInfo)
-  const userBill = useTreekoffStorage((s)=>s.userBill)
-  const [check, setCheck] = useState("detailUser+");
-  const userInfo = useTreekoffStorage((s) => s.userInfo);
+  const [employeeInfo,setEmployeeInfo] = useState(null)
+  const [userInfo,setUserInfo] = useState(null)
+  const [userBill, setUserBill] = useState([])
   const [selected, setSelected] = useState([]);
   const totalSum = userBill?.reduce((acc, row) => acc + row.price * row.qty, 0);
+
+  useEffect(() => {
+    socket.on('receive-from-main', (data) => {
+      setUserInfo(data.data); // or access specific fields like data.data.name
+    });
+  
+    return () => socket.off('receive-from-main');
+  }, []);
 
   const handleSelect = (id) => {
     setSelected((prev) =>
@@ -82,6 +39,7 @@ const CustomerDisplay = () => {
     );
   };
 
+  console.log(userInfo)
   return (
     <div
       style={{
