@@ -40,7 +40,6 @@ const CustomerDisplay = () => {
   const userInfoZustand = useTreekoffStorage((s) => s.userInfo)
   const userBillZustand = useTreekoffStorage((s) => s.userBill)
 
-  console.log(`userbillzustand`, userBill2)
 
   const totalSum =
     userBill2 ? userBill2.reduce((acc, row) => acc + row.price * row.qty, 0) : userBillZustand.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
@@ -328,6 +327,7 @@ const CustomerDisplay = () => {
               <TableRow>
                 <TableCell>ORDERS</TableCell>
                 <TableCell>MENU</TableCell>
+                <TableCell>SWEET</TableCell>
                 <TableCell>Price (KIP)/UNIT</TableCell>
                 <TableCell>QTY</TableCell>
                 <TableCell>TOTAL</TableCell>
@@ -367,6 +367,7 @@ const CustomerDisplay = () => {
                         />
                         {row.menu}
                       </TableCell>
+                      <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
                       <TableCell>{row.price.toLocaleString() || 0}</TableCell>
                       <TableCell>{row.qty}</TableCell>
                       <TableCell>
@@ -408,6 +409,7 @@ const CustomerDisplay = () => {
                         />
                         {row.menu}
                       </TableCell>
+                      <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
                       <TableCell>{row.price.toLocaleString() || 0}</TableCell>
                       <TableCell>{row.qty}</TableCell>
                       <TableCell>
@@ -506,6 +508,7 @@ const CustomerDisplay = () => {
                     <TableRow>
                       <TableCell>ORDERS</TableCell>
                       <TableCell>MENU</TableCell>
+                      <TableCell>SWEET</TableCell>
                       <TableCell>Price (KIP)/UNIT</TableCell>
                       <TableCell>QTY</TableCell>
                       <TableCell>TOTAL</TableCell>
@@ -547,6 +550,7 @@ const CustomerDisplay = () => {
                               />
                               {row.menu}
                             </TableCell>
+                            <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
                             <TableCell>
                               {row.price.toLocaleString() || 0}
                             </TableCell>
@@ -591,6 +595,7 @@ const CustomerDisplay = () => {
                             />
                             {row.menu}
                           </TableCell>
+                          <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
                           <TableCell>
                             {row.price.toLocaleString() || 0}
                           </TableCell>
@@ -671,7 +676,6 @@ const CustomerDisplay = () => {
   }
 
 
-  console.log(currentUser?.bill)
 
   return <div style={{ width: "100vw", height: "100vh" }}>{content}</div>;
 };

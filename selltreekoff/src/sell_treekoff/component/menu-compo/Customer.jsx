@@ -46,7 +46,6 @@ const Customer = () => {
 
 
   const handleRegister = async (values, resetForm) => {
-    console.log("Submitting form with values:", values); // Add this line
     try {
       const ress = await registerUser(values);
       toast.success(ress.data);

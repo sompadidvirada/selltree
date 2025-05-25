@@ -40,7 +40,7 @@ import { billUserChannel, orderChannel, paymentMethod } from "../../../broadcast
 
 
 const ProductDetail = () => {
-  const [ paymentMet, setPaymentMet] = useState("done")
+  const [paymentMet, setPaymentMet] = useState("done")
 
   const navigate = useNavigate();
   const userBill = useTreekoffStorage((state) => state.userBill);
@@ -175,17 +175,16 @@ const ProductDetail = () => {
       return;
     } else {
 
-        paymentMethod.postMessage(paymentMet)
-        setPaymentMet("notdone")
-        navigate("/checkbill");
+      paymentMethod.postMessage(paymentMet)
+      setPaymentMet("notdone")
+      navigate("/checkbill");
     }
   };
-  
-  useEffect(()=>{
-    paymentMethod.postMessage(null)
-  },[])
 
-  console.log(paymentMet)
+  useEffect(() => {
+    paymentMethod.postMessage(null)
+  }, [])
+
   return (
     <Box display="flex" flexDirection="column" gap={2}>
       {/* Search Area */}
@@ -400,12 +399,12 @@ const ProductDetail = () => {
                 BILL NO : #{userInfo?.bill?.id} | TIME{" "}
                 {userInfo?.bill?.createAt
                   ? new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
                   : "UNKNOW"}
                 {userInfo?.bill?.billDate}
               </Typography>
@@ -435,8 +434,8 @@ const ProductDetail = () => {
                     justifySelf: "end",
                   }}
                 >
-                  {userBill[0]?.price?.toLocaleString() || 0} KIP X{" "}
-                  {userBill[0]?.qty} UNIT
+                  {userBill?.[0]?.price?.toLocaleString() || 0} KIP X{" "}
+                  {userBill?.[0]?.qty} UNIT
                 </Typography>
                 <Typography
                   sx={{
@@ -446,7 +445,7 @@ const ProductDetail = () => {
                     color: "rgb(236, 70, 70)",
                   }}
                 >
-                  {(userBill[0]?.price * userBill[0]?.qty).toLocaleString() ||
+                  {(userBill?.[0]?.price * userBill?.[0]?.qty).toLocaleString() ||
                     0}{" "}
                   KIP
                 </Typography>
@@ -479,6 +478,7 @@ const ProductDetail = () => {
                     <TableCell>SELECT</TableCell>
                     <TableCell>ORDERS</TableCell>
                     <TableCell>MENU</TableCell>
+                    <TableCell>SWEET</TableCell>
                     <TableCell>Price (KIP)/UNIT</TableCell>
                     <TableCell>QTY</TableCell>
                     <TableCell>TOTAL</TableCell>
@@ -522,6 +522,7 @@ const ProductDetail = () => {
                           />
                           {row.menu}
                         </TableCell>
+                        <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
                         <TableCell>{row.price?.toLocaleString()}</TableCell>
                         <TableCell>{row.qty}</TableCell>
                         <TableCell>

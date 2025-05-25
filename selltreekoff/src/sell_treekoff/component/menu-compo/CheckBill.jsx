@@ -105,7 +105,8 @@ const CheckBill = () => {
         sessionStorage.setItem("CheckuserBill", JSON.stringify(CheckuserBill));
 
         resetBill();
-        
+        numberPayment.postMessage(0)
+
         navigate("/");
         // Open new tab
         window.open("/customerbill", "_blank");
@@ -114,9 +115,9 @@ const CheckBill = () => {
       console.log(err);
     }
   };
-  useEffect(()=>{
+  useEffect(() => {
     paymentMethod.postMessage("done")
-  },[])
+  }, [])
 
   return (
     <Box>
@@ -163,15 +164,15 @@ const CheckBill = () => {
                   BILL NO : #{userInfo?.bill?.id || 0} | TIME{" "}
                   {userInfo?.bill?.createAt
                     ? new Date(userInfo?.bill?.createAt).toLocaleString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }
+                    )
                     : "UNKNOW"}
                 </Typography>
                 <Typography
@@ -194,6 +195,7 @@ const CheckBill = () => {
                     <TableRow>
                       <TableCell>ORDERS</TableCell>
                       <TableCell>MENU</TableCell>
+                      <TableCell>SWEET</TableCell>
                       <TableCell>Price (KIP)/UNIT</TableCell>
                       <TableCell>QTY</TableCell>
                       <TableCell>TOTAL</TableCell>
@@ -234,6 +236,7 @@ const CheckBill = () => {
                             />
                             {row.menu}
                           </TableCell>
+                          <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
                           <TableCell>{row.price.toLocaleString()}</TableCell>
                           <TableCell>{row.qty}</TableCell>
                           <TableCell>
