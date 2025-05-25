@@ -40,10 +40,10 @@ const CustomerDisplay = () => {
   const userInfoZustand = useTreekoffStorage((s) => s.userInfo)
   const userBillZustand = useTreekoffStorage((s) => s.userBill)
 
-  console.log(`userbillzustand`, userBillZustand)
+  console.log(`userbillzustand`, userBill2)
 
   const totalSum =
-    userBill2?.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
+    userBill2 ? userBill2.reduce((acc, row) => acc + row.price * row.qty, 0) : userBillZustand.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
 
   const handleSelect = (id) => {
     setSelected((prev) =>
@@ -285,7 +285,7 @@ const CustomerDisplay = () => {
           </Typography>
         </Box>
 
-        {userBill2?.length || userBillZustand?.length > 0 ? (
+        {(userBill2?.length || userBillZustand?.length) > 0 ? (
           <Box>
             <Card sx={{ width: 200, justifySelf: "end", marginBottom: "10" }}>
               <CardMedia
@@ -294,40 +294,32 @@ const CustomerDisplay = () => {
                 }}
                 component="img"
                 height="180"
-                image={userBill2[0]?.img || userBillZustand[0]?.img || ""}
-                alt={"hot americano"}
+                image={
+                  userBill2?.[0]?.img ||
+                  userBillZustand?.[0]?.img ||
+                  ""
+                }
+                alt="menu"
               />
             </Card>
             <Typography variant="h4">
-              {userBill2[0]?.menu || userBillZustand[0]?.menu || ""} [{userBill2[0]?.size || userBillZustand[0]?.size || ""}]
+              {(userBill2?.[0]?.menu || userBillZustand?.[0]?.menu || "")} [
+              {userBill2?.[0]?.size || userBillZustand?.[0]?.size || ""}]
             </Typography>
-            <Typography
-              sx={{
-                fontSize: "25",
-                justifySelf: "end",
-              }}
-            >
-              {userBill2[0]?.price?.toLocaleString() || userBillZustand[0]?.price?.toLocaleString() || 0} KIP X{" "}
-              {userBill2[0]?.qty || userBillZustand[0]?.qty || 0} UNIT
+            <Typography sx={{ fontSize: "25", justifySelf: "end" }}>
+              {(userBill2?.[0]?.price || userBillZustand?.[0]?.price || 0).toLocaleString()} KIP X{" "}
+              {userBill2?.[0]?.qty || userBillZustand?.[0]?.qty || 0} UNIT
             </Typography>
-            <Typography
-              sx={{
-                fontSize: "30",
-                fontWeight: "bold",
-                justifySelf: "end",
-              }}
-            >
+            <Typography sx={{ fontSize: "30", fontWeight: "bold", justifySelf: "end" }}>
               {(
-                userBill2[0]?.price || userBillZustand[0]?.price ||
-                0 * userBill2[0]?.qty || userBillZustand[0]?.qty ||
-                0
-              ).toLocaleString() || 0}{" "}
+                (userBill2?.[0]?.price || userBillZustand?.[0]?.price || 0) *
+                (userBill2?.[0]?.qty || userBillZustand?.[0]?.qty || 0)
+              ).toLocaleString()}{" "}
               KIP
             </Typography>
           </Box>
-        ) : (
-          ""
-        )}
+        ) : null}
+
       </Box>
       <Box>
         <Paper sx={{ marginTop: 4, height: 200, overflow: "auto" }}>
@@ -344,11 +336,11 @@ const CustomerDisplay = () => {
             <TableBody>
               {userBill2 && userBill2.length > 0 ? (
                 userBill2?.map((row, index) => {
-                  const isSelected = selected.includes(row.id);
+                  const isSelected = selected.includes(`${row.id}-${row.size}-${row.sweet}`);
                   return (
                     <TableRow
-                      key={row.id}
-                      onClick={() => handleSelect(row.id)}
+                      key={`${row.id}-${row.size}-${row.sweet}`}
+                      onClick={() => handleSelect(`${row.id}-${row.size}-${row.sweet}`)}
                       sx={{
                         cursor: "pointer",
                         backgroundColor: isSelected ? "#e3f2fd" : "transparent", // 🔷 highlight
@@ -388,7 +380,7 @@ const CustomerDisplay = () => {
                   const isSelected = selected.includes(row.id);
                   return (
                     <TableRow
-                      key={row.id}
+                      key={`${row.id}${index}`}
                       onClick={() => handleSelect(row.id)}
                       sx={{
                         cursor: "pointer",
@@ -525,7 +517,7 @@ const CustomerDisplay = () => {
                         const isSelected = selected.includes(row.id);
                         return (
                           <TableRow
-                            key={row.id}
+                            key={`${row.id}-${index}`}
                             onClick={() => handleSelect(row.id)}
                             sx={{
                               cursor: "pointer",
@@ -569,7 +561,7 @@ const CustomerDisplay = () => {
                       const isSelected = selected.includes(row.id);
                       return (
                         <TableRow
-                          key={row.id}
+                          key={`${row.id}-${index}`}
                           onClick={() => handleSelect(row.id)}
                           sx={{
                             cursor: "pointer",

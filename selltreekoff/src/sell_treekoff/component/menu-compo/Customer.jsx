@@ -13,7 +13,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useEffect, useRef, useState } from "react";
-import { CustomerInfos } from "../../data/MockData";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { createBill, getUser, registerUser } from "../../../api/sellTreekoff";
@@ -33,7 +32,6 @@ const Customer = () => {
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
   const resetBill = useTreekoffStorage((s) => s.resetBill);
   const userBill = useTreekoffStorage((s) => s.userBill)
-  const setUserBill = useTreekoffStorage((s) => s.setUserBill)
   const navigate = useNavigate();
   const hasHandled9001 = useRef(false);
 
