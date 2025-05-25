@@ -32,11 +32,16 @@ import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { createBill } from "../../../api/sellTreekoff";
-import { io } from "socket.io-client";
+import { billUserChannel, orderChannel, paymentMethod } from "../../../broadcast-channel/broadcast";
 
-const socket = io("http://localhost:3001");
+
+
+
+
 
 const ProductDetail = () => {
+  const [ paymentMet, setPaymentMet] = useState("done")
+
   const navigate = useNavigate();
   const userBill = useTreekoffStorage((state) => state.userBill);
   const setUserBill = useTreekoffStorage((s) => s.setUserBill);
@@ -77,11 +82,7 @@ const ProductDetail = () => {
 
         setUserInfo(createDefalutUser);
 
-        {
-          /** socket io */
-        }
-
-        socket.emit("send-to-popup-userInfo", { data: createDefalutUser });
+        billUserChannel.postMessage(createDefalutUser)
       }
     };
 
@@ -97,6 +98,7 @@ const ProductDetail = () => {
     setOpen(false);
     setQuantity(1);
   };
+
   const handleSelect = (id) => {
     setSelected((prevSelected) =>
       prevSelected.includes(id)
@@ -115,9 +117,12 @@ const ProductDetail = () => {
     setSelected([]);
   };
 
-  const handleChange = (_, newValue) => {
-    setSelectedTab(newValue);
-  };
+  useEffect(() => {
+    if (userBill?.length > 0) {
+      orderChannel.postMessage(userInfo)
+      billUserChannel.postMessage(userBill)
+    }
+  }, []);
 
   const handleSubmitDialog = async (e) => {
     e.preventDefault();
@@ -152,7 +157,7 @@ const ProductDetail = () => {
         updatedBills = [...prevBills, newBill];
       }
 
-      socket.emit("send-to-popup-setUserBill", { data: updatedBills });
+      billUserChannel.postMessage(updatedBills)
       return updatedBills;
     });
 
@@ -169,9 +174,18 @@ const ProductDetail = () => {
       });
       return;
     } else {
-      navigate("/checkbill");
+
+        paymentMethod.postMessage(paymentMet)
+        setPaymentMet("notdone")
+        navigate("/checkbill");
     }
   };
+  
+  useEffect(()=>{
+    paymentMethod.postMessage(null)
+  },[])
+
+  console.log(paymentMet)
   return (
     <Box display="flex" flexDirection="column" gap={2}>
       {/* Search Area */}

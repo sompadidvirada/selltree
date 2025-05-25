@@ -8,51 +8,48 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Checkbox,
   Paper,
 } from "@mui/material";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import CheckIcon from "@mui/icons-material/Check";
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:3001");
+import { billUserChannel, numberPayment, orderChannel, paymentMethod } from "../../../broadcast-channel/broadcast";
 
 const CustomerDisplay = () => {
-  const [employeeInfo, setEmployeeInfo] = useState(null);
-  const [userInfo, setUserInfo] = useState(null);
-  const [userBill, setUserBill] = useState([]) || [];
-  const [selected, setSelected] = useState([]) || [];
+  const [userinfo2, setUserinfo2] = useState([])
+  const [userBill2, setUserBill2] = useState([])
+  const [paymentStatus, setPaymentStatus] = useState(null);
+  const [paymentDetail, setPaymentDetail] = useState(0);
 
-  const [paymentDetail, setPaymentDetail] = useState();
+  orderChannel.onmessage = (event) => {
+    setUserinfo2(event);
+  };
+
+  billUserChannel.onmessage = (event) => {
+    setUserBill2(event);
+  }
+  paymentMethod.onmessage = (event) => {
+    setPaymentStatus(event)
+  }
+
+  numberPayment.onmessage = (event) => {
+    setPaymentDetail(event)
+  }
+
+  const [employeeInfo, setEmployeeInfo] = useState(null);
+  const [selected, setSelected] = useState([]) || [];
+  const userInfoZustand = useTreekoffStorage((s) => s.userInfo)
+  const userBillZustand = useTreekoffStorage((s) => s.userBill)
+
+  console.log(`userbillzustand`, userBillZustand)
 
   const totalSum =
-    userBill?.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
-
-  useEffect(() => {
-    socket.on("receive-from-main", (data) => {
-      setUserInfo(data.data);
-    });
-
-    socket.on("receive-from-main-userBill", (data) => {
-      setUserBill(data.data || []);
-    });
-
-    socket.on("receive-from-main-payment", (data) => {
-      setPaymentDetail(data.data);
-    });
-
-    return () => {
-      socket.off("receive-from-main");
-      socket.off("receive-from-main-userBill");
-    };
-  }, []);
+    userBill2?.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
 
   const handleSelect = (id) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
-
   const renderWelcome = () => (
     <div
       style={{
@@ -138,8 +135,8 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Avatar
-              src={userInfo?.image || ""}
-              alt={userInfo?.username || ""}
+              src={userinfo2?.image || userInfoZustand?.image || ""}
+              alt={userinfo2?.username || userInfoZustand?.username || ""}
               style={{ width: 120, height: 120 }}
             />
           </Grid2>
@@ -158,7 +155,7 @@ const CustomerDisplay = () => {
               fontSize={30}
               fontFamily={"Noto Sans Lao"}
             >
-              {userInfo?.id || ""}
+              {userinfo2?.id || userInfoZustand?.id || ""}
             </Typography>
           </Grid2>
         </Grid2>
@@ -171,7 +168,7 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Typography fontFamily={"Noto Sans Lao"} fontSize={30}>
-              {userInfo?.username || ""}
+              {userinfo2?.username || userInfoZustand?.username || ""}
             </Typography>
           </Grid2>
         </Grid2>
@@ -185,7 +182,7 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-              {userInfo?.phonenumber}
+              {userinfo2?.phonenumber || userInfoZustand?.phonenumber || ""}
             </Typography>
           </Grid2>
         </Grid2>
@@ -204,7 +201,7 @@ const CustomerDisplay = () => {
               fontSize={30}
               fontFamily={"Noto Sans Lao"}
             >
-              {userInfo?.point?.point} ແຕ້ມ
+              {userinfo2?.point?.point || userInfoZustand?.point?.point || 0} ແຕ້ມ
             </Typography>
           </Grid2>
         </Grid2>
@@ -232,7 +229,13 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-              {new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
+              {new Date(userinfo2?.bill?.createAt).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              }) || new Date(userInfoZustand?.bill?.createAt).toLocaleString("en-GB", {
                 day: "2-digit",
                 month: "2-digit",
                 year: "numeric",
@@ -257,8 +260,8 @@ const CustomerDisplay = () => {
         <Box>
           <Box display="flex" alignContent="center">
             <Avatar
-              src={userInfo?.image || ""}
-              alt={userInfo?.username || ""}
+              src={userinfo2?.image || userInfoZustand?.image || ""}
+              alt={userinfo2?.username || userInfoZustand?.image || ""}
               style={{ width: 120, height: 120 }}
             />
             <Typography
@@ -266,13 +269,13 @@ const CustomerDisplay = () => {
               fontSize={15}
               sx={{ alignSelf: "center", marginLeft: 2 }}
             >
-              {userInfo?.username || ""}
+              {userinfo2?.username || ""}
             </Typography>
           </Box>
           <Typography variant="h5">CUSTOMER ID: 9</Typography>
           <Typography variant="h5">
-            BILL NO: #{userInfo?.bill?.id || ""} | TIME{" "}
-            {new Date(userInfo?.bill?.createAt || "").toLocaleString("en-GB", {
+            BILL NO: #{userinfo2?.bill?.id || userInfoZustand?.bill?.id || ""} | TIME{" "}
+            {new Date(userinfo2?.bill?.createAt || userInfoZustand?.bill?.createAt || "").toLocaleString("en-GB", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
@@ -282,7 +285,7 @@ const CustomerDisplay = () => {
           </Typography>
         </Box>
 
-        {userBill.length > 0 ? (
+        {userBill2?.length || userBillZustand?.length > 0 ? (
           <Box>
             <Card sx={{ width: 200, justifySelf: "end", marginBottom: "10" }}>
               <CardMedia
@@ -291,12 +294,12 @@ const CustomerDisplay = () => {
                 }}
                 component="img"
                 height="180"
-                image={userBill[0]?.image || ""}
+                image={userBill2[0]?.img || userBillZustand[0]?.img || ""}
                 alt={"hot americano"}
               />
             </Card>
             <Typography variant="h4">
-              {userBill[0]?.menu || ""} [{userBill[0]?.size || ""}]
+              {userBill2[0]?.menu || userBillZustand[0]?.menu || ""} [{userBill2[0]?.size || userBillZustand[0]?.size || ""}]
             </Typography>
             <Typography
               sx={{
@@ -304,8 +307,8 @@ const CustomerDisplay = () => {
                 justifySelf: "end",
               }}
             >
-              {userBill[0]?.price.toLocaleString() || 0} KIP X{" "}
-              {userBill[0]?.qty || 0} UNIT
+              {userBill2[0]?.price?.toLocaleString() || userBillZustand[0]?.price?.toLocaleString() || 0} KIP X{" "}
+              {userBill2[0]?.qty || userBillZustand[0]?.qty || 0} UNIT
             </Typography>
             <Typography
               sx={{
@@ -315,8 +318,8 @@ const CustomerDisplay = () => {
               }}
             >
               {(
-                userBill[0]?.price ||
-                0 * userBill[0]?.qty ||
+                userBill2[0]?.price || userBillZustand[0]?.price ||
+                0 * userBill2[0]?.qty || userBillZustand[0]?.qty ||
                 0
               ).toLocaleString() || 0}{" "}
               KIP
@@ -339,46 +342,91 @@ const CustomerDisplay = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {userBill.map((row, index) => {
-                const isSelected = selected.includes(row.id);
-                return (
-                  <TableRow
-                    key={row.id}
-                    onClick={() => handleSelect(row.id)}
-                    sx={{
-                      cursor: "pointer",
-                      backgroundColor: isSelected ? "#e3f2fd" : "transparent", // 🔷 highlight
-                    }}
-                  >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        fontWeight: "bold",
+              {userBill2 && userBill2.length > 0 ? (
+                userBill2?.map((row, index) => {
+                  const isSelected = selected.includes(row.id);
+                  return (
+                    <TableRow
+                      key={row.id}
+                      onClick={() => handleSelect(row.id)}
+                      sx={{
+                        cursor: "pointer",
+                        backgroundColor: isSelected ? "#e3f2fd" : "transparent", // 🔷 highlight
                       }}
                     >
-                      <img
-                        src={row.img}
-                        alt={row.menu}
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell
                         style={{
-                          width: 40,
-                          height: 40,
-                          objectFit: "cover",
-                          borderRadius: 4,
-                          marginRight: 10,
+                          display: "flex",
+                          alignItems: "center",
+                          fontWeight: "bold",
                         }}
-                      />
-                      {row.menu}
-                    </TableCell>
-                    <TableCell>{row.price.toLocaleString() || 0}</TableCell>
-                    <TableCell>{row.qty}</TableCell>
-                    <TableCell>
-                      {(row.price * row.qty).toLocaleString() || 0}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      >
+                        <img
+                          src={row.img}
+                          alt={row.menu}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            objectFit: "cover",
+                            borderRadius: 4,
+                            marginRight: 10,
+                          }}
+                        />
+                        {row.menu}
+                      </TableCell>
+                      <TableCell>{row.price.toLocaleString() || 0}</TableCell>
+                      <TableCell>{row.qty}</TableCell>
+                      <TableCell>
+                        {(row.price * row.qty).toLocaleString() || 0}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              ) : (
+                userBillZustand.map((row, index) => {
+                  const isSelected = selected.includes(row.id);
+                  return (
+                    <TableRow
+                      key={row.id}
+                      onClick={() => handleSelect(row.id)}
+                      sx={{
+                        cursor: "pointer",
+                        backgroundColor: isSelected ? "#e3f2fd" : "transparent", // 🔷 highlight
+                      }}
+                    >
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        <img
+                          src={row.img}
+                          alt={row.menu}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            objectFit: "cover",
+                            borderRadius: 4,
+                            marginRight: 10,
+                          }}
+                        />
+                        {row.menu}
+                      </TableCell>
+                      <TableCell>{row.price.toLocaleString() || 0}</TableCell>
+                      <TableCell>{row.qty}</TableCell>
+                      <TableCell>
+                        {(row.price * row.qty).toLocaleString() || 0}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )
+
+              }
             </TableBody>
           </Table>
         </Paper>
@@ -427,20 +475,20 @@ const CustomerDisplay = () => {
               <Box>
                 <Box display="flex" alignContent="center">
                   <Avatar
-                    src={userInfo?.image}
+                    src={userinfo2?.image}
                     alt="Pao"
                     style={{ width: 80, height: 80 }}
                   />
                 </Box>
                 <Typography fontFamily="Noto Sans Lao" fontSize={18}>
-                  CUSTOMER NAME: {userInfo?.username || "UNKNOW"}
+                  CUSTOMER NAME: {userinfo2?.username || "UNKNOW"}
                 </Typography>
                 <Typography fontSize={18}>
-                  CUSTOMER ID: {userInfo?.id || 0}
+                  CUSTOMER ID: {userinfo2?.id || 0}
                 </Typography>
                 <Typography fontSize={18}>
-                  BILL NO : #{userInfo?.bill?.id || 0} | TIME{" "}
-                  {new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
+                  BILL NO : #{userinfo2?.bill?.id || userInfoZustand?.bill?.id || 0} | TIME{" "}
+                  {new Date(userinfo2?.bill?.createAt).toLocaleString("en-GB", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "numeric",
@@ -454,7 +502,7 @@ const CustomerDisplay = () => {
                   color="rgb(26, 167, 8)"
                   fontWeight="bold"
                 >
-                  ແຕ້ມສະສົມ: {userInfo?.point?.point || "01"} ຄະແນນ
+                  ແຕ້ມສະສົມ: {userinfo2?.point?.point || "01"} ຄະແນນ
                 </Typography>
               </Box>
             </Box>
@@ -472,8 +520,8 @@ const CustomerDisplay = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {userBill ? (
-                      userBill?.map((row, index) => {
+                    {userBill2 ? (
+                      userBill2?.map((row, index) => {
                         const isSelected = selected.includes(row.id);
                         return (
                           <TableRow
@@ -517,7 +565,49 @@ const CustomerDisplay = () => {
                           </TableRow>
                         );
                       })
-                    ) : (
+                    ) : userBillZustand ? userBillZustand.map((row, index) => {
+                      const isSelected = selected.includes(row.id);
+                      return (
+                        <TableRow
+                          key={row.id}
+                          onClick={() => handleSelect(row.id)}
+                          sx={{
+                            cursor: "pointer",
+                            backgroundColor: isSelected
+                              ? "#e3f2fd"
+                              : "transparent", // 🔷 highlight
+                          }}
+                        >
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            <img
+                              src={row.img}
+                              alt={row.menu}
+                              style={{
+                                width: 40,
+                                height: 40,
+                                objectFit: "cover",
+                                borderRadius: 4,
+                                marginRight: 10,
+                              }}
+                            />
+                            {row.menu}
+                          </TableCell>
+                          <TableCell>
+                            {row.price.toLocaleString() || 0}
+                          </TableCell>
+                          <TableCell>{row.qty}</TableCell>
+                          <TableCell>
+                            {(row.price * row.qty).toLocaleString() || 0}
+                          </TableCell>
+                        </TableRow>)
+                    }) : (
                       <TableRow>
                         <TableCell></TableCell>
                         <TableCell
@@ -548,7 +638,7 @@ const CustomerDisplay = () => {
             <Box display="flex" justifyContent="center" gap={5}>
               <Typography sx={{ fontSize: 30 }}>CASH</Typography>
               <Typography sx={{ fontSize: 30 }}>
-                {paymentDetail?.toLocaleString() || 0}
+                {(Number(paymentDetail) || 0).toLocaleString()}
               </Typography>
             </Box>
             <Box display="flex" justifyContent="center" gap={5}>
@@ -562,9 +652,9 @@ const CustomerDisplay = () => {
                 CHANGE
               </Typography>
               <Typography sx={{ fontSize: 35, color: "rgb(59, 146, 37)" }}>
-                {totalSum
-                  ? (paymentDetail - totalSum).toLocaleString() + " KIP"
-                  : 0 + " KIP"}
+                {paymentDetail > 0
+                  ? Math.max(paymentDetail - totalSum, 0).toLocaleString() + " KIP"
+                  : "0 KIP"}
               </Typography>
             </Box>
           </Box>
@@ -573,16 +663,26 @@ const CustomerDisplay = () => {
     </Box>
   );
   let content = null;
+  const currentUser =
+    userinfo2 && Object.keys(userinfo2).length > 0 ? userinfo2 :
+      userInfoZustand && Object.keys(userInfoZustand).length > 0 ? userInfoZustand :
+        null;
 
-  if (!userInfo || Object.keys(userInfo).length === 0) {
-    content = renderPayment();
-  } else if (userInfo && userInfo.bill === null) {
-    content = renderPayment();
-  } else if (userInfo && userInfo.bill !== null) {
-    content = renderPayment();
+  if (paymentStatus === "done") {
+    content = renderPayment(); // 👈 FIRST, show payment page if done
+  } else if (!currentUser) {
+    content = renderWelcome();
+  } else if (currentUser.bill === null) {
+    content = renderUserInfoOnly();
+  } else if (currentUser.bill) {
+    content = renderUserWithBill();
   }
+
+
+  console.log(currentUser?.bill)
 
   return <div style={{ width: "100vw", height: "100vh" }}>{content}</div>;
 };
+
 
 export default CustomerDisplay;

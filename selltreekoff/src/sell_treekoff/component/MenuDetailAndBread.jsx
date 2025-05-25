@@ -5,11 +5,24 @@ import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import LocalAtmIcon from "@mui/icons-material/LocalAtm";
 import { NavLink } from "react-router-dom";
 import useTreekoffStorage from "../../zustand/storageTreekoff";
+import { orderChannel } from "../../broadcast-channel/broadcast";
+import { useEffect } from "react";
 
 const MenuDetailAndBread = ({ selectOnline }) => {
   const location = useLocation();
   const userBill = useTreekoffStorage((s) => s.userBill)
   const userInfo = useTreekoffStorage((s) => s.userInfo)
+
+
+  const refreshCus = () => {
+    orderChannel.postMessage(userInfo)
+  }
+
+  useEffect(() => {
+    if (location.pathname === "/") {
+      refreshCus();
+    }
+  }, [location.pathname]);
   return (
     <Box
       sx={{
@@ -53,6 +66,7 @@ const MenuDetailAndBread = ({ selectOnline }) => {
             <NavLink
               to="/"
               end
+              onClick={refreshCus}
               style={({ isActive }) => ({
                 display: "flex",
                 alignItems: "center",

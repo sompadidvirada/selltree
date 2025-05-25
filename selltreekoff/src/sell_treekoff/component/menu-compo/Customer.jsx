@@ -18,9 +18,8 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { createBill, getUser, registerUser } from "../../../api/sellTreekoff";
 import { toast, ToastContainer } from "react-toastify";
-import { io } from "socket.io-client";
+import { billUserChannel, orderChannel, paymentMethod } from "../../../broadcast-channel/broadcast";
 
-const socket = io("http://localhost:3001");
 
 const SignupSchema = Yup.object().shape({
   username: Yup.string().required("Required"),
@@ -28,13 +27,17 @@ const SignupSchema = Yup.object().shape({
 });
 
 const Customer = () => {
-  const setScreenControll = useTreekoffStorage((s) => s.setScreenControll);
+
   const [searchCustomer, setSearchCustomer] = useState("");
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
   const resetBill = useTreekoffStorage((s) => s.resetBill);
+  const userBill = useTreekoffStorage((s) => s.userBill)
+  const setUserBill = useTreekoffStorage((s) => s.setUserBill)
   const navigate = useNavigate();
   const hasHandled9001 = useRef(false);
+
+
 
   useEffect(() => {
     if (userInfo?.id === 9001 && !hasHandled9001.current) {
@@ -42,6 +45,7 @@ const Customer = () => {
       hasHandled9001.current = true;
     }
   }, [userInfo]);
+
 
   const handleRegister = async (values, resetForm) => {
     console.log("Submitting form with values:", values); // Add this line
@@ -54,6 +58,7 @@ const Customer = () => {
 
     resetForm();
   };
+
 
   const createWithUser = async (userId) => {
     try {
@@ -72,16 +77,16 @@ const Customer = () => {
       setUserInfo(combineCreate);
 
       {
-        /**socket io */
+        /**send broadcast channel */
       }
-
-      socket.emit("send-to-popup-userinfo", { data: combineCreate });
+      orderChannel.postMessage(combineCreate)
     } catch (err) {
       console.log(err);
     }
 
     navigate("/productdetail");
   };
+
   const handleCreateNoUser = async () => {
     hasHandled9001.current = true; // Skip the effect once
 
@@ -95,22 +100,21 @@ const Customer = () => {
       createDate: "",
     };
 
-    setUserInfo(defaultUser);
-
     const res = await createBill(9001);
-
     const billData = res?.data;
-
     const combinedUser = {
       ...defaultUser,
       bill: billData,
     };
 
+    {/** set local storage */}
+
     setUserInfo(combinedUser);
 
-    setScreenControll({ combinedUser });
+    {/** send broadcast channel */}
 
-    socket.emit("send-to-popup-userinfo", { data: combinedUser });
+    orderChannel.postMessage(combinedUser)
+
 
     setTimeout(() => {
       navigate("/productdetail");
@@ -130,30 +134,41 @@ const Customer = () => {
         setSearchCustomer("");
 
         {
-          /** socket io */
+          /** send broadcast channel */
         }
 
-        socket.emit("send-to-popup-userinfo", { data: "" });
+        orderChannel.postMessage("")
 
         toast.error("ຂໍ້ມູນລູກຄ້າຄົນນີ້ ບໍ່ມີໃນລະບົບ", {
           style: { fontFamily: "'Noto Sans Lao', sans-serif" },
         });
+        
       } else {
         setUserInfo(userr?.data);
-        setScreenControll(userr?.data);
 
         {
           /** socket io */
         }
-
-        socket.emit("send-to-popup-userinfo", { data: userr?.data });
-
+        orderChannel.postMessage(userr?.data)
         setSearchCustomer("");
       }
     } catch (err) {
       console.log(err);
     }
   };
+
+
+  useEffect(() => {
+    if (userInfo) {
+      orderChannel.postMessage(userInfo)
+    } if (userBill?.length === 0) {
+      billUserChannel.postMessage(null)
+    }
+  }, [userBill, userInfo]);
+
+  useEffect(()=>{
+    paymentMethod.postMessage(null)
+  },[])
 
   return (
     <Box display="flex" flexDirection="column" gap="40px">
@@ -176,6 +191,7 @@ const Customer = () => {
             type="number"
             name="seacrhCustomer"
             required
+            min={1}
             value={searchCustomer}
             onChange={(e) => setSearchCustomer(e.target.value)}
             onKeyDown={(e) => {
@@ -185,6 +201,7 @@ const Customer = () => {
               }
             }}
             placeholder="ລະບຸຂໍ້ມູນລູກຄ້າ..."
+            onWheel={(e) => e.target.blur()} // ⛔ Prevent scroll changes
             style={{
               fontFamily: "Noto Sans Lao",
               fontSize: "20px",
@@ -381,12 +398,12 @@ const Customer = () => {
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
                       {userInfo?.createAt
                         ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
                         : "UNKNOW"}
                     </Typography>
                   </Grid2>
@@ -425,7 +442,7 @@ const Customer = () => {
                   </TableHead>
                   <TableBody>
                     {userInfo?.bill !== null ? (
-                      <TableRow  sx={{ backgroundColor: "white" }}>
+                      <TableRow sx={{ backgroundColor: "white" }}>
                         <TableCell sx={{ color: "black" }}>
                           <Typography
                             fontFamily={"Noto Sans Lao"}

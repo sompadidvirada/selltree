@@ -1,39 +1,29 @@
 import { Box } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
-import ReactDOM from "react-dom/client";
-import CustomerDisplay from "./component/menu-compo/CustomerDisplay";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
 import EmployeeDetail from "./component/EmployeeDetail";
 import OnlineCustomer from "./component/OnlineCustomer";
 import MenuDetailAndBread from "./component/MenuDetailAndBread";
-import { CacheProvider } from "@emotion/react";
-import createCache from "@emotion/cache";
 
 const SellTreekoff = () => {
-  const theme = createTheme();
   const [selectOnline, setSelectOnline] = useState(false);
   const popupRef = useRef(null);
-  const customerRootRef = useRef(null);
 
   const openWindow = () => {
-    const customerWindow = window.open(
-      "/screencustomer", // Use your route here
-      "Customer Display",
-      "width=800,height=800,left=1000,top=100"
-    );
-  
-    popupRef.current = customerWindow;
-    
-    return () => {
-      popupRef.current?.close();
-    };
+    if (!popupRef.current || popupRef.current.closed) {
+      const customerWindow = window.open(
+        "/screencustomer",
+        "Customer Display",
+        "width=800,height=800,left=1000,top=100"
+      );
+      popupRef.current = customerWindow;
+    }
   };
-  
 
-  useEffect(() => {
-    openWindow();
-  }, []);
+  useEffect(()=>{
+    openWindow()
+  },[])
+
+
 
   return (
     <Box

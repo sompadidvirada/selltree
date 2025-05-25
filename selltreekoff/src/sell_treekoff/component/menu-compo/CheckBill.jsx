@@ -24,11 +24,10 @@ import { createWaitOrder, deleteBill } from "../../../api/sellTreekoff";
 import ComponentToPrint from "../print-component/ComponentToPrint";
 import { useReactToPrint } from "react-to-print";
 import { toast, ToastContainer } from "react-toastify";
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:3001");
+import { numberPayment, paymentMethod } from "../../../broadcast-channel/broadcast";
 
 const CheckBill = () => {
+
   const brachId = 2;
   const navigate = useNavigate();
   const [selected, setSelected] = useState([]);
@@ -51,7 +50,7 @@ const CheckBill = () => {
   const handleChange = (e) => {
     const raw = e.target.value.replace(/,/g, ""); // remove commas
     setRawCash(raw);
-    socket.emit("send-to-popup-payment", { data: raw });
+    numberPayment.postMessage(raw)
 
     if (!isNaN(raw)) {
       const number = parseInt(raw, 10);
@@ -106,6 +105,7 @@ const CheckBill = () => {
         sessionStorage.setItem("CheckuserBill", JSON.stringify(CheckuserBill));
 
         resetBill();
+        
         navigate("/");
         // Open new tab
         window.open("/customerbill", "_blank");
@@ -114,6 +114,9 @@ const CheckBill = () => {
       console.log(err);
     }
   };
+  useEffect(()=>{
+    paymentMethod.postMessage("done")
+  },[])
 
   return (
     <Box>

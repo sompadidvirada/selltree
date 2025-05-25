@@ -28,6 +28,12 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('receive-from-main-payment', data);
   });
 
+  socket.on('test', (data) => {
+    console.log(data)
+    socket.broadcast.emit('test-receive', data);
+  });
+
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });
