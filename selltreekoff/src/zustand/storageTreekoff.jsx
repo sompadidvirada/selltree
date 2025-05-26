@@ -1,13 +1,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { onlineOrderData } from "../sell_treekoff/data/MockData";
 
 const TreekoffStorage = (set, get) => ({
   userBill: [],
   employeeInfo: null,
   userInfo: null,
   screenControl: null,
-  orderOnline: onlineOrderData,
+  orderOnline: [],
   setUserBill: (billOrUpdater) => {
     set((state) => ({
       userBill:
@@ -35,9 +34,24 @@ const TreekoffStorage = (set, get) => ({
   setScreenControll: (newData) => {
     set({ screenControl: newData });
   },
-  setOrderOnline: (newData) => {
+  // Append a new order to the front
+  appendOrderOnline: (newOrder) => {
     set((state) => ({
-      orderOnline: [newData, ...state.orderOnline],
+      orderOnline: [newOrder, ...state.orderOnline],
+    }));
+  },
+  // Replace all online orders (e.g. after fetch)
+  replaceOrderOnline: (newOrders) => {
+    set({
+      orderOnline: newOrders,
+    });
+  },
+  // Remove an order by ID
+  removeOrderOnline: (billNumberToRemove) => {
+    set((state) => ({
+      orderOnline: state.orderOnline.filter(
+        (order) => order.billNumber !== billNumberToRemove
+      ),
     }));
   },
 });

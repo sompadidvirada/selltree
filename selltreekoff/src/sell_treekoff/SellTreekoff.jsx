@@ -5,13 +5,19 @@ import OnlineCustomer from "./component/OnlineCustomer";
 import MenuDetailAndBread from "./component/MenuDetailAndBread";
 import { useSocket } from "../socket-provider/SocketProvider";
 import useTreekoffStorage from "../zustand/storageTreekoff";
+import { onlineOrderData } from "./data/MockData";
 
 const SellTreekoff = () => {
   const [selectOnline, setSelectOnline] = useState(false);
   const popupRef = useRef(null);
   const socket = useSocket();
-  const orderOnline = useTreekoffStorage((s)=>s.orderOnline)
-  const setOrderOnline = useTreekoffStorage((s)=>s.setOrderOnline)
+  const orderOnline = useTreekoffStorage((s) => s.orderOnline);
+  const appendOrderOnline = useTreekoffStorage((s) => s.appendOrderOnline);
+  const replaceOrderOnline = useTreekoffStorage((s) => s.replaceOrderOnline);
+
+  useEffect(() => {
+    replaceOrderOnline(onlineOrderData);
+  }, []);
 
   const openWindow = () => {
     if (!popupRef.current || popupRef.current.closed) {
@@ -28,12 +34,11 @@ const SellTreekoff = () => {
     openWindow();
   }, []);
 
-
   useEffect(() => {
     if (!socket) return;
 
     socket.on("online-order", (data) => {
-      setOrderOnline(data)
+      appendOrderOnline(data);
     });
 
     return () => {
@@ -41,7 +46,6 @@ const SellTreekoff = () => {
     };
   }, [socket]);
 
-  console.log(orderOnline)
 
   return (
     <Box
@@ -62,7 +66,7 @@ const SellTreekoff = () => {
             openWindow={openWindow}
           />
         </Box>
-        <MenuDetailAndBread selectOnline={selectOnline}/>
+        <MenuDetailAndBread selectOnline={selectOnline} />
       </Box>
     </Box>
   );

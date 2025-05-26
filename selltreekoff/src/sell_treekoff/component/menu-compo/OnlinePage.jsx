@@ -23,25 +23,64 @@ import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
+import { createBill, createWaitOrder } from "../../../api/sellTreekoff";
 
 const OnlinePage = () => {
-  const orderOnline = useTreekoffStorage((s)=>s.orderOnline)
+  const orderOnline = useTreekoffStorage((s) => s.orderOnline);
+  const removeOrderOnline = useTreekoffStorage((s) => s.removeOrderOnline);
+  const replaceOrderOnline = useTreekoffStorage((s) => s.replaceOrderOnline);
+  const employeeInfo = useTreekoffStorage((s) => s.employeeInfo);
   const totalPrice = orderOnline
-    ? orderOnline.billDetail?.reduce(
-        (acc, row) => acc + row.price * row.qty,
-        0
-      )
+    ? orderOnline.billDetail?.reduce((acc, row) => acc + row.price * row.qty, 0)
     : 0;
-  const [pcikOrder, setPickOrder] = useState({
-    type: false,
-    updateOrder: false,
-  });
+
   const [searchTerm, setSearchTerm] = useState("");
   const filteredOrders = orderOnline.filter(
     (order) =>
       order.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.id.toString().includes(searchTerm)
   );
+
+  const handlePrintOrder = (row) => {
+
+    const CheckuserBill = {
+      billId: row?.billNumber,
+      createAt: row?.createAt,
+      userId: row?.id,
+      username: row?.username,
+      waitNumber: row?.waitOrder,
+      menuDetail: row?.billDetail || [],
+      employeeName: employeeInfo?.username || "",
+    };
+
+    setTimeout(() => {
+      sessionStorage.setItem("CheckuserBill2", JSON.stringify(CheckuserBill));
+
+      // Open new tab
+      window.open("/baristabill", "_blank");
+    }, 150);
+  };
+
+  const handleGetOrder = async (billNumber) => {
+    try {
+      const orderWait = await createWaitOrder(1);
+      const updatedOrders = orderOnline.map((order) =>
+        order.billNumber === billNumber
+          ? { ...order, waitOrder: orderWait.data.waitNumber, orderStatus: "ສຳເລັດ" }
+          : order
+      );
+      replaceOrderOnline(updatedOrders);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleDeleteOrder = (billNumber) => {
+    if (confirm(`ARE YOU SURE YOU WANT TO DELETE THIS BILL ${billNumber}?`)) {
+      removeOrderOnline(billNumber);
+    }
+  };
+
   return (
     <Box>
       {/**TITLE SECTION */}
@@ -136,7 +175,7 @@ const OnlinePage = () => {
                       : "rgb(223, 223, 223)";
                   return (
                     <TableRow
-                      key={row.id}
+                      key={`${row.id}-${row.billNumber}-${index}`}
                       sx={{
                         background:
                           row.orderStatus === "ລໍຖ້າຮັບ"
@@ -249,6 +288,7 @@ const OnlinePage = () => {
                         <Box display={"flex"} gap={1}>
                           <Button
                             variant="contained"
+                            onClick={() => handlePrintOrder(row)}
                             sx={{
                               fontFamily: "Noto Sans Lao",
                               color: textColor,
@@ -261,11 +301,17 @@ const OnlinePage = () => {
                             variant="contained"
                             color="success"
                             sx={{ fontFamily: "Noto Sans Lao" }}
+                            onClick={() => handleGetOrder(row.billNumber)}
                           >
                             <LocalPhoneIcon />
                             ຮັບອໍເດີ
                           </Button>
-                          <Button variant="contained" color="error">
+                          <Button
+                            variant="contained"
+                            color="error"
+                            disabled={row.orderStatus === "ສຳເລັດ"}
+                            onClick={() => handleDeleteOrder(row.billNumber)}
+                          >
                             <DeleteIcon />
                           </Button>
                         </Box>

@@ -415,9 +415,11 @@ export const onlineOrderData = [
     image: "/assests/user.png",
     phonenumber: "56433630",
     orderTime: "08:41am 26/05/2025",
+    waitOrder: 0,
     orderStatus: "ລໍຖ້າຮັບ",
-    billNumber: "11263",
+    billNumber: 11263,
     takeType: "ຮັບເອງທີ່ສາຂາ",
+    createAt: "19:30 26/05/2025",
     billDetail: [
       {
         id: 1,
@@ -451,9 +453,11 @@ export const onlineOrderData = [
     image: "/assests/valadimir.jpg",
     phonenumber: "56433630",
     orderTime: "08:41am 26/05/2025",
+    waitOrder: 0,
     orderStatus: "ສຳເລັດ",
-    billNumber: "11263",
+    billNumber: 11264,
     takeType: "ຈັດສົ່ງ",
+    createAt: "19:30 26/05/2025",
     billDetail: [
       {
         id: 1,
@@ -488,8 +492,10 @@ export const onlineOrderData = [
     phonenumber: "56433630",
     orderTime: "08:41am 26/05/2025",
     orderStatus: "ສຳເລັດ",
-    billNumber: "11263",
+    waitOrder: 0,
+    billNumber: 11266,
     takeType: "ຮັບເອງທີ່ສາຂາ",
+    createAt: "19:30 26/05/2025",
     billDetail: [
       {
         id: 1,
@@ -524,8 +530,10 @@ export const onlineOrderData = [
     image: "/assests/valadimir.jpg",
     orderTime: "08:41am 26/05/2025",
     orderStatus: "ສຳເລັດ",
-    billNumber: "11263",
+    billNumber: 11265,
+    waitOrder: 0,
     takeType: "ຮັບເອງທີ່ສາຂາ",
+    createAt: "19:30 26/05/2025",
     billDetail: [
       {
         id: 1,
@@ -560,8 +568,10 @@ export const onlineOrderData = [
     image: "/assests/valadimir.jpg",
     orderTime: "08:41am 26/05/2025",
     orderStatus: "ສຳເລັດ",
-    billNumber: "11263",
+    billNumber: 1123463,
+    waitOrder: 0,
     takeType: "ຈັດສົ່ງ",
+    createAt: "19:30 26/05/2025",
     billDetail: [
       {
         id: 1,
@@ -596,8 +606,10 @@ export const onlineOrderData = [
     image: "/assests/valadimir.jpg",
     orderStatus: "ສຳເລັດ",
     orderTime: "08:41am 26/05/2025",
-    billNumber: "11263",
+    billNumber: 11213412263,
+    waitOrder: 0,
     takeType: "ຈັດສົ່ງ",
+    createAt: "19:30 26/05/2025",
     billDetail: [
       {
         id: 1,
@@ -632,8 +644,10 @@ export const onlineOrderData = [
     orderStatus: "ສຳເລັດ",
     image: "/assests/valadimir.jpg",
     orderTime: "08:41am 26/05/2025",
-    billNumber: "11263",
+    waitOrder: 0,
+    billNumber: 112122363,
     takeType: "ຈັດສົ່ງ",
+    createAt: "19:30 26/05/2025",
     billDetail: [
       {
         id: 1,
