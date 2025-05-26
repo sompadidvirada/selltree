@@ -8,8 +8,37 @@ import {
 } from "@mui/material";
 import MonitorIcon from "@mui/icons-material/Monitor";
 import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
+import { useEffect, useRef, useState } from "react";
+import useTreekoffStorage from "../../zustand/storageTreekoff";
 
 const OnlineCustomer = ({ setSelectOnline, openWindow }) => {
+  const [getNoti, setGetNoti] = useState(0);
+
+  const orderOnline = useTreekoffStorage((s) => s.orderOnline);
+  const prevLengthRef = useRef(orderOnline?.length || 0);
+  // Count how many orders are waiting
+  const waitingCount =
+    orderOnline?.filter((order) => order.orderStatus === "ລໍຖ້າຮັບ").length ||
+    0;
+
+  useEffect(() => {
+    const currentLength = orderOnline?.length || 0;
+    const prevLength = prevLengthRef.current;
+
+    if (currentLength > prevLength) {
+      // Only play sound if new order(s) were added
+      setGetNoti((prev) => prev + 1);
+
+      const audio = new Audio("/noti.wav");
+      audio.play().catch((e) => {
+        console.warn("Sound couldn't play automatically:", e);
+      });
+    }
+
+    // Update previous length reference
+    prevLengthRef.current = currentLength;
+  }, [orderOnline]);
+
   return (
     <Box
       sx={{
@@ -160,7 +189,22 @@ const OnlineCustomer = ({ setSelectOnline, openWindow }) => {
                 color: "blue",
               }}
             >
-              <PhoneAndroidIcon /> TREEKOFF(ONLINE)
+              <PhoneAndroidIcon /> TREEKOFF(ONLINE){" "}
+               {waitingCount > 0 && (
+                <span
+                  style={{
+                    color: "white",
+                    padding: "2px 8px",
+                    backgroundColor: "red",
+                    borderRadius: "12px",
+                    fontSize: "14px",
+                    marginLeft: "6px",
+                    alignSelf:'center'
+                  }}
+                >
+                  {waitingCount}
+                </span>
+              )}
             </Typography>
           </Button>
         </CardContent>

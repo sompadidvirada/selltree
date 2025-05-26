@@ -34,7 +34,7 @@ exports.getUser = async (req, res) => {
     }
 
     const user = await prisma.customer.findFirst({
-      where: { id:Number(id) },
+      where: { id: Number(id) },
       include: { point: true },
     });
     const latestBill = await prisma.customerBill.findFirst({
@@ -74,7 +74,6 @@ exports.createBill = async (req, res) => {
         customerId: Number(userId),
       },
     });
-    console.log(bill);
     res.send(bill);
   } catch (err) {
     console.log(err);
@@ -85,7 +84,6 @@ exports.createBill = async (req, res) => {
 exports.deleteBill = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
     if (!id) {
       return res.send("need ID");
     }
@@ -161,5 +159,18 @@ exports.createBrach = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: `server error` });
+  }
+};
+
+exports.orderOnline = (req, res) => {
+  try {
+    const order = req.body
+    const io = req.app.get('io')
+
+    io.emit('online-order', order)
+    res.send("Order Sucess !! :3 ");
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: `server error.` });
   }
 };

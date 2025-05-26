@@ -7,6 +7,7 @@ import { NavLink } from "react-router-dom";
 import useTreekoffStorage from "../../zustand/storageTreekoff";
 import { orderChannel } from "../../broadcast-channel/broadcast";
 import { useEffect } from "react";
+import OnlinePage from "./menu-compo/OnlinePage";
 
 const MenuDetailAndBread = ({ selectOnline }) => {
   const location = useLocation();
@@ -40,7 +41,7 @@ const MenuDetailAndBread = ({ selectOnline }) => {
             color: "black",
           }}
         >
-          This is for onlie
+          <OnlinePage />
         </Card>
       ) : (
         <Card
