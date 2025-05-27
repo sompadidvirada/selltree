@@ -61,5 +61,5 @@ readdirSync("./routes").forEach((item) => {
 
 // 🔊 Step 5: Start the server
 server.listen(5520, "0.0.0.0", () => {
-  console.log("🚀 Server is running on port 5520");
+  console.log("Server is running on port 5520");
 });

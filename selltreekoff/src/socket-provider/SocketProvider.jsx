@@ -4,13 +4,15 @@ import { io } from 'socket.io-client';
 const SocketContext = createContext(null);
 
 export const useSocket = () => useContext(SocketContext);
+const envUrl = import.meta.env.VITE_API_URL;
 
 export const SocketProvider = ({ children }) => {
+  
   const socketRef = useRef(null);
 
   // Initialize socket once
   if (!socketRef.current) {
-    socketRef.current = io('http://localhost:5520');
+    socketRef.current = io(`${envUrl}`);
   }
 
   useEffect(() => {
