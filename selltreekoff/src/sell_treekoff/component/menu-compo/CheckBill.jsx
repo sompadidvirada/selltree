@@ -28,7 +28,7 @@ import { numberPayment, paymentMethod } from "../../../broadcast-channel/broadca
 
 const CheckBill = () => {
 
-  const brachId = 2;
+  const brachId = 1;
   const navigate = useNavigate();
   const [selected, setSelected] = useState([]);
   const [moneyReceived, setMoneyReciept] = useState("");
