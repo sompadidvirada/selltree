@@ -35,11 +35,13 @@ const OnlinePage = () => {
     : 0;
 
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredOrders = orderOnline.filter(
-    (order) =>
-      order.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.id.toString().includes(searchTerm)
-  );
+const filteredOrders = searchTerm
+  ? orderOnline.filter(
+      (order) =>
+        order.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.id.toString().includes(searchTerm)
+    )
+  : orderOnline;
 
   const handlePrintOrder = (row) => {
 
