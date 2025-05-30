@@ -6,26 +6,6 @@ import { QRCodeCanvas } from "qrcode.react";
 
 const TestQR = () => {
 
-useEffect(() => {
-  const socket = io("https://payment-gateway.lailaolab.com/");
-  const USER_ID = "sompadidppp@gmail.com"
-    
-  socket.on('connect', ()=> {
-    console.log('Connect to BCEL lailao success.')
-
-    socket.on(`private_message:${USER_ID}`, (data) => {
-        console.log('Receipt Status Payment', data)
-    })
-  })
-
-  socket.on('connect_error', (error) => {
-    console.error('Something went wrong~~',error)
-  })
-
-  return () => {
-    socket.disconnect();
-  };
-}, []);
 
   const [formtoreq, setFormtoreq] = useState    ({
     amount: "",
