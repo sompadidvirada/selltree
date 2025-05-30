@@ -9,6 +9,7 @@ import ComponentToPrint from "../sell_treekoff/component/print-component/Compone
 import BarestarBill from "../sell_treekoff/component/print-component/BarestarBill";
 import CustomerBill from "../sell_treekoff/component/print-component/CustomerBill";
 import CustomerDisplay from "../sell_treekoff/component/menu-compo/CustomerDisplay";
+import TestQR from "../testqrcode/TestQR";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
   {
     path: "/screencustomer",
     element: <CustomerDisplay />
+  },
+  {
+    path: "/testqr",
+    element: <TestQR />
   },
 ]);
 

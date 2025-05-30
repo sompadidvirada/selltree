@@ -21,8 +21,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
 import { createWaitOrder, deleteBill } from "../../../api/sellTreekoff";
-import ComponentToPrint from "../print-component/ComponentToPrint";
-import { useReactToPrint } from "react-to-print";
 import { toast, ToastContainer } from "react-toastify";
 import { numberPayment, paymentMethod } from "../../../broadcast-channel/broadcast";
 
