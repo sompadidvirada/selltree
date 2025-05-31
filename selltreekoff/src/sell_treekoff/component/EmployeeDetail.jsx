@@ -7,6 +7,7 @@ import useTreekoffStorage from "../../zustand/storageTreekoff";
 const EmployeeDetail = () => {
   const emplyyeeInfo = useTreekoffStorage((state) => state.employeeInfo);
   const setEmployeeInfo = useTreekoffStorage((state) => state.setEmplyeeInfo);
+  const staffInfo = useTreekoffStorage((state)=>state.staffInfo)
 
   useEffect(() => {
     setEmployeeInfo(EmployeeInfo);
@@ -39,7 +40,7 @@ const EmployeeDetail = () => {
             borderRadius: "50%",
             marginTop: 2,
           }}
-          image={emplyyeeInfo?.image || ""}
+          image={staffInfo?.profile_picture || ""}
           title="profile picture"
         />
         <CardContent
@@ -59,7 +60,7 @@ const EmployeeDetail = () => {
               fontSize: 20,
             }}
           >
-            {emplyyeeInfo?.username || "EMTY"}
+            {staffInfo?.first_name || "EMTY"}
           </Typography>
           <Typography
             fontFamily={"Noto Sans Lao"}
@@ -86,7 +87,7 @@ const EmployeeDetail = () => {
           </Typography>
           <Typography fontFamily={"Noto Sans Lao"} color="black" display="flex">
             <LocationCityIcon />
-            {emplyyeeInfo?.brach || "EMTY"}
+            {staffInfo?.branch?.branch_name || "EMTY"}
           </Typography>
         </CardContent>
         <CardContent

@@ -18,6 +18,7 @@ import * as Yup from "yup";
 import { createBill, getUser, registerUser } from "../../../api/sellTreekoff";
 import { toast, ToastContainer } from "react-toastify";
 import { billUserChannel, orderChannel, paymentMethod } from "../../../broadcast-channel/broadcast";
+import { searchCus } from "../../../api/treekoff"
 
 
 const SignupSchema = Yup.object().shape({
@@ -34,6 +35,9 @@ const Customer = () => {
   const userBill = useTreekoffStorage((s) => s.userBill)
   const navigate = useNavigate();
   const hasHandled9001 = useRef(false);
+  const customerInfo = useTreekoffStorage((state) => state.customerInfo)
+  const setCustomerInfo = useTreekoffStorage((state) => state.setCustomerInfo)
+  const resetCustomer = useTreekoffStorage((state)=>state.resetCustomerInfo)
 
 
 
@@ -104,11 +108,11 @@ const Customer = () => {
       bill: billData,
     };
 
-    {/** set local storage */}
+    {/** set local storage */ }
 
     setUserInfo(combinedUser);
 
-    {/** send broadcast channel */}
+    {/** send broadcast channel */ }
 
     orderChannel.postMessage(combinedUser)
 
@@ -119,36 +123,39 @@ const Customer = () => {
   };
 
   const handleSearch = async (value) => {
+    console.log(value)
     if (!value || value === "") {
       return;
     }
     try {
-      const userr = await getUser(value);
+      const customerSeacrh = await searchCus(value)
+      console.log(customerSeacrh)
 
-      if (userr?.data?.message) {
-        resetBill();
-
-        setSearchCustomer("");
-
-        {
-          /** send broadcast channel */
-        }
-
-        orderChannel.postMessage("")
-
-        toast.error("ຂໍ້ມູນລູກຄ້າຄົນນີ້ ບໍ່ມີໃນລະບົບ", {
-          style: { fontFamily: "'Noto Sans Lao', sans-serif" },
-        });
-        
-      } else {
-        setUserInfo(userr?.data);
-
-        {
-          /** socket io */
-        }
-        orderChannel.postMessage(userr?.data)
-        setSearchCustomer("");
+      if(customerSeacrh.data === "") {
+        resetCustomer("")
+        setSearchCustomer("")
+        orderChannel.postMessage(null)
+        toast.error("ບໍ່ມີໄອດີນີ້ ໃນລະບົບ", {
+          style: {
+              fontFamily: 'Noto Sans Lao, sans-serif'
+          }
+      });
+      return
       }
+
+
+      const responeData = customerSeacrh.data.data
+
+      const meachData = {
+        ...responeData[0],
+        ...responeData[1]
+      }
+      setCustomerInfo(meachData)
+
+
+      orderChannel.postMessage(meachData)
+
+      setSearchCustomer("");
     } catch (err) {
       console.log(err);
     }
@@ -163,9 +170,9 @@ const Customer = () => {
     }
   }, [userBill, userInfo]);
 
-  useEffect(()=>{
+  useEffect(() => {
     paymentMethod.postMessage(null)
-  },[])
+  }, [])
 
   return (
     <Box display="flex" flexDirection="column" gap="40px">
@@ -238,7 +245,7 @@ const Customer = () => {
         </Box>
 
         {/** Output Area */}
-        {userInfo ? (
+        {customerInfo ? (
           <Box
             sx={{
               p: "20px",
@@ -271,8 +278,8 @@ const Customer = () => {
                   </Grid2>
                   <Grid2>
                     <Avatar
-                      src={userInfo?.image || ""}
-                      alt={userInfo?.username || "EMTY"}
+                      src={customerInfo?.profile_img || ""}
+                      alt={customerInfo?.full_name || "EMTY"}
                       sx={{ width: 120, height: 120 }}
                     />
                   </Grid2>
@@ -295,7 +302,7 @@ const Customer = () => {
                       fontSize={30}
                       fontFamily={"Noto Sans Lao"}
                     >
-                      {userInfo?.id || "0"}
+                      {customerInfo?.id_list || "0"}
                     </Typography>
                   </Grid2>
                 </Grid2>
@@ -312,7 +319,7 @@ const Customer = () => {
                   </Grid2>
                   <Grid2>
                     <Typography fontFamily={"Noto Sans Lao"} fontSize={30}>
-                      {userInfo?.username || "EMTY"}
+                      {customerInfo?.full_name || "EMTY"}
                     </Typography>
                   </Grid2>
                 </Grid2>
@@ -330,7 +337,7 @@ const Customer = () => {
                   </Grid2>
                   <Grid2>
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-                      {userInfo?.phonenumber || "EMTY"}
+                      {customerInfo?.contact_info || "EMTY"}
                     </Typography>
                   </Grid2>
                 </Grid2>
@@ -353,9 +360,9 @@ const Customer = () => {
                       fontSize={30}
                       fontFamily={"Noto Sans Lao"}
                     >
-                      {userInfo?.point[0]?.point?.toLocaleString() ||
-                        "12 " + "ແຕ້ມ" ||
-                        `0 ແຕ້ມ`}
+                      {customerInfo?.total_score
+                        ? Number(customerInfo.total_score).toLocaleString() + " ແຕ້ມ"
+                        : "0 ແຕ້ມ"}
                     </Typography>
                   </Grid2>
                 </Grid2>
@@ -373,8 +380,7 @@ const Customer = () => {
                   </Grid2>
                   <Grid2>
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-                      {userInfo?.totalSpent?.toLocaleString() ||
-                        "0 " + "ກີບ" ||
+                      {Number(customerInfo?.total_bill_kip).toLocaleString() + ` ກີບ` ||
                         `0 ກີບ`}
                     </Typography>
                   </Grid2>

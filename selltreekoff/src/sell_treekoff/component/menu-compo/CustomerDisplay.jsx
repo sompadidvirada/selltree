@@ -15,7 +15,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import { billUserChannel, numberPayment, orderChannel, paymentMethod } from "../../../broadcast-channel/broadcast";
 
 const CustomerDisplay = () => {
-  const [userinfo2, setUserinfo2] = useState([])
+  const [userinfo2, setUserinfo2] = useState(undefined)
   const [userBill2, setUserBill2] = useState([])
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [paymentDetail, setPaymentDetail] = useState(0);
@@ -37,9 +37,10 @@ const CustomerDisplay = () => {
 
   const [employeeInfo, setEmployeeInfo] = useState(null);
   const [selected, setSelected] = useState([]) || [];
-  const userInfoZustand = useTreekoffStorage((s) => s.userInfo)
+  const userInfoZustand = useTreekoffStorage((s) => s.customerInfo)
   const userBillZustand = useTreekoffStorage((s) => s.userBill)
 
+  console.log(userinfo2)
 
   const totalSum =
     userBill2 ? userBill2.reduce((acc, row) => acc + row.price * row.qty, 0) : userBillZustand.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
@@ -134,8 +135,8 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Avatar
-              src={userinfo2?.image || userInfoZustand?.image || ""}
-              alt={userinfo2?.username || userInfoZustand?.username || ""}
+              src={userinfo2?.profile_img || userInfoZustand?.profile_img || ""}
+              alt={userinfo2?.full_name || userInfoZustand?.full_name || ""}
               style={{ width: 120, height: 120 }}
             />
           </Grid2>
@@ -154,7 +155,7 @@ const CustomerDisplay = () => {
               fontSize={30}
               fontFamily={"Noto Sans Lao"}
             >
-              {userinfo2?.id || userInfoZustand?.id || ""}
+              {userinfo2?.id_list || userInfoZustand?.id_list || ""}
             </Typography>
           </Grid2>
         </Grid2>
@@ -167,7 +168,7 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Typography fontFamily={"Noto Sans Lao"} fontSize={30}>
-              {userinfo2?.username || userInfoZustand?.username || ""}
+              {userinfo2?.full_name || userInfoZustand?.full_name || ""}
             </Typography>
           </Grid2>
         </Grid2>
@@ -181,7 +182,7 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-              {userinfo2?.phonenumber || userInfoZustand?.phonenumber || ""}
+              {userinfo2?.contact_info || userInfoZustand?.contact_info || ""}
             </Typography>
           </Grid2>
         </Grid2>
@@ -200,7 +201,7 @@ const CustomerDisplay = () => {
               fontSize={30}
               fontFamily={"Noto Sans Lao"}
             >
-              {userinfo2?.point?.point || userInfoZustand?.point?.point || 0} ແຕ້ມ
+              {Number(userinfo2?.total_score).toLocaleString() || Number(userInfoZustand?.total_score).toLocaleString() || 0} ແຕ້ມ
             </Typography>
           </Grid2>
         </Grid2>
@@ -214,7 +215,7 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-              {"0"} KIP
+              {Number(userinfo2?.total_bill_kip).toLocaleString() || 0} KIP
             </Typography>
           </Grid2>
         </Grid2>
@@ -228,19 +229,7 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-              {new Date(userinfo2?.bill?.createAt).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              }) || new Date(userInfoZustand?.bill?.createAt).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              }) || 0}
+              {0}
             </Typography>
           </Grid2>
         </Grid2>
@@ -367,7 +356,7 @@ const CustomerDisplay = () => {
                         />
                         {row.menu}
                       </TableCell>
-                      <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
+                      <TableCell sx={{ fontFamily: 'Noto Sans Lao' }}>{row.sweet}</TableCell>
                       <TableCell>{row.price.toLocaleString() || 0}</TableCell>
                       <TableCell>{row.qty}</TableCell>
                       <TableCell>
@@ -409,7 +398,7 @@ const CustomerDisplay = () => {
                         />
                         {row.menu}
                       </TableCell>
-                      <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
+                      <TableCell sx={{ fontFamily: 'Noto Sans Lao' }}>{row.sweet}</TableCell>
                       <TableCell>{row.price.toLocaleString() || 0}</TableCell>
                       <TableCell>{row.qty}</TableCell>
                       <TableCell>
@@ -550,7 +539,7 @@ const CustomerDisplay = () => {
                               />
                               {row.menu}
                             </TableCell>
-                            <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
+                            <TableCell sx={{ fontFamily: 'Noto Sans Lao' }}>{row.sweet}</TableCell>
                             <TableCell>
                               {row.price.toLocaleString() || 0}
                             </TableCell>
@@ -595,7 +584,7 @@ const CustomerDisplay = () => {
                             />
                             {row.menu}
                           </TableCell>
-                          <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
+                          <TableCell sx={{ fontFamily: 'Noto Sans Lao' }}>{row.sweet}</TableCell>
                           <TableCell>
                             {row.price.toLocaleString() || 0}
                           </TableCell>
@@ -660,19 +649,24 @@ const CustomerDisplay = () => {
     </Box>
   );
   let content = null;
-  const currentUser =
-    userinfo2 && Object.keys(userinfo2).length > 0 ? userinfo2 :
-      userInfoZustand && Object.keys(userInfoZustand).length > 0 ? userInfoZustand :
-        null;
 
+  const shouldUseZustand =
+    userinfo2 === undefined; // Page just loaded or no message yet
+
+  const currentUser =
+    shouldUseZustand
+      ? userInfoZustand
+      : userinfo2; // If userinfo2 is null, use that (and skip Zustand)
+
+  // Now decide what to render
   if (paymentStatus === "done") {
-    content = renderPayment(); // 👈 FIRST, show payment page if done
-  } else if (!currentUser) {
-    content = renderWelcome();
-  } else if (currentUser.bill === null) {
-    content = renderUserInfoOnly();
+    content = renderPayment();
+  } else if (!currentUser || Object.keys(currentUser).length === 0) {
+    content = renderWelcome(); // Show welcome if null or empty object
   } else if (currentUser.bill) {
     content = renderUserWithBill();
+  } else {
+    content = renderUserInfoOnly();
   }
 
 

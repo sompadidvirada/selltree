@@ -41,6 +41,7 @@ import { billUserChannel, orderChannel, paymentMethod } from "../../../broadcast
 
 const ProductDetail = () => {
   const [paymentMet, setPaymentMet] = useState("done")
+  const staffInfo = useTreekoffStorage((state)=>state.staffInfo)
 
   const navigate = useNavigate();
   const userBill = useTreekoffStorage((state) => state.userBill);

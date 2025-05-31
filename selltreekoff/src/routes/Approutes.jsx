@@ -11,11 +11,17 @@ import CustomerBill from "../sell_treekoff/component/print-component/CustomerBil
 import CustomerDisplay from "../sell_treekoff/component/menu-compo/CustomerDisplay";
 import TestQR from "../testqrcode/TestQR";
 import Success from "../testqrcode/Success";
+import Login from "../sell_treekoff/authen/Login";
+import Protect from "../middleware/Protect";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <SellTreekoff />,
+    path: "/sellpage",
+    element: (
+      <Protect>
+        <SellTreekoff />
+      </Protect>
+    ),
     children: [
       { index: true, element: <Customer /> },
       { path: "productdetail", element: <ProductDetail /> },
@@ -28,7 +34,7 @@ const router = createBrowserRouter([
     element: <ComponentToPrint />
   },
   {
-    path: "/customerbill",
+    path: "/customeronly",
     element: <CustomerBill />
   },
   {
@@ -46,6 +52,10 @@ const router = createBrowserRouter([
   {
     path: "/success",
     element: <Success />
+  },
+  {
+    path: "/",
+    element: <Login />
   },
 ]);
 

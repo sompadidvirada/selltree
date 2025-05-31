@@ -19,7 +19,7 @@ export const SocketProvider = ({ children }) => {
     // Disconnect only when app is really unmounting
     return () => {
       if (socketRef.current) {
-        socketRef.current.disconnect();
+        socketRef.current.disconnect(); 
       }
     };
   }, []);
