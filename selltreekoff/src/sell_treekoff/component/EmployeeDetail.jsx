@@ -7,7 +7,7 @@ import useTreekoffStorage from "../../zustand/storageTreekoff";
 const EmployeeDetail = () => {
   const emplyyeeInfo = useTreekoffStorage((state) => state.employeeInfo);
   const setEmployeeInfo = useTreekoffStorage((state) => state.setEmplyeeInfo);
-  const staffInfo = useTreekoffStorage((state)=>state.staffInfo)
+  const staffInfo = useTreekoffStorage((state) => state.staffInfo)
 
   useEffect(() => {
     setEmployeeInfo(EmployeeInfo);
@@ -40,7 +40,7 @@ const EmployeeDetail = () => {
             borderRadius: "50%",
             marginTop: 2,
           }}
-          image={staffInfo?.profile_picture || ""}
+          image={staffInfo?.profile_picture === "" ? staffInfo?.profile_picture : "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000d72c991b69390fcab978295d198d" || ""}
           title="profile picture"
         />
         <CardContent
@@ -60,7 +60,7 @@ const EmployeeDetail = () => {
               fontSize: 20,
             }}
           >
-            {staffInfo?.first_name || "EMTY"}
+            {`${staffInfo?.first_name} ${staffInfo?.last_name} ` || "EMTY"}
           </Typography>
           <Typography
             fontFamily={"Noto Sans Lao"}

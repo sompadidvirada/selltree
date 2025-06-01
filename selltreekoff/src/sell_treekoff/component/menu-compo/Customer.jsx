@@ -1,29 +1,29 @@
 import { Avatar, Box, Button, Grid2, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import {
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  TableContainer,
-  Paper,
-} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useEffect, useRef, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { createBill, getUser, registerUser } from "../../../api/sellTreekoff";
+import { createBill, registerUser } from "../../../api/sellTreekoff";
 import { toast, ToastContainer } from "react-toastify";
 import { billUserChannel, orderChannel, paymentMethod } from "../../../broadcast-channel/broadcast";
 import { searchCus } from "../../../api/treekoff"
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 
 const SignupSchema = Yup.object().shape({
   username: Yup.string().required("Required"),
-  phonenumber: Yup.number().required("Required"),
+  phonenumber: Yup.string().required("Required"),
 });
 
 const Customer = () => {
@@ -37,7 +37,8 @@ const Customer = () => {
   const hasHandled9001 = useRef(false);
   const customerInfo = useTreekoffStorage((state) => state.customerInfo)
   const setCustomerInfo = useTreekoffStorage((state) => state.setCustomerInfo)
-  const resetCustomer = useTreekoffStorage((state)=>state.resetCustomerInfo)
+  const resetCustomer = useTreekoffStorage((state) => state.resetCustomerInfo)
+  const [alertError, setAlertError] = useState(false)
 
 
 
@@ -50,14 +51,9 @@ const Customer = () => {
 
 
   const handleRegister = async (values, resetForm) => {
-    try {
-      const ress = await registerUser(values);
-      toast.success(ress.data);
-    } catch (err) {
-      console.log(err);
-    }
-
+    console.log(values)
     resetForm();
+    handleClose()
   };
 
 
@@ -123,6 +119,7 @@ const Customer = () => {
   };
 
   const handleSearch = async (value) => {
+    setAlertError(false)
     console.log(value)
     if (!value || value === "") {
       return;
@@ -131,16 +128,12 @@ const Customer = () => {
       const customerSeacrh = await searchCus(value)
       console.log(customerSeacrh)
 
-      if(customerSeacrh.data === "") {
+      if (customerSeacrh?.data === "" || customerSeacrh?.data?.status === "error") {
         resetCustomer("")
         setSearchCustomer("")
         orderChannel.postMessage(null)
-        toast.error("ບໍ່ມີໄອດີນີ້ ໃນລະບົບ", {
-          style: {
-              fontFamily: 'Noto Sans Lao, sans-serif'
-          }
-      });
-      return
+        setAlertError(true)
+        return
       }
 
 
@@ -174,8 +167,18 @@ const Customer = () => {
     paymentMethod.postMessage(null)
   }, [])
 
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
-    <Box display="flex" flexDirection="column" gap="40px">
+    <Box display="flex" flexDirection="column" gap="40px" minHeight={610} justifyContent={'space-between'}>
       {/* Seacrh Customer Section. */}
 
       <Box>
@@ -243,6 +246,17 @@ const Customer = () => {
             </Typography>
           </Button>
         </Box>
+        {/** Alert MESSAGE */}
+        {alertError ? (
+          <Stack sx={{ width: '100%', mt: 3 }} spacing={50}>
+            <Alert severity="error" sx={{ fontFamily: 'Noto Sans Lao', height: '150px', fontSize: 50 }}>
+              <AlertTitle sx={{ fontSize: 30, fontFamily: 'Noto Sans Lao' }}>ບໍ່ຖືກຕ້ອງ !</AlertTitle>
+              ໄອດີ ຫຼີເບີໂທນີ້ ບໍ່ມີໃນລະບົບ
+            </Alert>
+          </Stack>
+        ) : ""
+
+        }
 
         {/** Output Area */}
         {customerInfo ? (
@@ -399,13 +413,14 @@ const Customer = () => {
                   </Grid2>
                   <Grid2>
                     <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-                      {userInfo?.createAt
-                        ? new Date(userInfo?.createAt).toLocaleString("en-GB", {
+                      {customerInfo?.start_work_time
+                        ? new Date(customerInfo.start_work_time * 1000).toLocaleString("en-GB", {
                           day: "2-digit",
                           month: "2-digit",
                           year: "numeric",
                           hour: "2-digit",
                           minute: "2-digit",
+                          hour12: false, // set to true if you want 12-hour format
                         })
                         : "UNKNOW"}
                     </Typography>
@@ -413,150 +428,24 @@ const Customer = () => {
                 </Grid2>
               </Grid2>
             </Box>
-
-            {/** Table History Bill user */}
-            <Box p={2}>
-              <Typography fontFamily={"Noto Sans Lao"}>
-                ບິນລາຍການທີ່ຍັງບໍ່ສຳເລັດລ່າສຸດ:
-              </Typography>
-              <TableContainer component={Paper} sx={{}}>
-                <Table>
-                  <TableHead sx={{ backgroundColor: "white" }}>
-                    <TableRow>
-                      <TableCell sx={{ color: "black" }}>
-                        <strong>Date</strong>
-                      </TableCell>
-                      <TableCell sx={{ color: "black" }}>
-                        <strong>BILL ID</strong>
-                      </TableCell>
-                      <TableCell sx={{ color: "black" }}>
-                        <strong>TOTAL MENU</strong>
-                      </TableCell>
-                      <TableCell sx={{ color: "black" }}>
-                        <strong>TOTAL PRICE</strong>
-                      </TableCell>
-                      <TableCell sx={{ color: "black" }}>
-                        <strong>STATUS</strong>
-                      </TableCell>
-                      <TableCell sx={{ color: "black" }}>
-                        <strong>UPDATE</strong>
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {userInfo?.bill !== null ? (
-                      <TableRow sx={{ backgroundColor: "white" }}>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography
-                            fontFamily={"Noto Sans Lao"}
-                            alignSelf="center"
-                          >
-                            {userInfo?.bill?.createAt ? userInfo?.bill?.createAt.split("T")[0] : ""}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography
-                            fontFamily={"Noto Sans Lao"}
-                            justifySelf="center"
-                          >
-                            {userInfo?.bill?.id || ""}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography
-                            fontFamily={"Noto Sans Lao"}
-                            justifySelf="center"
-                          >
-                            {userInfo?.bill?.totalMenu ?? "0"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography
-                            fontFamily={"Noto Sans Lao"}
-                            justifySelf="center"
-                          >
-                            {userInfo?.bill?.totalPrice ?? "0"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.status === true ? "ຍັງບໍ່ທັນຊຳລະ" : "."}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}>
-                            {userInfo?.bill?.update ? userInfo?.bill?.update.split("T")[0] : "."}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      <TableRow sx={{ backgroundColor: "white" }}>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography
-                            fontFamily={"Noto Sans Lao"}
-                            alignSelf="center"
-                          ></Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography
-                            fontFamily={"Noto Sans Lao"}
-                            justifySelf="center"
-                          ></Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography
-                            fontFamily={"Noto Sans Lao"}
-                            justifySelf="center"
-                          ></Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography
-                            fontFamily={"Noto Sans Lao"}
-                            justifySelf="center"
-                          ></Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}></Typography>
-                        </TableCell>
-                        <TableCell sx={{ color: "black" }}>
-                          <Typography fontFamily={"Noto Sans Lao"}></Typography>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Box>
           </Box>
         ) : (
           ""
         )}
       </Box>
+
       {/* Register for new Customer. */}
 
-      <Box>
-        <Box display="flex" alignContent="center">
-          <AddIcon sx={{ fontSize: 35, color: "#3c8dbc" }} />
-          <Typography
-            fontFamily={"Noto Sans Lao"}
-            fontSize={25}
-            sx={{ alignItems: "center", color: "#3c8dbc" }}
-          >
-            ສະໝັກສະມາຊິກໃໝ່:
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            p: 2,
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
-          <Typography fontFamily={"Noto Sans Lao"}>
-            ກະລຸນາໃສ່ຂໍ້ມູນບັນຊີຂອງທ່ານ:
-          </Typography>
-
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <Button variant="contained" sx={{ fontFamily: 'Noto Sans Lao', p: 2, fontSize: 25 }} onClick={handleClickOpen}>ສະໝັກສະມາຊິກ</Button>
+      </Box>
+      <ToastContainer position="top-center" />
+      <Dialog
+        open={open}
+        onClose={handleClose}
+      >
+        <DialogTitle sx={{ fontFamily: 'Noto Sans Lao', fontSize: 30 }}>ສະໝັກສະມາຊິກໃຫ້ລູກຄ້າໃຫ່ມ</DialogTitle>
+        <DialogContent>
           <Formik
             initialValues={{ username: "", phonenumber: "" }}
             validationSchema={SignupSchema}
@@ -565,7 +454,7 @@ const Customer = () => {
             }
           >
             {() => (
-              <Form>
+              <Form style={{ display: 'flex', flexDirection: 'column' }}>
                 <div
                   style={{
                     display: "flex",
@@ -643,20 +532,18 @@ const Customer = () => {
                     )}
                   </ErrorMessage>
                 </div>
-
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}
-                >
-                  ສົ່ງຟອມ
-                </Button>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5 }}>
+                  <Button sx={{ fontFamily: 'Noto Sans Lao', fontSize: 20, p: 2 }} variant="contained" color="error" onClick={handleClose}>ຍົກເລີກ</Button>
+                  <Button sx={{ fontFamily: 'Noto Sans Lao', fontSize: 20 }} variant="contained" color="success" type="submit">ສະໝັກ</Button>
+                </Box>
               </Form>
+
             )}
           </Formik>
-        </Box>
-      </Box>
-      <ToastContainer position="top-center" />
+        </DialogContent>
+        <DialogActions>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

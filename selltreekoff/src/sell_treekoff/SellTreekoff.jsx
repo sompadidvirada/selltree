@@ -6,6 +6,7 @@ import MenuDetailAndBread from "./component/MenuDetailAndBread";
 import { useSocket } from "../socket-provider/SocketProvider";
 import useTreekoffStorage from "../zustand/storageTreekoff";
 import { onlineOrderData } from "./data/MockData";
+import { motion } from "framer-motion"; // NEW
 
 const SellTreekoff = () => {
   const [selectOnline, setSelectOnline] = useState(false);
@@ -14,6 +15,7 @@ const SellTreekoff = () => {
   const orderOnline = useTreekoffStorage((s) => s.orderOnline);
   const appendOrderOnline = useTreekoffStorage((s) => s.appendOrderOnline);
   const replaceOrderOnline = useTreekoffStorage((s) => s.replaceOrderOnline);
+  const [showPanel, setShowPanel] = useState(true);
 
   useEffect(() => {
     replaceOrderOnline(onlineOrderData);
