@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import EmployeeDetail from "./component/EmployeeDetail";
 import OnlineCustomer from "./component/OnlineCustomer";
@@ -33,7 +33,9 @@ const SellTreekoff = () => {
   };
 
   useEffect(() => {
-    {/**openWindow();*/}
+    {
+      /**openWindow();*/
+    }
   }, []);
 
   useEffect(() => {
@@ -48,27 +50,61 @@ const SellTreekoff = () => {
     };
   }, [socket]);
 
+  const handleSwicth = () => {
+    setShowPanel((prev) => !prev);
+  };
 
   return (
     <Box
       sx={{
         width: "98.5%",
         bgcolor: "#e4e4e4",
-        margin: "15px",
-        overflow: "hidden",
         p: "18px",
         margin: 0,
       }}
     >
       <Box display="flex" width="100%" height="100%" gap="30px">
-        <Box display="flex" flexDirection="column" width="32%" gap="15px">
-          <EmployeeDetail />
+        <Box
+          display="flex"
+          flexDirection="column"
+          width={showPanel ? "15%" : "5%"}
+          gap="15px"
+        >
+          <EmployeeDetail showPanel={showPanel} setShowPanel={setShowPanel} />
           <OnlineCustomer
             setSelectOnline={setSelectOnline}
             openWindow={openWindow}
+            showPanel={showPanel}
+            setShowPanel={setShowPanel}
           />
         </Box>
-        <MenuDetailAndBread selectOnline={selectOnline} />
+        <MenuDetailAndBread
+          selectOnline={selectOnline}
+          showPanel={showPanel}
+          setShowPanel={setShowPanel}
+        />
+      </Box>
+      <Box
+        sx={{
+          position: "fixed",
+          top: "40%",
+          left: 10,
+          transform: "translateY(-50%)",
+          zIndex: 1000,
+        }}
+      >
+        <Button
+          variant="contained"
+          onClick={handleSwicth}
+          sx={{
+            bgcolor: showPanel ? "rgba(25, 118, 210, 0.4)" : undefined, // default MUI blue with 0.5 opacity
+            "&:hover": {
+              bgcolor: showPanel ? "rgba(25, 118, 210, 0.7)" : undefined, // slightly darker on hover
+            },
+          }}
+        >
+          +
+        </Button>
       </Box>
     </Box>
   );

@@ -9,15 +9,17 @@ import { orderChannel } from "../../broadcast-channel/broadcast";
 import { useEffect } from "react";
 import OnlinePage from "./menu-compo/OnlinePage";
 
+import { motion } from "framer-motion"; // NEW
+
+
 const MenuDetailAndBread = ({ selectOnline }) => {
   const location = useLocation();
-  const userBill = useTreekoffStorage((s) => s.userBill)
-  const userInfo = useTreekoffStorage((s) => s.userInfo)
-
+  const userBill = useTreekoffStorage((s) => s.userBill);
+  const userInfo = useTreekoffStorage((s) => s.userInfo);
 
   const refreshCus = () => {
-    orderChannel.postMessage(userInfo)
-  }
+    orderChannel.postMessage(userInfo);
+  };
 
   useEffect(() => {
     if (location.pathname === "/") {
@@ -25,122 +27,138 @@ const MenuDetailAndBread = ({ selectOnline }) => {
     }
   }, [location.pathname]);
   return (
-    <Box
-      sx={{
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.125 }}
+      style={{
         width: "100%",
-        height: "100%",
-        bgcolor: "yellow",
       }}
     >
-      {selectOnline ? (
-        <Card
-          sx={{
-            bgcolor: "#ffffff",
-            height: "100%",
-            width: "100%",
-            color: "black",
-          }}
-        >
-          <OnlinePage />
-        </Card>
-      ) : (
-        <Card
-          sx={{
-            bgcolor: "#ffffff",
-            height: "100%",
-            width: "100%",
-            color: "black",
-          }}
-        >
-          <Breadcrumbs
-            aria-label="breadcrumb"
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          bgcolor: "yellow",
+        }}
+      >
+        {selectOnline ? (
+          <Card
             sx={{
-              color: "black",
-              height: "60px",
-              borderBottom: "1px solid black",
+              bgcolor: "#ffffff",
+              height: "100%",
               width: "100%",
-              display: "flex",
-              alignItems: "center",
-              px: 2,
+              color: "black",
             }}
           >
-            <NavLink
-              to="/"
-              end
-              onClick={refreshCus}
-              style={({ isActive }) => ({
+            <OnlinePage />
+          </Card>
+        ) : (
+          <Card
+            sx={{
+              bgcolor: "#ffffff",
+              height: "100%",
+              width: "100%",
+              color: "black",
+            }}
+          >
+            <Breadcrumbs
+              aria-label="breadcrumb"
+              sx={{
+                color: "black",
+                height: "60px",
+                borderBottom: "1px solid black",
+                width: "100%",
                 display: "flex",
                 alignItems: "center",
-                gap: 8,
-                backgroundColor: isActive ? "green" : "transparent",
-                padding: 8,
-                borderRadius: 5,
-                color: "inherit",
-                textDecoration: "none",
-              })}
-            >
-              <PersonIcon />
-              <Typography fontFamily={"Noto Sans Lao"}>
-                ເຂົ້າຊູ່ສະມາຊິກລູກຄ້າ
-              </Typography>
-            </NavLink>
-            <NavLink
-              to="/productdetail"
-              onClick={(e) => {
-                if (!userInfo?.bill) {
-                  e.preventDefault();
-                  toast.error("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
-                }
+                px: 2,
               }}
-              style={({ isActive }) => ({
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                backgroundColor: isActive ? "green" : "transparent",
-                padding: 8,
-                borderRadius: 5,
-                color: !userInfo?.bill ? "gray" : "inherit",
-                textDecoration: "none",
-                pointerEvents: !userInfo?.bill ? "none" : "auto",
-                opacity: !userInfo?.bill ? 0.6 : 1,
-              })}
             >
-              <LocalAtmIcon />
-              <Typography fontFamily={"Noto Sans Lao"}>
-                ລາຍການບິນສິນຄ້າ
-              </Typography>
-            </NavLink>
-            <NavLink
-              to="/checkbill"
-              onClick={(e) => {
-                if (!userInfo?.bill) {
-                  e.preventDefault();
-                  toast.error("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
-                }
-              }}
-              style={({ isActive }) => ({
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                backgroundColor: isActive ? "green" : "transparent",
-                padding: 8,
-                borderRadius: 5,
-                color: !userInfo?.bill || !userBill || userBill?.length === 0 ? "gray" : "inherit",
-                textDecoration: "none",
-                pointerEvents: !userInfo?.bill || !userBill || userBill?.length === 0 ? "none" : "auto",
-                opacity: !userInfo?.bill ? 0.6 : 1,
-              })}
-            >
-              <FormatListBulletedIcon />
-              <Typography fontFamily={"Noto Sans Lao"}>ຈ່າຍເງີນ</Typography>
-            </NavLink>
-          </Breadcrumbs>
-          <CardContent>
-            <Outlet />
-          </CardContent>
-        </Card>
-      )}
-    </Box>
+              <NavLink
+                to="/sellpage"
+                end
+                onClick={refreshCus}
+                style={({ isActive }) => ({
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  backgroundColor: isActive ? "green" : "transparent",
+                  padding: 8,
+                  borderRadius: 5,
+                  color: "inherit",
+                  textDecoration: "none",
+                })}
+              >
+                <PersonIcon />
+                <Typography fontFamily={"Noto Sans Lao"}>
+                  ເຂົ້າຊູ່ສະມາຊິກລູກຄ້າ
+                </Typography>
+              </NavLink>
+              <NavLink
+                to="/productdetail"
+                onClick={(e) => {
+                  if (!userInfo?.bill) {
+                    e.preventDefault();
+                    toast.error("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
+                  }
+                }}
+                style={({ isActive }) => ({
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  backgroundColor: isActive ? "green" : "transparent",
+                  padding: 8,
+                  borderRadius: 5,
+                  color: !userInfo?.bill ? "gray" : "inherit",
+                  textDecoration: "none",
+                  pointerEvents: !userInfo?.bill ? "none" : "auto",
+                  opacity: !userInfo?.bill ? 0.6 : 1,
+                })}
+              >
+                <LocalAtmIcon />
+                <Typography fontFamily={"Noto Sans Lao"}>
+                  ລາຍການບິນສິນຄ້າ
+                </Typography>
+              </NavLink>
+              <NavLink
+                to="/checkbill"
+                onClick={(e) => {
+                  if (!userInfo?.bill) {
+                    e.preventDefault();
+                    toast.error("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
+                  }
+                }}
+                style={({ isActive }) => ({
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  backgroundColor: isActive ? "green" : "transparent",
+                  padding: 8,
+                  borderRadius: 5,
+                  color:
+                    !userInfo?.bill || !userBill || userBill?.length === 0
+                      ? "gray"
+                      : "inherit",
+                  textDecoration: "none",
+                  pointerEvents:
+                    !userInfo?.bill || !userBill || userBill?.length === 0
+                      ? "none"
+                      : "auto",
+                  opacity: !userInfo?.bill ? 0.6 : 1,
+                })}
+              >
+                <FormatListBulletedIcon />
+                <Typography fontFamily={"Noto Sans Lao"}>ຈ່າຍເງີນ</Typography>
+              </NavLink>
+            </Breadcrumbs>
+            <CardContent>
+              <Outlet />
+            </CardContent>
+          </Card>
+        )}
+      </Box>
+    </motion.div>
   );
 };
 

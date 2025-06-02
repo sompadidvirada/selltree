@@ -1,9 +1,13 @@
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  useLocation,
+} from "react-router-dom";
 import SellTreekoff from "../sell_treekoff/SellTreekoff";
-import Customer from "../sell_treekoff/component/menu-compo/Customer"
-import ProductDetail from "../sell_treekoff/component/menu-compo/ProductDetail"
-import CheckBill from "../sell_treekoff/component/menu-compo/CheckBill"
+import Customer from "../sell_treekoff/component/menu-compo/Customer";
+import ProductDetail from "../sell_treekoff/component/menu-compo/ProductDetail";
+import CheckBill from "../sell_treekoff/component/menu-compo/CheckBill";
 import Test from "../sell_treekoff/component/test";
 import ComponentToPrint from "../sell_treekoff/component/print-component/ComponentToPrint";
 import BarestarBill from "../sell_treekoff/component/print-component/BarestarBill";
@@ -31,43 +35,43 @@ const router = createBrowserRouter([
   },
   {
     path: "/customerbill",
-    element: <ComponentToPrint />
+    element: <ComponentToPrint />,
   },
   {
     path: "/customeronly",
-    element: <CustomerBill />
+    element: <CustomerBill />,
   },
   {
     path: "/baristabill",
-    element: <BarestarBill />
+    element: <BarestarBill />,
   },
   {
     path: "/screencustomer",
-    element: <CustomerDisplay />
+    element: <CustomerDisplay />,
   },
   {
     path: "/testqr",
-    element: <TestQR />
+    element: <TestQR />,
   },
   {
     path: "/success",
-    element: <Success />
+    element: <Success />,
   },
   {
     path: "/",
-    element: <Login />
+    element: <Login />,
   },
 ]);
 
 const Approutes = () => {
   return (
-    <RouterProvider
-      router={router}
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    />
+      <RouterProvider
+        router={router}
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      />
   );
 };
 

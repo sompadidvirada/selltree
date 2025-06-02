@@ -10,8 +10,16 @@ import MonitorIcon from "@mui/icons-material/Monitor";
 import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
 import { useEffect, useRef, useState } from "react";
 import useTreekoffStorage from "../../zustand/storageTreekoff";
+import CoffeeMakerIcon from "@mui/icons-material/CoffeeMaker";
+import ScreenshotMonitorIcon from "@mui/icons-material/ScreenshotMonitor";
 
-const OnlineCustomer = ({ setSelectOnline, openWindow }) => {
+import { motion } from "framer-motion";
+
+const OnlineCustomer = ({
+  setSelectOnline,
+  openWindow,
+  showPanel
+}) => {
   const [getNoti, setGetNoti] = useState(0);
 
   const orderOnline = useTreekoffStorage((s) => s.orderOnline);
@@ -40,157 +48,160 @@ const OnlineCustomer = ({ setSelectOnline, openWindow }) => {
   }, [orderOnline]);
 
   return (
-    <Box
-      sx={{
-        bgcolor: "green",
-        height: "350px",
-        borderRadius: "5px",
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.125 }}
+      style={{
+        width:"100%",
       }}
     >
-      <Card
+      <Box
         sx={{
-          bgcolor: "#ffffff",
-          height: "100%",
-          width: "100%",
-          color: "black",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          bgcolor: "green",
+          height: "350px",
+          borderRadius: "5px",
         }}
       >
-        <CardContent
+        <Card
           sx={{
+            bgcolor: "#ffffff",
+            height: "100%",
+            width: "100%",
+            color: "black",
+            gap: 1,
             display: "flex",
-            alignContent: "center",
-            justifyContent: "center",
-            borderBottom: "1px solid black",
-            width: "90%",
+            flexDirection: "column",
+            alignItems: "center",
           }}
         >
-          <MonitorIcon
+          <CardContent
             sx={{
-              alignSelf: "center",
-              marginRight: 1,
-            }}
-          />
-          <Typography fontFamily={"Noto Sans Lao"} sx={{ fontSize: 20 }}>
-            ເລືອກໜ້າຕ່າງການຂາຍ
-          </Typography>
-        </CardContent>
-        <CardContent
-          sx={{
-            display: "flex",
-            alignContent: "center",
-            justifyContent: "center",
-            borderBottom: "1px solid black",
-            width: "90%",
-          }}
-        >
-          <Button
-            onClick={() => openWindow()}
-            style={{
               display: "flex",
-              alignItems: "center",
-              justifyContent: "start",
-              gap: 20,
-              width: "100%",
-              height: "100%",
+              alignContent: "center",
+              justifyContent: "center",
+              borderBottom: "1px solid black",
+              width: "90%",
+              height: "10%",
+              p: 0,
             }}
           >
-            <CardMedia
-              sx={{ height: 50, width: 74 }}
-              image="/assests/TK.png"
-              title="TREEKOFF"
+            <MonitorIcon
+              sx={{
+                alignSelf: "center",
+                marginRight: 1,
+                display: showPanel ? "block" : "none"
+              }}
             />
             <Typography
-              fontSize={23}
-              color="black"
-              fontWeight="bold"
-              sx={{
-                display: "flex",
-                color: "blue",
-              }}
+              fontFamily={"Noto Sans Lao"}
+              sx={{ fontSize: 20 }}
+              display={showPanel ? "block" : "none"}
             >
-              {" "}
-              CUSTOMER SCREEN
+              ເລືອກໜ້າຕ່າງການຂາຍ
             </Typography>
-          </Button>
-        </CardContent>
-        <CardContent
-          sx={{
-            display: "flex",
-            alignContent: "center",
-            justifyContent: "center",
-            borderBottom: "1px solid black",
-            width: "90%",
-          }}
-        >
-          <Button
-            style={{
+          </CardContent>
+          <CardContent
+            sx={{
               display: "flex",
-              alignItems: "center",
-              justifyContent: "start",
-              gap: 20,
-              width: "100%",
-              height: "100%",
+              borderBottom: "1px solid black",
+              width: "90%",
+              p: 0,
+              height: "30%",
             }}
-            onClick={() => setSelectOnline(false)}
           >
-            <CardMedia
-              sx={{ height: 50, width: 74 }}
-              image="/assests/TK.png"
-              title="TREEKOFF"
-            />
-            <Typography
-              fontSize={23}
-              color="black"
-              fontWeight="bold"
-              sx={{
+            <Button
+              onClick={() => openWindow()}
+              style={{
                 display: "flex",
-                color: "blue",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                color: "black",
+                width: "100%",
+                height: "100%",
               }}
             >
-              {" "}
-              TREEKOFF
-            </Typography>
-          </Button>
-        </CardContent>
-        <CardContent
-          sx={{
-            display: "flex",
-            alignContent: "center",
-            justifyContent: "center",
-            borderBottom: "1px solid black",
-            width: "90%",
-          }}
-        >
-          <Button
-            style={{
+              <ScreenshotMonitorIcon sx={{ alignSelf: "center" }} />
+              <Typography
+                fontSize={23}
+                display={showPanel ? "block" : "none"}
+                fontFamily={"Noto Sans Lao"}
+                fontWeight={"bold"}
+              >
+                ຈໍລູກຄ້າ
+              </Typography>
+            </Button>
+          </CardContent>
+          <CardContent
+            sx={{
               display: "flex",
-              alignItems: "center",
-              justifyContent: "start",
-              gap: 20,
-              width: "100%",
-              height: "100%",
+              alignContent: "center",
+              justifyContent: "center",
+              borderBottom: "1px solid black",
+              width: "90%",
+              p: 0,
+              height: "30%",
             }}
-            onClick={() => setSelectOnline(true)}
           >
-            <CardMedia
-              sx={{ height: 50, width: 74 }}
-              image="/assests/TK.png"
-              title="TREEKOFF"
-            />
-            <Typography
-              fontSize={23}
-              color="black"
-              fontWeight="bold"
-              sx={{
+            <Button
+              style={{
                 display: "flex",
-                color: "blue",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                color: "black",
+                width: "100%",
+                height: "100%",
               }}
+              onClick={() => setSelectOnline(false)}
             >
-              <PhoneAndroidIcon /> TREEKOFF(ONLINE){" "}
-               {waitingCount > 0 && (
+              <CoffeeMakerIcon sx={{ alignSelf: "center" }} />
+              <Typography
+                fontSize={23}
+                display={showPanel ? "block" : "none"}
+                fontFamily={"Noto Sans Lao"}
+                fontWeight={"bold"}
+              >
+                ໜ້າຕ່າງຂາຍ
+              </Typography>
+            </Button>
+          </CardContent>
+          <CardContent
+            sx={{
+              display: "flex",
+              alignContent: "center",
+              justifyContent: "center",
+              borderBottom: "1px solid black",
+              width: "90%",
+              p: 0,
+              height: "30%",
+            }}
+          >
+            <Button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: showPanel ? "row" : "column",
+                gap: 2,
+                color: "black",
+                width: "100%",
+                height: "100%",
+              }}
+              onClick={() => setSelectOnline(true)}
+            >
+              <PhoneAndroidIcon sx={{ alignSelf: "center" }} />
+              <Typography
+                fontSize={23}
+                display={showPanel ? "block" : "none"}
+                fontFamily={"Noto Sans Lao"}
+                fontWeight={"bold"}
+              >
+                ອໍເດີອອນລາຍ{" "}
+              </Typography>
+              {waitingCount > 0 && (
                 <span
                   style={{
                     color: "white",
@@ -199,17 +210,17 @@ const OnlineCustomer = ({ setSelectOnline, openWindow }) => {
                     borderRadius: "12px",
                     fontSize: "14px",
                     marginLeft: "6px",
-                    alignSelf:'center'
+                    alignSelf: "center",
                   }}
                 >
                   {waitingCount}
                 </span>
               )}
-            </Typography>
-          </Button>
-        </CardContent>
-      </Card>
-    </Box>
+            </Button>
+          </CardContent>
+        </Card>
+      </Box>
+    </motion.div>
   );
 };
 
