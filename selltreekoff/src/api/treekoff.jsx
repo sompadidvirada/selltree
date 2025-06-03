@@ -18,3 +18,6 @@ export const LoginStaff = (phone, password) => {
 export const virifySession = (id, session) => {
     return axios.get(`https://treekoff.com/_react/api.php?login_cookie_check&id_user=${id}&cookie_session=${session}`)
 }
+export const getMenuForBranch = (branchId) => {
+    return axios.get(`https://treekoff.com/_react/api.php?show_menu_treekoff&for_branch_id=${branchId}`)
+}

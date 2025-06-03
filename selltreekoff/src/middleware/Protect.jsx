@@ -8,7 +8,7 @@ const Protect = ({ children }) => {
   const staffInfo = useTreekoffStorage((state) => state.staffInfo);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  /*useEffect(() => {
     const checkSession = async () => {
       if (!session || !staffInfo?.id_user) {
         navigate('/');
@@ -27,7 +27,7 @@ const Protect = ({ children }) => {
     };
 
     checkSession();
-  }, [session, staffInfo, navigate]);
+  }, [session, staffInfo, navigate]);*/
 
   return <>{children}</>;
 };

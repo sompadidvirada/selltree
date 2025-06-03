@@ -10,6 +10,7 @@ const TreekoffStorage = (set, get) => ({
   staffInfo: null,
   customerInfo: null,
   session:null,
+  menuForBranch:null,
   setUserBill: (billOrUpdater) => {
     set((state) => ({
       userBill:
@@ -84,9 +85,11 @@ const TreekoffStorage = (set, get) => ({
   resetCustomerInfo: (newData) => {
     set({ customerInfo: newData})
   },
-  
   setSession: (newData) => {
     set({ session: newData})
+  },
+  setMenuForBranch: (newData) => {
+    set({ menuForBranch: newData})
   }
 });
 

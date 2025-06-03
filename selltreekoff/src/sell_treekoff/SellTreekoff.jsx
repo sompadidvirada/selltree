@@ -7,6 +7,7 @@ import { useSocket } from "../socket-provider/SocketProvider";
 import useTreekoffStorage from "../zustand/storageTreekoff";
 import { onlineOrderData } from "./data/MockData";
 import { motion } from "framer-motion"; // NEW
+import { getMenuForBranch } from "../api/treekoff";
 
 const SellTreekoff = () => {
   const [selectOnline, setSelectOnline] = useState(false);
@@ -16,9 +17,17 @@ const SellTreekoff = () => {
   const appendOrderOnline = useTreekoffStorage((s) => s.appendOrderOnline);
   const replaceOrderOnline = useTreekoffStorage((s) => s.replaceOrderOnline);
   const [showPanel, setShowPanel] = useState(true);
+  const staffInfo = useTreekoffStorage((state)=>state.staffInfo)
+  const setMenuForBranch = useTreekoffStorage((state)=>state.setMenuForBranch)
+
+  const fecthMenuBranch = async ()=> {
+    const res = await getMenuForBranch(staffInfo?.branch?.branch_name)
+    setMenuForBranch(res.data)
+  }
 
   useEffect(() => {
     replaceOrderOnline(onlineOrderData);
+    fecthMenuBranch()
   }, []);
 
   const openWindow = () => {
@@ -63,14 +72,14 @@ const SellTreekoff = () => {
         margin: 0,
       }}
     >
-      <Box display="flex" width="100%" height="100%" gap="30px">
+      <Box display="flex" width="100%" height="100%" gap="10px">
         <Box
           display="flex"
           flexDirection="column"
-          width={showPanel ? "15%" : "5%"}
+          width={showPanel ? "20%" : "3.5%"}
           gap="15px"
         >
-          <EmployeeDetail showPanel={showPanel} setShowPanel={setShowPanel} />
+          <EmployeeDetail showPanel={showPanel} setShowPanel={setShowPanel}  handleSwicth={handleSwicth}/>
           <OnlineCustomer
             setSelectOnline={setSelectOnline}
             openWindow={openWindow}
@@ -83,28 +92,6 @@ const SellTreekoff = () => {
           showPanel={showPanel}
           setShowPanel={setShowPanel}
         />
-      </Box>
-      <Box
-        sx={{
-          position: "fixed",
-          top: "40%",
-          left: 10,
-          transform: "translateY(-50%)",
-          zIndex: 1000,
-        }}
-      >
-        <Button
-          variant="contained"
-          onClick={handleSwicth}
-          sx={{
-            bgcolor: showPanel ? "rgba(25, 118, 210, 0.4)" : undefined, // default MUI blue with 0.5 opacity
-            "&:hover": {
-              bgcolor: showPanel ? "rgba(25, 118, 210, 0.7)" : undefined, // slightly darker on hover
-            },
-          }}
-        >
-          +
-        </Button>
       </Box>
     </Box>
   );

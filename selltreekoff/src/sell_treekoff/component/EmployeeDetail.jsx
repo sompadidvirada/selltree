@@ -6,7 +6,7 @@ import useTreekoffStorage from "../../zustand/storageTreekoff";
 
 import { motion } from "framer-motion";
 
-const EmployeeDetail = ({ showPanel, setShowPanel }) => {
+const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
   const emplyyeeInfo = useTreekoffStorage((state) => state.employeeInfo);
   const setEmployeeInfo = useTreekoffStorage((state) => state.setEmplyeeInfo);
   const staffInfo = useTreekoffStorage((state) => state.staffInfo);
@@ -46,9 +46,11 @@ const EmployeeDetail = ({ showPanel, setShowPanel }) => {
           }}
         >
           <CardMedia
+          onClick={handleSwicth}
             sx={{
-              height: showPanel ? "80px" : "60px",
-              width: showPanel ? "80px" : "60px",
+              height: showPanel ? "80px" : "40px",
+              width: showPanel ? "80px" : "40px",
+              cursor:'pointer',
               borderRadius: "50%",
               marginTop: 2,
             }}

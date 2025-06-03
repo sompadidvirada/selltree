@@ -40,7 +40,9 @@ const Login = () => {
                 });
                 return
             }
-            const staffID = identifyStaff.data.id_user
+            console.log(identifyStaff)
+
+            /*const staffID = identifyStaff.data.id_user
 
             setSession(identifyStaff.data.session)
 
@@ -55,7 +57,7 @@ const Login = () => {
 
             setStaffInfo({ branch: branchDetail.data.data[0] });
 
-            toast.success("CHECK")
+            toast.success("CHECK")*/
 
             navigate("/sellpage")
         } catch (err) {
