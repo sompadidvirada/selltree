@@ -51,7 +51,7 @@ const ProductDetail = () => {
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
   const [searchText, setSearchText] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
-  const data = menuForBranch;
+  const data = menuForBranch || {};
   const [selected, setSelected] = useState([]);
   const [open, setOpen] = useState(false);
   const setCustomerInfo = useTreekoffStorage((s) => s.setCustomerInfo);
@@ -273,7 +273,7 @@ const ProductDetail = () => {
               justifyContent: "flex-start",
             }}
           >
-            {categories.map((cat, index) => (
+            {categories?.map((cat, index) => (
               <Box
                 key={cat}
                 onClick={() => setSelectedTab(index)}
@@ -296,7 +296,7 @@ const ProductDetail = () => {
             ))}
           </Box>
 
-          {categories.map((category, index) => (
+          {categories?.map((category, index) => (
             <TabPanel key={category} value={selectedTab} index={index}>
               <Typography sx={{ fontWeight: "bold", fontSize: 30 }}>
                 Category : {category}
@@ -352,7 +352,7 @@ const ProductDetail = () => {
             Search results for: {searchText}
           </Typography>
           <Grid2 container spacing={3}>
-            {Object.entries(menuForBranch)
+            {Object?.entries(menuForBranch)
               .flatMap(([category, items]) =>
                 items.filter((item) =>
                   item.menuNameENG.toLowerCase().includes(searchText)
@@ -500,7 +500,7 @@ const ProductDetail = () => {
               variant="contained"
               color="success"
               onClick={handleDeleteAll}
-              disabled={customerInfo?.detail.length === 0}
+              disabled={customerInfo?.detail?.length === 0}
             >
               DELETE ALL
             </Button>

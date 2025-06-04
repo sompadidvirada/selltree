@@ -26,8 +26,7 @@ const Login = () => {
     const setSession = useTreekoffStorage((state) => state.setSession)
 
     const handleFormSubmit = async (values) => {
-        console.log(values)
-
+  
         try {
 
             const identifyStaff = await LoginStaff(values.staffPhone, values.password)
@@ -40,7 +39,6 @@ const Login = () => {
                 });
                 return
             }
-            console.log(identifyStaff)
 
             const staffID = identifyStaff.data.id_user
 

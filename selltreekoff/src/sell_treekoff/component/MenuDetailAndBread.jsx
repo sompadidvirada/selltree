@@ -112,10 +112,10 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                   backgroundColor: isActive ? "green" : "transparent",
                   padding: 8,
                   borderRadius: 5,
-                  color: !customerInfo?.detail ? "gray" : "inherit",
+                  color: !customerInfo?.bill_id ? "gray" : "inherit",
                   textDecoration: "none",
-                  pointerEvents: !customerInfo?.detail ? "none" : "auto",
-                  opacity: !customerInfo?.detail ? 0.6 : 1,
+                  pointerEvents: !customerInfo?.bill_id ? "none" : "auto",
+                  opacity: !customerInfo?.bill_id ? 0.6 : 1,
                 })}
               >
                 <LocalAtmIcon />

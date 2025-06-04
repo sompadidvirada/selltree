@@ -128,7 +128,6 @@ const Customer = () => {
 
   const handleSearch = async (value) => {
     setAlertError(false);
-    console.log(value);
     if (!value || value === "") {
       return;
     }
@@ -137,8 +136,6 @@ const Customer = () => {
 
     try {
       const customerSeacrh = await searchCus(value);
-      console.log(customerSeacrh);
-
       if (
         customerSeacrh?.data === "" ||
         customerSeacrh?.data?.status === "error"
