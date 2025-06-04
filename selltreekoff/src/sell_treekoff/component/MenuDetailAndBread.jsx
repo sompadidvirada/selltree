@@ -29,11 +29,7 @@ const MenuDetailAndBread = ({ selectOnline }) => {
     }
   }, [location.pathname]);
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.125 }}
+    <Box
       style={{
         width: "100%",
       }}
@@ -160,7 +156,7 @@ const MenuDetailAndBread = ({ selectOnline }) => {
           </Card>
         )}
       </Box>
-    </motion.div>
+    </Box>
   );
 };
 

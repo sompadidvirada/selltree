@@ -16,11 +16,7 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
   }, [EmployeeInfo]);
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.125 }}
+    <Box
       style={{
         width: "100%",
       }}
@@ -45,11 +41,11 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
           }}
         >
           <CardMedia
-          onClick={handleSwicth}
+            onClick={handleSwicth}
             sx={{
               height: showPanel ? "80px" : "40px",
               width: showPanel ? "80px" : "40px",
-              cursor:'pointer',
+              cursor: 'pointer',
               borderRadius: "50%",
               marginTop: 2,
             }}
@@ -60,7 +56,7 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
           />
           <CardContent
             sx={{
-              display:showPanel ? "flex" : "none",
+              display: showPanel ? "flex" : "none",
               flexDirection: "column",
               alignItems: "center",
               width: "90%",
@@ -118,7 +114,7 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
           </CardContent>
           <CardContent
             sx={{
-              display: showPanel ?"flex" : "none",
+              display: showPanel ? "flex" : "none",
               flexDirection: "column",
               alignContent: "center",
               width: "90%",
@@ -146,7 +142,7 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
           </CardContent>
         </Card>
       </Box>
-    </motion.div>
+    </Box>
   );
 };
 
