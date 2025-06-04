@@ -21,7 +21,7 @@ import {
   orderChannel,
   paymentMethod,
 } from "../../../broadcast-channel/broadcast";
-import { searchCus } from "../../../api/treekoff";
+import { createBillWithUser, searchCus } from "../../../api/treekoff";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Stack from "@mui/material/Stack";
@@ -47,9 +47,11 @@ const Customer = () => {
   const navigate = useNavigate();
   const hasHandled9001 = useRef(false);
   const customerInfo = useTreekoffStorage((state) => state.customerInfo);
+  const staffInfo = useTreekoffStorage((state) => state.staffInfo)
   const setCustomerInfo = useTreekoffStorage((state) => state.setCustomerInfo);
   const resetCustomer = useTreekoffStorage((state) => state.resetCustomerInfo);
   const [alertError, setAlertError] = useState(false);
+  const setCustomerBill = useTreekoffStorage((state) => state.setCustomerBill)
 
   useEffect(() => {
     if (userInfo?.id === 9001 && !hasHandled9001.current) {
@@ -64,31 +66,22 @@ const Customer = () => {
     handleClose();
   };
 
-  const createWithUser = async (userId) => {
+  const createWithUser = async () => {
     try {
-      const res = await createBill(userId);
-      const billData = res?.data;
+      const branchId = 1
 
-      const combineCreate = {
-        ...userInfo,
-        bill: billData,
-      };
+      const createBil = await createBillWithUser(customerInfo?.id_list, staffInfo?.first_name, branchId)
+      console.log(createBil)
+      // Extract only the bill_id from the response data
+      const billIdObject = { bill_id: createBil.data.bill_id };
 
-      {
-        /** set local state */
-      }
+      setCustomerBill(billIdObject)
 
-      setUserInfo(combineCreate);
 
-      {
-        /**send broadcast channel */
-      }
-      orderChannel.postMessage(combineCreate);
     } catch (err) {
-      console.log(err);
+      console.log(err)
     }
-
-    navigate("/productdetail");
+    navigate("/sellpage/productdetail");
   };
 
   const handleCreateNoUser = async () => {
@@ -476,15 +469,15 @@ const Customer = () => {
                     >
                       {customerInfo?.start_work_time
                         ? new Date(
-                            customerInfo.start_work_time * 1000
-                          ).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: false, // set to true if you want 12-hour format
-                          })
+                          customerInfo.start_work_time * 1000
+                        ).toLocaleString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false, // set to true if you want 12-hour format
+                        })
                         : "UNKNOW"}
                     </Typography>
                   </Box>
@@ -494,6 +487,7 @@ const Customer = () => {
                       variant="contained"
                       color="success"
                       sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}
+                      onClick={createWithUser}
                     >
                       ສ້າງບິນໃຫ່ມ
                     </Button>

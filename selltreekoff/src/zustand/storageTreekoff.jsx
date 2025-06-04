@@ -9,8 +9,9 @@ const TreekoffStorage = (set, get) => ({
   orderOnline: [],
   staffInfo: null,
   customerInfo: null,
-  session:null,
-  menuForBranch:null,
+  session: null,
+  menuForBranch: null,
+  customerBill: null,
   setUserBill: (billOrUpdater) => {
     set((state) => ({
       userBill:
@@ -83,14 +84,25 @@ const TreekoffStorage = (set, get) => ({
     }));
   },
   resetCustomerInfo: (newData) => {
-    set({ customerInfo: newData})
+    set({ customerInfo: newData })
   },
   setSession: (newData) => {
-    set({ session: newData})
+    set({ session: newData })
   },
   setMenuForBranch: (newData) => {
-    set({ menuForBranch: newData})
-  }
+    set({ menuForBranch: newData })
+  },
+  setCustomerBill: (newData) => {
+    set({ customerBill: newData })
+  },
+  setAddMenuToBill: (newData) => {
+    set((state) => ({
+      customerBill: {
+        ...state.customerBill,
+        ...newData,
+      },
+    }));
+  },
 });
 
 const usePersist = {

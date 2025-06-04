@@ -15,7 +15,6 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
     setEmployeeInfo(EmployeeInfo);
   }, [EmployeeInfo]);
 
-  console.log(showPanel);
   return (
     <motion.div
       layout

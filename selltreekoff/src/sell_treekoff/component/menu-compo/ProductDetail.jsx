@@ -42,7 +42,7 @@ import { billUserChannel, orderChannel, paymentMethod } from "../../../broadcast
 const ProductDetail = () => {
   const [paymentMet, setPaymentMet] = useState("done")
   const staffInfo = useTreekoffStorage((state)=>state.staffInfo)
-
+  const menuForBranch = useTreekoffStorage((state)=>state.menuForBranch)
   const navigate = useNavigate();
   const userBill = useTreekoffStorage((state) => state.userBill);
   const setUserBill = useTreekoffStorage((s) => s.setUserBill);
@@ -51,7 +51,7 @@ const ProductDetail = () => {
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
   const [searchText, setSearchText] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
-  const data = products;
+  const data = menuForBranch;
   const totalSum =
     userBill.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
   const [selected, setSelected] = useState([]);
@@ -281,7 +281,7 @@ const ProductDetail = () => {
               </Typography>
               <Grid2 container spacing={3} mt={2}>
                 {data[category].map((item, i) => (
-                  <Grid2 key={`${item.id}-${i}`}>
+                  <Grid2 key={`${item?.id_menu}-${i}`}>
                     <Card
                       onClick={() => handleClickOpen(item)}
                       sx={{
@@ -296,7 +296,7 @@ const ProductDetail = () => {
                         }}
                         component="img"
                         height="200"
-                        image={item.image}
+                        image={`https://treekoff.com/${item?.MenuImgSRC}`}
                         alt={item.name}
                       />
                       <CardContent
@@ -305,13 +305,13 @@ const ProductDetail = () => {
                         }}
                       >
                         <Typography variant="h6" fontSize={20}>
-                          {item.menuName}
+                          {item?.menuNameENG}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Size: {item.size}
+                          Size: {item?.cupSize}
                         </Typography>
                         <Typography variant="body1" fontSize={18} color="green">
-                          {item.price?.toLocaleString("id-ID")} KIP
+                          {Number(item?.priceOfSellKIP || 0).toLocaleString("id-ID")} KIP
                         </Typography>
                       </CardContent>
                     </Card>
@@ -327,10 +327,10 @@ const ProductDetail = () => {
             Search results for: {searchText}
           </Typography>
           <Grid2 container spacing={3}>
-            {Object.entries(products)
+            {Object.entries(menuForBranch)
               .flatMap(([category, items]) =>
                 items.filter((item) =>
-                  item.menuName.toLowerCase().includes(searchText)
+                  item.menuNameENG.toLowerCase().includes(searchText)
                 )
               )
               .map((item, i) => (
@@ -346,19 +346,19 @@ const ProductDetail = () => {
                     <CardMedia
                       component="img"
                       height="200"
-                      image={item.image}
-                      alt={item.menuName}
+                      image={item.MenuImgSRC}
+                      alt={item.menuNameENG}
                       sx={{ cursor: "pointer" }}
                     />
                     <CardContent sx={{ cursor: "pointer" }}>
                       <Typography variant="h6" fontSize={20}>
-                        {item.menuName}
+                        {item.menuNameENG}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Size: {item.size}
+                        Size: {item.cupSize}
                       </Typography>
                       <Typography variant="body1" fontSize={18} color="green">
-                        {item.price?.toLocaleString("id-ID")} KIP
+                        {item.priceOfSellKIP?.toLocaleString("id-ID")} KIP
                       </Typography>
                     </CardContent>
                   </Card>
@@ -581,8 +581,8 @@ const ProductDetail = () => {
               }}
               component="img"
               height="400"
-              image={selectedItem?.image}
-              alt={selectedItem?.name}
+              image={selectedItem?.MenuImgSRC}
+              alt={selectedItem?.menuNameENG}
             />
           </CardContent>
           <Box>
@@ -610,7 +610,7 @@ const ProductDetail = () => {
                 fontWeight={"bold"}
                 fontFamily={"Noto Serif Lao"}
               >
-                {(selectedItem?.price || 0).toLocaleString() + "ກີບ"}
+                {Number(selectedItem?.priceOfSellKIP || 0).toLocaleString() + "ກີບ"}
               </Typography>
             </Box>
 
@@ -724,7 +724,7 @@ const ProductDetail = () => {
                 fontSize={35}
                 color="rgb(252, 62, 62)"
               >
-                {(selectedItem?.price * quantity).toLocaleString() + " KIP"}
+                {(Number(selectedItem?.priceOfSellKIP) * quantity).toLocaleString() + " KIP"}
               </Typography>
             </Box>
           </Box>

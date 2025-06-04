@@ -21,3 +21,9 @@ export const virifySession = (id, session) => {
 export const getMenuForBranch = (branchId) => {
     return axios.get(`https://treekoff.com/_react/api.php?show_menu_treekoff&for_branch_id=${branchId}`)
 }
+export const getTypeMenu = () => {
+    return axios.get(`https://treekoff.com/_react/api.php?show_menu_type_treekoff`)
+}
+export const createBillWithUser = (id, staffName, branchID) => {
+    return axios.get(`https://treekoff.com/_react/api.php?create_bill_treekoff&customer_id=${id}&staff_name=${staffName}&branch_id=${branchID}`)
+}
