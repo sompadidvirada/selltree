@@ -47,11 +47,10 @@ const Customer = () => {
   const navigate = useNavigate();
   const hasHandled9001 = useRef(false);
   const customerInfo = useTreekoffStorage((state) => state.customerInfo);
-  const staffInfo = useTreekoffStorage((state) => state.staffInfo)
+  const staffInfo = useTreekoffStorage((state) => state.staffInfo);
   const setCustomerInfo = useTreekoffStorage((state) => state.setCustomerInfo);
   const resetCustomer = useTreekoffStorage((state) => state.resetCustomerInfo);
   const [alertError, setAlertError] = useState(false);
-  const setCustomerBill = useTreekoffStorage((state) => state.setCustomerBill)
 
   useEffect(() => {
     if (userInfo?.id === 9001 && !hasHandled9001.current) {
@@ -68,18 +67,24 @@ const Customer = () => {
 
   const createWithUser = async () => {
     try {
-      const branchId = 1
+      const branchId = 1;
 
-      const createBil = await createBillWithUser(customerInfo?.id_list, staffInfo?.first_name, branchId)
-      console.log(createBil)
+      const createBil = await createBillWithUser(
+        customerInfo?.id_list,
+        staffInfo?.first_name,
+        branchId
+      );
+
       // Extract only the bill_id from the response data
       const billIdObject = { bill_id: createBil.data.bill_id };
-
-      setCustomerBill(billIdObject)
-
-
+      // Merge bill_id with previous customerInfo
+      setCustomerInfo((prev) => ({
+        ...prev,
+        bill_id: createBil.data.bill_id,
+        detail: null,
+      }));
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
     navigate("/sellpage/productdetail");
   };
@@ -299,7 +304,7 @@ const Customer = () => {
 
           {/** Output Area */}
 
-          {customerInfo && (
+          {customerInfo && Object.keys(customerInfo).length > 0 && (
             <motion.div
               key={customerInfo.id_list}
               initial={{ opacity: 0, x: 30 }}
@@ -469,15 +474,15 @@ const Customer = () => {
                     >
                       {customerInfo?.start_work_time
                         ? new Date(
-                          customerInfo.start_work_time * 1000
-                        ).toLocaleString("en-GB", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false, // set to true if you want 12-hour format
-                        })
+                            customerInfo.start_work_time * 1000
+                          ).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false, // set to true if you want 12-hour format
+                          })
                         : "UNKNOW"}
                     </Typography>
                   </Box>

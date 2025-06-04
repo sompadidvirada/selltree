@@ -11,7 +11,7 @@ const TreekoffStorage = (set, get) => ({
   customerInfo: null,
   session: null,
   menuForBranch: null,
-  customerBill: null,
+  waitingNumbers: {},
   setUserBill: (billOrUpdater) => {
     set((state) => ({
       userBill:
@@ -75,33 +75,39 @@ const TreekoffStorage = (set, get) => ({
       },
     }));
   },
-  setCustomerInfo: (newData) => {
-    set((state) => ({
-      customerInfo: {
-        ...state.customerInfo,
-        ...newData,
-      },
-    }));
+  setCustomerInfo: (updater) => {
+    set((state) => {
+      const prev = state.customerInfo || {};
+      const newCustomerInfo =
+        typeof updater === "function" ? updater(prev) : updater;
+
+      return { customerInfo: newCustomerInfo };
+    });
   },
+
   resetCustomerInfo: (newData) => {
-    set({ customerInfo: newData })
+    set({ customerInfo: newData });
   },
   setSession: (newData) => {
-    set({ session: newData })
+    set({ session: newData });
   },
   setMenuForBranch: (newData) => {
-    set({ menuForBranch: newData })
+    set({ menuForBranch: newData });
   },
-  setCustomerBill: (newData) => {
-    set({ customerBill: newData })
-  },
-  setAddMenuToBill: (newData) => {
-    set((state) => ({
-      customerBill: {
-        ...state.customerBill,
-        ...newData,
-      },
-    }));
+  getNextWaitNumber: (branchId) => {
+  const current = get().waitingNumbers[branchId] || 0;
+  const next = current >= 5 ? 1 : current + 1;
+  set((state) => ({
+    waitingNumbers: {
+      ...state.waitingNumbers,
+      [branchId]: next,
+    },
+  }));
+  return next;
+},
+
+  resetWaitNumbers: () => {
+    set({ waitingNumbers: {} });
   },
 });
 

@@ -10,12 +10,14 @@ import { useEffect } from "react";
 import OnlinePage from "./menu-compo/OnlinePage";
 
 import { motion } from "framer-motion"; // NEW
+import { toast } from "react-toastify";
 
 
 const MenuDetailAndBread = ({ selectOnline }) => {
   const location = useLocation();
   const userBill = useTreekoffStorage((s) => s.userBill);
   const userInfo = useTreekoffStorage((s) => s.userInfo);
+  const customerInfo = useTreekoffStorage((s)=>s.customerInfo)
 
   const refreshCus = () => {
     orderChannel.postMessage(userInfo);
@@ -96,9 +98,9 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                 </Typography>
               </NavLink>
               <NavLink
-                to="/productdetail"
+                to="/sellpage/productdetail"
                 onClick={(e) => {
-                  if (!userInfo?.bill) {
+                  if (!customerInfo || customerInfo === "") {
                     e.preventDefault();
                     toast.error("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
                   }
@@ -110,10 +112,10 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                   backgroundColor: isActive ? "green" : "transparent",
                   padding: 8,
                   borderRadius: 5,
-                  color: !userInfo?.bill ? "gray" : "inherit",
+                  color: !customerInfo?.detail ? "gray" : "inherit",
                   textDecoration: "none",
-                  pointerEvents: !userInfo?.bill ? "none" : "auto",
-                  opacity: !userInfo?.bill ? 0.6 : 1,
+                  pointerEvents: !customerInfo?.detail ? "none" : "auto",
+                  opacity: !customerInfo?.detail ? 0.6 : 1,
                 })}
               >
                 <LocalAtmIcon />
@@ -122,11 +124,11 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                 </Typography>
               </NavLink>
               <NavLink
-                to="/checkbill"
+                to="/sellpage/checkbill"
                 onClick={(e) => {
-                  if (!userInfo?.bill) {
+                  if (!customerInfo?.detail) {
                     e.preventDefault();
-                    toast.error("ກະລຸນາເລືອກລູກຄ້າກ່ອນ");
+                    toast.error("ກະລຸນາເລືອກລາຍການກ່ອນ");
                   }
                 }}
                 style={({ isActive }) => ({
@@ -137,15 +139,15 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                   padding: 8,
                   borderRadius: 5,
                   color:
-                    !userInfo?.bill || !userBill || userBill?.length === 0
+                    !customerInfo.detail || !customerInfo || customerInfo?.detail?.length === 0
                       ? "gray"
                       : "inherit",
                   textDecoration: "none",
                   pointerEvents:
-                    !userInfo?.bill || !userBill || userBill?.length === 0
+                    !customerInfo?.detail || !customerInfo || customerInfo?.detail?.length === 0
                       ? "none"
                       : "auto",
-                  opacity: !userInfo?.bill ? 0.6 : 1,
+                  opacity: !customerInfo?.detail ? 0.6 : 1,
                 })}
               >
                 <FormatListBulletedIcon />

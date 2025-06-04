@@ -22,10 +22,13 @@ import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
 import { createWaitOrder, deleteBill } from "../../../api/sellTreekoff";
 import { toast, ToastContainer } from "react-toastify";
-import { numberPayment, paymentMethod } from "../../../broadcast-channel/broadcast";
+import {
+  numberPayment,
+  paymentMethod,
+} from "../../../broadcast-channel/broadcast";
+import { deleteProductFromBill } from "../../../api/treekoff";
 
 const CheckBill = () => {
-
   const brachId = 1;
   const navigate = useNavigate();
   const [selected, setSelected] = useState([]);
@@ -36,19 +39,14 @@ const CheckBill = () => {
   const resetBill = useTreekoffStorage((s) => s.resetBill);
   const employeeInfo = useTreekoffStorage((s) => s.employeeInfo);
   const [rawCash, setRawCash] = useState();
-
-  const handleSelect = (id) => {
-    setSelected((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((item) => item !== id)
-        : [...prevSelected, id]
-    );
-  };
+  const customerInfo = useTreekoffStorage((s) => s.customerInfo);
+  const staffInfo = useTreekoffStorage((s) => s.staffInfo);
+  const resetCustomerInfo = useTreekoffStorage((s) => s.resetCustomerInfo);
 
   const handleChange = (e) => {
     const raw = e.target.value.replace(/,/g, ""); // remove commas
     setRawCash(raw);
-    numberPayment.postMessage(raw)
+    numberPayment.postMessage(raw);
 
     if (!isNaN(raw)) {
       const number = parseInt(raw, 10);
@@ -60,7 +58,10 @@ const CheckBill = () => {
     }
   };
 
-  const totalSum = userBill.reduce((acc, row) => acc + row.price * row.qty, 0);
+  const totalSum = customerInfo?.detail?.reduce(
+    (acc, row) => acc + row.price * row.qty,
+    0
+  );
 
   const confirmClearBill = async () => {
     const billId = userInfo?.bill?.id;
@@ -76,46 +77,58 @@ const CheckBill = () => {
   };
 
   const handleCheckout = async (pay) => {
-    if (rawCash < totalSum || rawCash === "") {
+    if (Number(rawCash) < totalSum || rawCash === "" || !rawCash) {
       toast.error("ເງີນທີ່ຮັບຈາກລູກຄ້າ ບໍ່ຖືກຕ້ອງ !!", {
         style: { fontFamily: "'Noto Sans Lao', sans-serif" },
       });
       return;
     }
-    try {
-      const waitOrder = await createWaitOrder(brachId);
+    const waitNumber = useTreekoffStorage.getState().getNextWaitNumber(1);
 
-      const CheckuserBill = {
-        billId: userInfo?.bill?.id,
-        createAt: userInfo?.bill?.createAt,
-        userId: userInfo?.id,
-        username: userInfo?.username,
-        point: userInfo?.point?.point,
-        waitNumber: waitOrder?.data?.waitNumber,
-        payment: pay,
-        menuDetail: userBill || [],
-        totalPrice: totalSum || 0,
-        cash: rawCash || 0,
-        employeeName: employeeInfo?.username || "",
-      };
+    const CheckuserBill = {
+      billId: customerInfo?.bill_id,
+      createAt: userInfo?.bill?.createAt,
+      userId: customerInfo?.id_list,
+      username: customerInfo?.full_name,
+      point: customerInfo?.total_score,
+      waitNumber,
+      payment: pay,
+      menuDetail: customerInfo?.detail || [],
+      totalPrice: totalSum || 0,
+      cash: rawCash || 0,
+      employeeName: staffInfo?.first_name || "",
+    };
 
-      setTimeout(() => {
-        sessionStorage.setItem("CheckuserBill", JSON.stringify(CheckuserBill));
+    setTimeout( async () => {
+      sessionStorage.setItem("CheckuserBill", JSON.stringify(CheckuserBill));
 
-        resetBill();
+          const branchID = 1;
+      
+          const detailList = customerInfo?.detail || [];
+      
+          try {
+            for (const item of detailList) {
+              await deleteProductFromBill(item.added_id, staffInfo, branchID);
+            }
+          } catch(err) {
+            console.log(err)
+            return
+          }
+      
+        resetCustomerInfo({});
+
         numberPayment.postMessage(0)
 
-        navigate("/");
+        navigate("/sellpage");
         // Open new tab
-        window.open("/customerbill", "_blank");
-      }, 150);
-    } catch (err) {
-      console.log(err);
-    }
+
+        
+      window.open("/customerbill", "_blank");
+    }, 150);
   };
   useEffect(() => {
-    paymentMethod.postMessage("done")
-  }, [])
+    paymentMethod.postMessage("done");
+  }, []);
 
   return (
     <Box>
@@ -147,30 +160,30 @@ const CheckBill = () => {
               <Box>
                 <Box display="flex" alignContent="center">
                   <Avatar
-                    src={userInfo?.image || ""}
-                    alt="Pao"
+                    src={customerInfo?.profile_img || ""}
+                    alt={customerInfo?.full_name || ""}
                     style={{ width: 80, height: 80 }}
                   />
                 </Box>
                 <Typography fontFamily="Noto Sans Lao" fontSize={18}>
-                  CUSTOMER NAME: {userInfo?.username || "UNKNOW"}
+                  CUSTOMER NAME: {customerInfo?.full_name || "UNKNOW"}
                 </Typography>
                 <Typography fontSize={18}>
-                  CUSTOMER ID: {userInfo?.id || 0}
+                  CUSTOMER ID: {customerInfo?.id_list || 0}
                 </Typography>
                 <Typography fontSize={18}>
-                  BILL NO : #{userInfo?.bill?.id || 0} | TIME{" "}
+                  BILL NO : #{customerInfo?.bill_id || 0} | TIME{" "}
                   {userInfo?.bill?.createAt
                     ? new Date(userInfo?.bill?.createAt).toLocaleString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      }
-                    )
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )
                     : "UNKNOW"}
                 </Typography>
                 <Typography
@@ -180,7 +193,8 @@ const CheckBill = () => {
                   fontWeight="bold"
                 >
                   ແຕ້ມສະສົມ:{" "}
-                  {(userInfo?.point[0]?.point || 0).toLocaleString() || "01"}{" "}
+                  {Number(customerInfo?.total_score || 0).toLocaleString() ||
+                    "01"}{" "}
                   ຄະແນນ
                 </Typography>
               </Box>
@@ -200,17 +214,13 @@ const CheckBill = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {userBill?.map((row, index) => {
-                      const isSelected = selected.includes(row.id);
+                    {customerInfo?.detail?.map((row, index) => {
                       return (
                         <TableRow
-                          key={row.id}
-                          onClick={() => handleSelect(row.id)}
+                          key={row.added_id}
                           sx={{
                             cursor: "pointer",
-                            backgroundColor: isSelected
-                              ? "#e3f2fd"
-                              : "transparent", // 🔷 highlight
+                            backgroundColor: "#e3f2fd",
                           }}
                         >
                           <TableCell>{index + 1}</TableCell>
@@ -222,8 +232,8 @@ const CheckBill = () => {
                             }}
                           >
                             <img
-                              src={row.img}
-                              alt={row.menu}
+                              src={row.MenuImgSRC}
+                              alt={row.menuNameENG}
                               style={{
                                 width: 40,
                                 height: 40,
@@ -232,9 +242,11 @@ const CheckBill = () => {
                                 marginRight: 10,
                               }}
                             />
-                            {row.menu}
+                            {row.menuNameENG}
                           </TableCell>
-                          <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
+                          <TableCell sx={{ fontFamily: "Noto Sans Lao" }}>
+                            {row.sweet}
+                          </TableCell>
                           <TableCell>{row.price.toLocaleString()}</TableCell>
                           <TableCell>{row.qty}</TableCell>
                           <TableCell>

@@ -52,7 +52,7 @@ const CustomerBill = ({priceBeforeTax, CheckuserBill}) => {
           ? CheckuserBill?.menuDetail?.map((item, index) => {
               return (
                 <p
-                  key={index}
+                  key={item.added_id}
                   style={{
                     display: "flex",
                     justifyContent: "space-between",
@@ -60,8 +60,8 @@ const CustomerBill = ({priceBeforeTax, CheckuserBill}) => {
                   }}
                 >
                   <span>
-                    {index + 1}&nbsp;&nbsp;&nbsp; [{item.size}
-                    ]&nbsp;&nbsp;&nbsp; {item.menu} &nbsp;&nbsp;&nbsp;:
+                    {index + 1}&nbsp;&nbsp;&nbsp; [{item.cupSize}
+                    ]&nbsp;&nbsp;&nbsp; {item.menuNameENG} &nbsp;&nbsp;&nbsp;:
                     &nbsp;&nbsp;&nbsp;
                     {item.sweet}&nbsp;&nbsp;&nbsp; x &nbsp;&nbsp;&nbsp;{" "}
                     {item.price.toLocaleString()} x {item.qty}

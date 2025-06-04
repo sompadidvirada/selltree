@@ -32,17 +32,17 @@ import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { createBill } from "../../../api/sellTreekoff";
-import { billUserChannel, orderChannel, paymentMethod } from "../../../broadcast-channel/broadcast";
-
-
-
-
-
+import {
+  billUserChannel,
+  orderChannel,
+  paymentMethod,
+} from "../../../broadcast-channel/broadcast";
+import { addProductToBill, deleteProductFromBill } from "../../../api/treekoff";
 
 const ProductDetail = () => {
-  const [paymentMet, setPaymentMet] = useState("done")
-  const staffInfo = useTreekoffStorage((state)=>state.staffInfo)
-  const menuForBranch = useTreekoffStorage((state)=>state.menuForBranch)
+  const [paymentMet, setPaymentMet] = useState("done");
+  const staffInfo = useTreekoffStorage((state) => state.staffInfo);
+  const menuForBranch = useTreekoffStorage((state) => state.menuForBranch);
   const navigate = useNavigate();
   const userBill = useTreekoffStorage((state) => state.userBill);
   const setUserBill = useTreekoffStorage((s) => s.setUserBill);
@@ -52,10 +52,13 @@ const ProductDetail = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const data = menuForBranch;
-  const totalSum =
-    userBill.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
   const [selected, setSelected] = useState([]);
   const [open, setOpen] = useState(false);
+  const setCustomerInfo = useTreekoffStorage((s) => s.setCustomerInfo);
+  const customerInfo = useTreekoffStorage((s) => s.customerInfo);
+  const totalSum =
+    customerInfo?.detail?.reduce((acc, row) => acc + row.price * row.qty, 0) ||
+    0;
 
   const [selectedValue, setSelectedValue] = useState("ທຳມະດາ");
   const [quantity, setQuantity] = useState(1); // default is 1
@@ -63,32 +66,6 @@ const ProductDetail = () => {
   const categories = Object.keys(data);
 
   const [selectedTab, setSelectedTab] = useState(0);
-
-  useEffect(() => {
-    const fetchBill = async () => {
-      if (!userInfo || Object.keys(userInfo).length === 0) {
-        const res = await createBill(9001);
-        const defaultBill = res?.data;
-
-        const createDefalutUser = {
-          id: 9001,
-          username: "USER_FOR_BRANCH_NO_ID_1",
-          image: "",
-          phonenumber: "",
-          point: 0,
-          totalSpent: 0,
-          createDate: "",
-          bill: defaultBill,
-        };
-
-        setUserInfo(createDefalutUser);
-
-        billUserChannel.postMessage(createDefalutUser)
-      }
-    };
-
-    fetchBill();
-  }, []);
 
   const handleClickOpen = (item) => {
     setSelectedItem(item); // store the clicked item
@@ -100,68 +77,114 @@ const ProductDetail = () => {
     setQuantity(1);
   };
 
-  const handleSelect = (id) => {
+  const handleSelect = (added_id) => {
     setSelected((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((item) => item !== id)
-        : [...prevSelected, id]
+      prevSelected.includes(added_id)
+        ? prevSelected.filter((item) => item !== added_id)
+        : [...prevSelected, added_id]
     );
   };
 
-  const handleDeleteSelected = () => {
-    replaceUserBill(userBill.filter((row) => !selected.includes(row.id)));
-    setSelected([]);
+  const handleDeleteSelected = async () => {
+    try {
+      const branchID = 1;
+      const idsToDelete = Array.isArray(selected) ? selected : [selected];
+
+      for (const addedId of idsToDelete) {
+        await deleteProductFromBill(addedId, staffInfo?.first_name, branchID);
+      }
+
+      // Remove the deleted items from customerInfo
+      setCustomerInfo((prev) => ({
+        ...prev,
+        detail: (prev?.detail || []).filter(
+          (row) => !idsToDelete.includes(row.added_id)
+        ),
+      }));
+
+      setSelected([]);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const handleDeleteAll = () => {
-    replaceUserBill([]);
-    setSelected([]);
+  const handleDeleteAll = async () => {
+    const branchID = 1;
+
+    const detailList = customerInfo?.detail || [];
+
+    try {
+      for (const item of detailList) {
+        await deleteProductFromBill(item.added_id, staffInfo, branchID);
+      }
+
+      // After successful deletion, clear customerInfo.detail and selected
+      setCustomerInfo((prev) => ({
+        ...prev,
+        detail: [],
+      }));
+
+      setSelected([]);
+    } catch (err) {
+      console.log("Error deleting items:", err);
+    }
   };
 
   useEffect(() => {
     if (userBill?.length > 0) {
-      orderChannel.postMessage(userInfo)
-      billUserChannel.postMessage(userBill)
+      orderChannel.postMessage(userInfo);
+      billUserChannel.postMessage(userBill);
     }
   }, []);
 
   const handleSubmitDialog = async (e) => {
     e.preventDefault();
 
-    const price = Number(selectedItem?.price || 0);
+    const price = Number(selectedItem?.priceOfSellKIP || 0);
 
     const newBill = {
-      id: selectedItem?.id,
-      menu: selectedItem?.menuName || "",
+      id_menu: selectedItem?.id_menu,
+      menuNameENG: selectedItem?.menuNameENG || "",
       price: price,
       qty: quantity,
-      size: selectedItem?.size,
-      img: selectedItem?.image || null,
+      cupSize: selectedItem?.cupSize,
+      MenuImgSRC: selectedItem?.MenuImgSRC || null,
       sweet: selectedValue || "ທຳມະດາ",
     };
 
-    // Check if the item already exists in userBill (match by id + size + sweetness, etc. as needed)
+    const branchID = 1;
 
-    setUserBill((prevBills) => {
-      const existingIndex = prevBills.findIndex(
-        (item) =>
-          item.id === newBill.id &&
-          item.size === newBill.size &&
-          item.sweet === newBill.sweet
+    try {
+      const addProduct = await addProductToBill(
+        newBill?.id_menu,
+        customerInfo.bill_id,
+        newBill?.qty,
+        newBill?.sweet,
+        branchID
       );
 
-      let updatedBills;
-      if (existingIndex !== -1) {
-        updatedBills = [...prevBills];
-        updatedBills[existingIndex].qty += newBill.qty;
+      const added_id = addProduct?.data?.data?.added_id;
+
+      if (added_id) {
+        const newBillWithID = {
+          ...newBill,
+          added_id: added_id,
+        };
+
+        // ✅ Just add this new item directly
+        setCustomerInfo((prev = {}) => {
+          const prevDetail = prev.detail || [];
+          return {
+            ...prev,
+            detail: [newBillWithID, ...prevDetail],
+          };
+        });
       } else {
-        updatedBills = [...prevBills, newBill];
+        console.warn("No added_id returned from API");
       }
-
-      billUserChannel.postMessage(updatedBills)
-      return updatedBills;
-    });
-
+    } catch (err) {
+      console.log(err);
+    }
     // Reset form
     setSearchText("");
     setQuantity(1);
@@ -169,22 +192,21 @@ const ProductDetail = () => {
   };
 
   const handleCheckout = () => {
-    if (!userBill || userBill?.length === 0) {
+    if (!customerInfo.detail || customerInfo?.detail?.length === 0) {
       toast.error("ກະລຸນາເພີ່ມລາຍການສິນຄ້າກ່ອນ.", {
         style: { fontFamily: "'Noto Sans Lao', sans-serif" },
       });
       return;
     } else {
-
-      paymentMethod.postMessage(paymentMet)
-      setPaymentMet("notdone")
-      navigate("/checkbill");
+      paymentMethod.postMessage(paymentMet);
+      setPaymentMet("notdone");
+      navigate("/sellpage/checkbill");
     }
   };
 
   useEffect(() => {
-    paymentMethod.postMessage(null)
-  }, [])
+    paymentMethod.postMessage(null);
+  }, []);
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
@@ -286,8 +308,8 @@ const ProductDetail = () => {
                       onClick={() => handleClickOpen(item)}
                       sx={{
                         border: "1px solid rgba(1, 1, 1, 0.25)",
-                        width: 210,
-                        height: 350,
+                        width: 220,
+                        height: 370,
                       }}
                     >
                       <CardMedia
@@ -311,7 +333,10 @@ const ProductDetail = () => {
                           Size: {item?.cupSize}
                         </Typography>
                         <Typography variant="body1" fontSize={18} color="green">
-                          {Number(item?.priceOfSellKIP || 0).toLocaleString("id-ID")} KIP
+                          {Number(item?.priceOfSellKIP || 0).toLocaleString(
+                            "id-ID"
+                          )}{" "}
+                          KIP
                         </Typography>
                       </CardContent>
                     </Card>
@@ -383,34 +408,40 @@ const ProductDetail = () => {
             <Box>
               <Box display="flex" alignContent="center">
                 <Avatar
-                  src={userInfo?.image}
-                  alt={userInfo?.username}
+                  src={customerInfo?.profile_img}
+                  alt={customerInfo?.full_name}
                   style={{ width: 120, height: 120 }}
                 />
                 <Typography
                   fontFamily="Noto Sans Lao"
-                  fontSize={15}
-                  sx={{ alignSelf: "center", marginLeft: 2 }}
+                  fontSize={20}
+                  sx={{
+                    alignSelf: "center",
+                    marginLeft: 2,
+                    fontWeight: "bold",
+                  }}
                 >
-                  {userInfo?.username}
+                  {customerInfo?.full_name}
                 </Typography>
               </Box>
-              <Typography variant="h5">CUSTOMER ID: {userInfo?.id}</Typography>
               <Typography variant="h5">
-                BILL NO : #{userInfo?.bill?.id} | TIME{" "}
+                CUSTOMER ID: {customerInfo?.id_list}
+              </Typography>
+              <Typography variant="h5">
+                BILL NO : #{customerInfo?.bill_id} | TIME{" "}
                 {userInfo?.bill?.createAt
                   ? new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
                   : "UNKNOW"}
                 {userInfo?.bill?.billDate}
               </Typography>
             </Box>
-            {userBill.length > 0 && (
+            {customerInfo?.detail?.length > 0 && (
               <Box>
                 <Card
                   sx={{ width: 200, justifySelf: "end", marginBottom: "10" }}
@@ -421,12 +452,13 @@ const ProductDetail = () => {
                     }}
                     component="img"
                     height="200px"
-                    image={userBill[0]?.img}
+                    image={customerInfo?.detail[4]?.MenuImgSRC}
                     alt={"hot americano"}
                   />
                 </Card>
                 <Typography variant="h4" fontSize={34} fontWeight={"bold"}>
-                  {userBill[0]?.menu} {`[${userBill[0]?.size}]`}
+                  {customerInfo?.detail[0]?.menuNameENG}{" "}
+                  {`[${customerInfo?.detail[0]?.cupSize}]`}
                 </Typography>
                 <Typography
                   sx={{
@@ -435,8 +467,8 @@ const ProductDetail = () => {
                     justifySelf: "end",
                   }}
                 >
-                  {userBill?.[0]?.price?.toLocaleString() || 0} KIP X{" "}
-                  {userBill?.[0]?.qty} UNIT
+                  {customerInfo?.detail[0]?.price?.toLocaleString() || 0} KIP X{" "}
+                  {customerInfo?.detail[0]?.qty} UNIT
                 </Typography>
                 <Typography
                   sx={{
@@ -446,8 +478,10 @@ const ProductDetail = () => {
                     color: "rgb(236, 70, 70)",
                   }}
                 >
-                  {(userBill?.[0]?.price * userBill?.[0]?.qty).toLocaleString() ||
-                    0}{" "}
+                  {(
+                    customerInfo?.detail[0]?.price *
+                    customerInfo?.detail[0]?.qty
+                  ).toLocaleString() || 0}{" "}
                   KIP
                 </Typography>
               </Box>
@@ -486,12 +520,12 @@ const ProductDetail = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {userBill?.map((row, index) => {
-                    const isSelected = selected.includes(row.id);
+                  {customerInfo?.detail?.map((row, index) => {
+                    const isSelected = selected.includes(row.added_id);
                     return (
                       <TableRow
-                        key={row.id}
-                        onClick={() => handleSelect(row.id)}
+                        key={row.added_id}
+                        onClick={() => handleSelect(row.added_id)}
                         sx={{
                           cursor: "pointer",
                           backgroundColor: isSelected
@@ -511,8 +545,8 @@ const ProductDetail = () => {
                           }}
                         >
                           <img
-                            src={row.img}
-                            alt={row.menu}
+                            src={row.MenuImgSRC}
+                            alt={row.menuNameENG}
                             style={{
                               width: 40,
                               height: 40,
@@ -521,9 +555,11 @@ const ProductDetail = () => {
                               marginRight: 10,
                             }}
                           />
-                          {row.menu}
+                          {row.menuNameENG}
                         </TableCell>
-                        <TableCell sx={{ fontFamily: 'Noto Sans Lao'}}>{row.sweet}</TableCell>
+                        <TableCell sx={{ fontFamily: "Noto Sans Lao" }}>
+                          {row.sweet}
+                        </TableCell>
                         <TableCell>{row.price?.toLocaleString()}</TableCell>
                         <TableCell>{row.qty}</TableCell>
                         <TableCell>
@@ -610,7 +646,8 @@ const ProductDetail = () => {
                 fontWeight={"bold"}
                 fontFamily={"Noto Serif Lao"}
               >
-                {Number(selectedItem?.priceOfSellKIP || 0).toLocaleString() + "ກີບ"}
+                {Number(selectedItem?.priceOfSellKIP || 0).toLocaleString() +
+                  "ກີບ"}
               </Typography>
             </Box>
 
@@ -724,7 +761,9 @@ const ProductDetail = () => {
                 fontSize={35}
                 color="rgb(252, 62, 62)"
               >
-                {(Number(selectedItem?.priceOfSellKIP) * quantity).toLocaleString() + " KIP"}
+                {(
+                  Number(selectedItem?.priceOfSellKIP) * quantity
+                ).toLocaleString() + " KIP"}
               </Typography>
             </Box>
           </Box>
