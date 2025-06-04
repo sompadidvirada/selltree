@@ -500,7 +500,7 @@ const ProductDetail = () => {
               variant="contained"
               color="success"
               onClick={handleDeleteAll}
-              disabled={userBill?.length === 0}
+              disabled={customerInfo?.detail.length === 0}
             >
               DELETE ALL
             </Button>
