@@ -261,6 +261,7 @@ const Customer = () => {
               variant="contained"
               sx={{ height: 50, bgcolor: "#3c8dbc" }}
               onClick={handleCreateNoUser}
+              disabled
             >
               <Typography fontFamily={"Noto Sans Lao"} fontWeight="bold">
                 ສ້າງບິນໃຫ່ມບໍ່ມີໄອດີ

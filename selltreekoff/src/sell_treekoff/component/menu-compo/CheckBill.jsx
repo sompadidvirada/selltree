@@ -317,6 +317,7 @@ const CheckBill = () => {
             <Button
               onClick={() => handleClearBill()}
               variant="contained"
+              disabled
               color="error"
               sx={{
                 fontFamily: "Noto Sans Lao",
