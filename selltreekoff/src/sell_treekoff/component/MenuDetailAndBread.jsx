@@ -139,7 +139,7 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                   padding: 8,
                   borderRadius: 5,
                   color:
-                    !customerInfo.detail || !customerInfo || customerInfo?.detail?.length === 0
+                    !customerInfo?.detail || !customerInfo || customerInfo?.detail?.length === 0
                       ? "gray"
                       : "inherit",
                   textDecoration: "none",
