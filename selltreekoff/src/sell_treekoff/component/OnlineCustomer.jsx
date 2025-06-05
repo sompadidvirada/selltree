@@ -50,7 +50,7 @@ const OnlineCustomer = ({
   return (
     <Box
       style={{
-        width:"100%",
+        width: "100%",
       }}
     >
       <Box
@@ -120,7 +120,7 @@ const OnlineCustomer = ({
                 height: "100%",
               }}
             >
-              <ScreenshotMonitorIcon  />
+              <ScreenshotMonitorIcon />
               <Typography
                 fontSize={23}
                 display={showPanel ? "block" : "none"}
