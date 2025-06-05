@@ -34,6 +34,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { createBill } from "../../../api/sellTreekoff";
 import {
   billUserChannel,
+  DeleteMenu,
   orderChannel,
   paymentMethod,
 } from "../../../broadcast-channel/broadcast";
@@ -85,28 +86,38 @@ const ProductDetail = () => {
     );
   };
 
-  const handleDeleteSelected = async () => {
-    try {
-      const branchID = 1;
-      const idsToDelete = Array.isArray(selected) ? selected : [selected];
+const handleDeleteSelected = async () => {
+  try {
+    const branchID = 1;
+    const idsToDelete = Array.isArray(selected) ? selected : [selected];
 
-      for (const addedId of idsToDelete) {
-        await deleteProductFromBill(addedId, staffInfo?.first_name, branchID);
-      }
-
-      // Remove the deleted items from customerInfo
-      setCustomerInfo((prev) => ({
-        ...prev,
-        detail: (prev?.detail || []).filter(
-          (row) => !idsToDelete.includes(row.added_id)
-        ),
-      }));
-
-      setSelected([]);
-    } catch (error) {
-      console.log(error);
+    for (const addedId of idsToDelete) {
+      await deleteProductFromBill(addedId, staffInfo?.first_name, branchID);
     }
-  };
+
+    // Construct the new customerInfo manually
+    setCustomerInfo((prev) => {
+      const updatedDetail = (prev?.detail || []).filter(
+        (row) => !idsToDelete.includes(row.added_id)
+      );
+
+      const updatedCustomerInfo = {
+        ...prev,
+        detail: updatedDetail,
+      };
+
+      // ✅ Broadcast the updated info
+      DeleteMenu.postMessage(updatedCustomerInfo);
+
+      return updatedCustomerInfo;
+    });
+
+    setSelected([]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 
   const handleDeleteAll = async () => {
     const branchID = 1;
@@ -179,6 +190,8 @@ const ProductDetail = () => {
             detail: [newBillWithID, ...prevDetail],
           };
         });
+
+        billUserChannel.postMessage(newBillWithID)
       } else {
         console.warn("No added_id returned from API");
       }
@@ -383,7 +396,7 @@ const ProductDetail = () => {
                         Size: {item.cupSize}
                       </Typography>
                       <Typography variant="body1" fontSize={18} color="green">
-                        {item.priceOfSellKIP?.toLocaleString("id-ID")} KIP
+                        {Number(item.priceOfSellKIP)?.toLocaleString("id-ID")} KIP
                       </Typography>
                     </CardContent>
                   </Card>

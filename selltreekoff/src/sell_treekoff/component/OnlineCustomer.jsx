@@ -87,12 +87,14 @@ const OnlineCustomer = ({
               sx={{
                 alignSelf: "center",
                 marginRight: 1,
+                fontSize:15,
+                color:'gray',
                 display: showPanel ? "block" : "none"
               }}
             />
             <Typography
               fontFamily={"Noto Sans Lao"}
-              sx={{ fontSize: 20 }}
+              sx={{ fontSize: 15, color:'gray', alignSelf:'center' }}
               display={showPanel ? "block" : "none"}
             >
               ເລືອກໜ້າຕ່າງການຂາຍ
@@ -111,22 +113,21 @@ const OnlineCustomer = ({
               onClick={() => openWindow()}
               style={{
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                justifyContent:"flex-start",
                 gap: 2,
                 color: "black",
                 width: "100%",
                 height: "100%",
               }}
             >
-              <ScreenshotMonitorIcon sx={{ alignSelf: "center" }} />
+              <ScreenshotMonitorIcon  />
               <Typography
                 fontSize={23}
                 display={showPanel ? "block" : "none"}
                 fontFamily={"Noto Sans Lao"}
                 fontWeight={"bold"}
               >
-                ຈໍລູກຄ້າ
+                CUSTOMER SCREEN
               </Typography>
             </Button>
           </CardContent>
@@ -144,8 +145,7 @@ const OnlineCustomer = ({
             <Button
               style={{
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                justifyContent: "flex-start",
                 gap: 2,
                 color: "black",
                 width: "100%",
@@ -160,7 +160,7 @@ const OnlineCustomer = ({
                 fontFamily={"Noto Sans Lao"}
                 fontWeight={"bold"}
               >
-                ໜ້າຕ່າງຂາຍ
+                TREEKOFF
               </Typography>
             </Button>
           </CardContent>
@@ -179,7 +179,7 @@ const OnlineCustomer = ({
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
+                justifyContent: "flex-start",
                 flexDirection: showPanel ? "row" : "column",
                 gap: 2,
                 color: "black",
@@ -195,7 +195,7 @@ const OnlineCustomer = ({
                 fontFamily={"Noto Sans Lao"}
                 fontWeight={"bold"}
               >
-                ອໍເດີອອນລາຍ{" "}
+                TREEKOFF ONLINE{" "}
               </Typography>
               {waitingCount > 0 && (
                 <span

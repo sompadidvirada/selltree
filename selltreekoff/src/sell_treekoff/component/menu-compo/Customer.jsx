@@ -75,17 +75,20 @@ const Customer = () => {
         branchId
       );
 
-      // Extract only the bill_id from the response data
-      const billIdObject = { bill_id: createBil.data.bill_id };
-      // Merge bill_id with previous customerInfo
-      setCustomerInfo((prev) => ({
-        ...prev,
+      const updatedCustomerInfo = {
+        ...customerInfo,
         bill_id: createBil.data.bill_id,
-        detail: null,
-      }));
+        detail: [],
+      };
+
+      setCustomerInfo(updatedCustomerInfo);
+
+      billUserChannel.postMessage(updatedCustomerInfo);
+
     } catch (err) {
       console.log(err);
     }
+
     navigate("/sellpage/productdetail");
   };
 
@@ -201,12 +204,7 @@ const Customer = () => {
 
         <Box>
           {/* Search Area */}
-          <Box
-            display="flex"
-            alignContent="center"
-            width={"100%"}
-            justifyContent={"center"}
-          >
+          <Box display="flex" alignContent="center" width={"100%"}>
             <SearchIcon sx={{ fontSize: 35 }} />
             <Typography
               fontFamily={"Noto Sans Lao"}
@@ -216,12 +214,7 @@ const Customer = () => {
               ຄົ້ນຫາບັນຊີລູກຄ້າ
             </Typography>
           </Box>
-          <Box
-            display="flex"
-            gap="10px"
-            width={"100%"}
-            justifyContent={"center"}
-          >
+          <Box display="flex" gap="10px" width={"100%"}>
             <input
               type="number"
               name="seacrhCustomer"
@@ -232,7 +225,7 @@ const Customer = () => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault(); // 🛑 Prevent form from refreshing
-                  handleSearch(searchCustomer); // 🔍 Call your function
+                  handleSearch(searchCustomer);
                 }
               }}
               placeholder="ລະບຸຂໍ້ມູນລູກຄ້າ..."
@@ -315,7 +308,7 @@ const Customer = () => {
                   display: "flex",
                   marginTop: 5,
                   backgroundColor: "rgba(46, 46, 46, 0.14)",
-                  width: "60%",
+                  width: "95%",
                   justifySelf: "center",
                 }}
               >
@@ -323,47 +316,72 @@ const Customer = () => {
                   sx={{
                     display: "flex",
                     flexDirection: "column",
-                    alignItems: "center",
+                    alignItems: "flex-start",
                     background:
-                      "linear-gradient(to bottom, rgba(122, 65, 0, 0.7), rgba(252, 225, 176, 0.5))",
+                      "linear-gradient(to bottom, rgba(201, 201, 201, 0.7), rgba(255, 255, 255, 0.5))",
                     height: 400,
-                    width: "40%",
+                    width: "30%",
                   }}
                 >
                   <Avatar
                     src="https://historyguild.org/wp-content/uploads/2021/05/Napoleon.jpg"
-                    sx={{ width: 180, height: 180, justifySelf: "center" }}
+                    sx={{ width: 180, height: 180, alignSelf: "center" }}
                   />
-                  <Typography
-                    fontFamily={"Noto Sans Lao"}
-                    fontSize={30}
-                    fontWeight={"bold"}
-                    mt={3}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "90%",
+                      mt: 5,
+                    }}
                   >
-                    ຊື່ລູກຄ້າ
-                  </Typography>
-                  <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
-                    {customerInfo.full_name}
-                  </Typography>
+                    <Box sx={{ width: "30%" }}>
+                      <Typography
+                        fontFamily={"Noto Sans Lao"}
+                        fontSize={30}
+                        fontWeight={"bold"}
+                      >
+                        ຊື່ລູກຄ້າ
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: "70%" }}>
+                      <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
+                        {customerInfo.full_name}
+                      </Typography>
+                    </Box>
+                  </Box>
 
-                  <Typography
-                    fontFamily={"Noto Sans Lao"}
-                    fontSize={30}
-                    fontWeight={"bold"}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      width: "90%",
+                      mt: 2,
+                    }}
                   >
-                    ໄອດີ
-                  </Typography>
-                  <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
-                    {customerInfo.id_list}
-                  </Typography>
+                    <Box sx={{ width: "30%" }}>
+                      <Typography
+                        fontFamily={"Noto Sans Lao"}
+                        fontSize={30}
+                        fontWeight={"bold"}
+                      >
+                        ໄອດີ
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: "70%" }}>
+                      <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
+                        {customerInfo.id_list}
+                      </Typography>
+                    </Box>
+                  </Box>
                 </CardContent>
 
                 <CardContent
                   sx={{
                     display: "flex",
                     flexDirection: "column",
-                    width: "60%",
-                    alignItems: "center",
+                    width: "40%",
+                    alignItems: "flex-start",
                     gap: 1.5,
                   }}
                 >
@@ -376,113 +394,121 @@ const Customer = () => {
                   >
                     ຂໍ້ມູນລູກຄ້າ
                   </Typography>
+
                   <Box
                     display={"flex"}
                     justifyContent={"space-between"}
-                    width={"85%"}
+                    width={"95%"}
                   >
-                    <Typography
-                      fontFamily={"Noto Sans Lao"}
-                      fontSize={25}
-                      fontWeight={"bold"}
-                    >
-                      ຊື່ ນາມສະກຸນ
-                    </Typography>
-                    <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
-                      {customerInfo.full_name}
-                    </Typography>
+                    <Box sx={{ width: "40%" }}>
+                      <Typography
+                        fontFamily={"Noto Sans Lao"}
+                        fontSize={25}
+                        fontWeight={"bold"}
+                      >
+                        ຊື່ ນາມສະກຸນ
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: "60%" }}>
+                      <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
+                        {customerInfo.full_name}
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box
                     display={"flex"}
                     justifyContent={"space-between"}
-                    width={"85%"}
+                    width={"95%"}
                   >
-                    <Typography
-                      fontFamily={"Noto Sans Lao"}
-                      fontSize={25}
-                      fontWeight={"bold"}
-                    >
-                      ເບີໂທ
-                    </Typography>
-                    <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
-                      {customerInfo.contact_info}
-                    </Typography>
+                    <Box sx={{ width: "40%" }}>
+                      <Typography
+                        fontFamily={"Noto Sans Lao"}
+                        fontSize={25}
+                        fontWeight={"bold"}
+                      >
+                        ເບີໂທ
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: "60%" }}>
+                      <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
+                        {customerInfo.contact_info}
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box
                     display={"flex"}
                     justifyContent={"space-between"}
-                    width={"85%"}
+                    width={"95%"}
                   >
-                    <Typography
-                      fontFamily={"Noto Sans Lao"}
-                      fontSize={25}
-                      fontWeight={"bold"}
-                    >
-                      ແຕ້ມສະສົມ
-                    </Typography>
-                    <Typography
-                      fontFamily={"Noto Sans Lao"}
-                      fontSize={25}
-                      color="rgb(0, 145, 7)"
-                      fontWeight={"bold"}
-                    >
-                      {Number(customerInfo.total_score || 0).toLocaleString()}{" "}
-                      ແຕ້ມ
-                    </Typography>
+                    <Box sx={{ width: "40%" }}>
+                      <Typography
+                        fontFamily={"Noto Sans Lao"}
+                        fontSize={25}
+                        fontWeight={"bold"}
+                      >
+                        ແຕ້ມສະສົມ
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: "60%" }}>
+                      <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
+                        {Number(customerInfo.total_score || 0).toLocaleString()}{" "}
+                        ແຕ້ມ
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box
                     display={"flex"}
                     justifyContent={"space-between"}
-                    width={"85%"}
+                    width={"95%"}
                   >
-                    <Typography
-                      fontFamily={"Noto Sans Lao"}
-                      fontSize={25}
-                      fontWeight={"bold"}
-                    >
-                      ມູນຄ່າໃຊ້ຈ່າຍ
-                    </Typography>
-                    <Typography
-                      fontFamily={"Noto Sans Lao"}
-                      fontSize={25}
-                      fontWeight={"bold"}
-                    >
-                      {Number(
-                        customerInfo.total_bill_kip || 0
-                      ).toLocaleString()}{" "}
-                      ກີບ
-                    </Typography>
+                    <Box sx={{ width: "40%" }}>
+                      <Typography
+                        fontFamily={"Noto Sans Lao"}
+                        fontSize={25}
+                        fontWeight={"bold"}
+                      >
+                        ມູນຄ່າໃຊ້ຈ່າຍ
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: "60%" }}>
+                      <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
+                        {Number(
+                          customerInfo.total_bill_kip || 0
+                        ).toLocaleString()}{" "}
+                        ກີບ
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box
                     display={"flex"}
                     justifyContent={"space-between"}
-                    width={"85%"}
+                    width={"95%"}
                   >
-                    <Typography
-                      fontFamily={"Noto Sans Lao"}
-                      fontSize={25}
-                      fontWeight={"bold"}
-                    >
-                      ວັນທີ່ເຂົ້າຮ່ວມ
-                    </Typography>
-                    <Typography
-                      fontFamily={"Noto Sans Lao"}
-                      fontSize={25}
-                      fontWeight={"bold"}
-                    >
-                      {customerInfo?.start_work_time
-                        ? new Date(
-                            customerInfo.start_work_time * 1000
-                          ).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: false, // set to true if you want 12-hour format
-                          })
-                        : "UNKNOW"}
-                    </Typography>
+                    <Box sx={{ width: "40%" }}>
+                      <Typography
+                        fontFamily={"Noto Sans Lao"}
+                        fontSize={25}
+                        fontWeight={"bold"}
+                      >
+                        ວັນທີ່ເຂົ້າຮ່ວມ
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: "60%" }}>
+                      <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
+                        {customerInfo?.start_work_time
+                          ? new Date(
+                              customerInfo.start_work_time * 1000
+                            ).toLocaleString("en-GB", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false, // set to true if you want 12-hour format
+                            })
+                          : "UNKNOW"}
+                      </Typography>
+                    </Box>
                   </Box>
 
                   <CardActions>

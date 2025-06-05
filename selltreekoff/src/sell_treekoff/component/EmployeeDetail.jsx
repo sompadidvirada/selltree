@@ -25,7 +25,7 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
         display="flex"
         flexDirection="column"
         sx={{
-          height: "350px",
+          height: "240px",
           bgcolor: "blue",
           borderRadius: "5px",
         }}
@@ -86,58 +86,20 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
           <CardContent
             sx={{
               display: showPanel ? "flex" : "none",
-              flexDirection: "column",
-              alignContent: "center",
               width: "90%",
               paddingLeft: "0",
               paddingRight: "0",
+              justifyContent:"center"
             }}
           >
             <Typography
               fontFamily={"Noto Sans Lao"}
-              color="black"
-              fontWeight="bold"
-              alignSelf={"center"}
-            >
-              ປະຈຳສາຂາ
-            </Typography>
-            <Typography
-              fontFamily={"Noto Sans Lao"}
-              color="rgb(0, 3, 158)"
+              color="rgb(71, 71, 71)"
               display="flex"
-              alignSelf={"center"}
               fontWeight={"bold"}
             >
-              <LocationCityIcon />
+              <LocationCityIcon sx={{color:"gray"}}/>
               {staffInfo?.branch?.branch_name || "EMTY"}
-            </Typography>
-          </CardContent>
-          <CardContent
-            sx={{
-              display: showPanel ? "flex" : "none",
-              flexDirection: "column",
-              alignContent: "center",
-              width: "90%",
-              paddingLeft: "0",
-              paddingRight: "0",
-            }}
-          >
-            <Typography
-              fontFamily={"Noto Sans Lao"}
-              color="black"
-              fontWeight="bold"
-              alignSelf={"center"}
-            >
-              ແຕ້ມສະສົມພະນັກງານ
-            </Typography>
-            <Typography
-              fontFamily={"Noto Sans Lao"}
-              color="rgb(14, 124, 0)"
-              display="flex"
-              alignSelf={"center"}
-              fontWeight={"bold"}
-            >
-              {emplyyeeInfo?.point.toLocaleString() || "0"}
             </Typography>
           </CardContent>
         </Card>

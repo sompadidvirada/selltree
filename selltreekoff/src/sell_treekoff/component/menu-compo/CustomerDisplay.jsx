@@ -12,38 +12,67 @@ import {
 } from "@mui/material";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import CheckIcon from "@mui/icons-material/Check";
-import { billUserChannel, numberPayment, orderChannel, paymentMethod } from "../../../broadcast-channel/broadcast";
+import {
+  billUserChannel,
+  DeleteMenu,
+  numberPayment,
+  orderChannel,
+  paymentMethod,
+} from "../../../broadcast-channel/broadcast";
 
 const CustomerDisplay = () => {
-  const [userinfo2, setUserinfo2] = useState(undefined)
-  const [userBill2, setUserBill2] = useState([])
+  const [userinfo2, setUserinfo2] = useState(undefined);
+  const [userBill2, setUserBill2] = useState([]);
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [paymentDetail, setPaymentDetail] = useState(0);
+  const [employeeInfo, setEmployeeInfo] = useState(null);
+  const [selected, setSelected] = useState([]) || [];
+  const customerInfo = useTreekoffStorage((s) => s.customerInfo);
+  const totalSum = userBill2
+    ? userBill2.reduce((acc, row) => acc + row.price * row.qty, 0)
+    : customerInfo?.detail?.reduce(
+        (acc, row) => acc + row.price * row.qty,
+        0
+      ) || 0;
 
   orderChannel.onmessage = (event) => {
     setUserinfo2(event);
   };
 
   billUserChannel.onmessage = (event) => {
-    setUserBill2(event);
-  }
+    if (event?.added_id) {
+      setUserinfo2((prev) => {
+        if (!prev) return prev;
+        const prevDetail = prev.detail || [];
+        return {
+          ...prev, 
+          detail: [event, ...prevDetail],
+        };
+      });
+    } else {
+      setUserinfo2(event);
+    }
+  };
+
   paymentMethod.onmessage = (event) => {
-    setPaymentStatus(event)
-  }
+    setPaymentStatus(event);
+  };
 
   numberPayment.onmessage = (event) => {
-    setPaymentDetail(event)
-  }
+    setPaymentDetail(event);
+  };
 
-  const [employeeInfo, setEmployeeInfo] = useState(null);
-  const [selected, setSelected] = useState([]) || [];
-  const userInfoZustand = useTreekoffStorage((s) => s.customerInfo)
-  const userBillZustand = useTreekoffStorage((s) => s.userBill)
+  DeleteMenu.onmessage = (event) => {
+    console.log(event)
+    setUserinfo2(event);
+  };
+  useEffect(() => {
+    if (!userinfo2?.bill_id) {
+      setUserinfo2(customerInfo);
+    }
+  }, []);
 
-  console.log(userinfo2)
-
-  const totalSum =
-    userBill2 ? userBill2.reduce((acc, row) => acc + row.price * row.qty, 0) : userBillZustand.reduce((acc, row) => acc + row.price * row.qty, 0) || 0;
+  console.log(userinfo2);
 
   const handleSelect = (id) => {
     setSelected((prev) =>
@@ -135,8 +164,8 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Avatar
-              src={userinfo2?.profile_img || userInfoZustand?.profile_img || ""}
-              alt={userinfo2?.full_name || userInfoZustand?.full_name || ""}
+              src={userinfo2?.profile_img || customerInfo?.profile_img || ""}
+              alt={userinfo2?.full_name || customerInfo?.full_name || ""}
               style={{ width: 120, height: 120 }}
             />
           </Grid2>
@@ -155,7 +184,7 @@ const CustomerDisplay = () => {
               fontSize={30}
               fontFamily={"Noto Sans Lao"}
             >
-              {userinfo2?.id_list || userInfoZustand?.id_list || ""}
+              {userinfo2?.id_list || customerInfo?.id_list || ""}
             </Typography>
           </Grid2>
         </Grid2>
@@ -168,7 +197,7 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Typography fontFamily={"Noto Sans Lao"} fontSize={30}>
-              {userinfo2?.full_name || userInfoZustand?.full_name || ""}
+              {userinfo2?.full_name || customerInfo?.full_name || ""}
             </Typography>
           </Grid2>
         </Grid2>
@@ -182,7 +211,7 @@ const CustomerDisplay = () => {
           </Grid2>
           <Grid2>
             <Typography fontSize={30} fontFamily={"Noto Sans Lao"}>
-              {userinfo2?.contact_info || userInfoZustand?.contact_info || ""}
+              {userinfo2?.contact_info || customerInfo?.contact_info || ""}
             </Typography>
           </Grid2>
         </Grid2>
@@ -201,7 +230,10 @@ const CustomerDisplay = () => {
               fontSize={30}
               fontFamily={"Noto Sans Lao"}
             >
-              {Number(userinfo2?.total_score).toLocaleString() || Number(userInfoZustand?.total_score).toLocaleString() || 0} ແຕ້ມ
+              {Number(userinfo2?.total_score).toLocaleString() ||
+                Number(customerInfo?.total_score).toLocaleString() ||
+                0}{" "}
+              ແຕ້ມ
             </Typography>
           </Grid2>
         </Grid2>
@@ -248,8 +280,8 @@ const CustomerDisplay = () => {
         <Box>
           <Box display="flex" alignContent="center">
             <Avatar
-              src={userinfo2?.image || userInfoZustand?.image || ""}
-              alt={userinfo2?.username || userInfoZustand?.image || ""}
+              src={userinfo2?.profile_img || customerInfo?.profile_img || ""}
+              alt={userinfo2?.full_name || customerInfo?.full_name || ""}
               style={{ width: 120, height: 120 }}
             />
             <Typography
@@ -257,13 +289,15 @@ const CustomerDisplay = () => {
               fontSize={15}
               sx={{ alignSelf: "center", marginLeft: 2 }}
             >
-              {userinfo2?.username || ""}
+              {userinfo2?.full_name || customerInfo?.full_name || ""}
             </Typography>
           </Box>
           <Typography variant="h5">CUSTOMER ID: 9</Typography>
           <Typography variant="h5">
-            BILL NO: #{userinfo2?.bill?.id || userInfoZustand?.bill?.id || ""} | TIME{" "}
-            {new Date(userinfo2?.bill?.createAt || userInfoZustand?.bill?.createAt || "").toLocaleString("en-GB", {
+            BILL NO: #{userinfo2?.bill_id || customerInfo?.bill_id || ""} | TIME{" "}
+            {new Date(
+              userinfo2?.bill?.createAt || customerInfo?.bill?.createAt || ""
+            ).toLocaleString("en-GB", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
@@ -273,7 +307,7 @@ const CustomerDisplay = () => {
           </Typography>
         </Box>
 
-        {(userBill2?.length || userBillZustand?.length) > 0 ? (
+        {(userinfo2?.detail?.length > 0 || customerInfo?.detail?.length) > 0 ? (
           <Box>
             <Card sx={{ width: 200, justifySelf: "end", marginBottom: "10" }}>
               <CardMedia
@@ -283,31 +317,46 @@ const CustomerDisplay = () => {
                 component="img"
                 height="180"
                 image={
-                  userBill2?.[0]?.img ||
-                  userBillZustand?.[0]?.img ||
-                  ""
+                  userinfo2?.detail[0]?.MenuImgSRC ||
+                  customerInfo?.detail[0]?.MenuImgSRC ||
+                  []
                 }
                 alt="menu"
               />
             </Card>
             <Typography variant="h4">
-              {(userBill2?.[0]?.menu || userBillZustand?.[0]?.menu || "")} [
-              {userBill2?.[0]?.size || userBillZustand?.[0]?.size || ""}]
+              {userinfo2?.detail[0]?.menuNameENG ||
+                customerInfo?.detail[0]?.menuNameENG ||
+                ""}{" "}
+              [
+              {userinfo2?.detail[0]?.cupSize ||
+                customerInfo?.detail[0]?.cupSize ||
+                ""}
+              ]
             </Typography>
             <Typography sx={{ fontSize: "25", justifySelf: "end" }}>
-              {(userBill2?.[0]?.price || userBillZustand?.[0]?.price || 0).toLocaleString()} KIP X{" "}
-              {userBill2?.[0]?.qty || userBillZustand?.[0]?.qty || 0} UNIT
-            </Typography>
-            <Typography sx={{ fontSize: "30", fontWeight: "bold", justifySelf: "end" }}>
               {(
-                (userBill2?.[0]?.price || userBillZustand?.[0]?.price || 0) *
-                (userBill2?.[0]?.qty || userBillZustand?.[0]?.qty || 0)
+                userinfo2?.detail[0]?.price ||
+                customerInfo?.detail[0]?.price ||
+                0
+              ).toLocaleString()}{" "}
+              KIP X{" "}
+              {userinfo2?.detail[0]?.qty || customerInfo?.detail[0]?.qty || 0}{" "}
+              UNIT
+            </Typography>
+            <Typography
+              sx={{ fontSize: "30", fontWeight: "bold", justifySelf: "end" }}
+            >
+              {(
+                (userinfo2?.detail[0]?.price ||
+                  customerInfo?.detail[0]?.price ||
+                  0) *
+                (userinfo2?.detail[0]?.qty || customerInfo?.detail[0]?.qty || 0)
               ).toLocaleString()}{" "}
               KIP
             </Typography>
           </Box>
         ) : null}
-
       </Box>
       <Box>
         <Paper sx={{ marginTop: 4, height: 200, overflow: "auto" }}>
@@ -323,93 +372,91 @@ const CustomerDisplay = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {userBill2 && userBill2.length > 0 ? (
-                userBill2?.map((row, index) => {
-                  const isSelected = selected.includes(`${row.id}-${row.size}-${row.sweet}`);
-                  return (
-                    <TableRow
-                      key={`${row.id}-${row.size}-${row.sweet}`}
-                      onClick={() => handleSelect(`${row.id}-${row.size}-${row.sweet}`)}
-                      sx={{
-                        cursor: "pointer",
-                        backgroundColor: isSelected ? "#e3f2fd" : "transparent", // 🔷 highlight
-                      }}
-                    >
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          fontWeight: "bold",
+              {userinfo2 && userinfo2.detail?.length > 0
+                ? userinfo2?.detail?.map((row, index) => {
+                    return (
+                      <TableRow
+                        key={row.added_id}
+                        sx={{
+                          cursor: "pointer",
+                          backgroundColor: "transparent", // 🔷 highlight
                         }}
                       >
-                        <img
-                          src={row.img}
-                          alt={row.menu}
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell
                           style={{
-                            width: 40,
-                            height: 40,
-                            objectFit: "cover",
-                            borderRadius: 4,
-                            marginRight: 10,
+                            display: "flex",
+                            alignItems: "center",
+                            fontWeight: "bold",
                           }}
-                        />
-                        {row.menu}
-                      </TableCell>
-                      <TableCell sx={{ fontFamily: 'Noto Sans Lao' }}>{row.sweet}</TableCell>
-                      <TableCell>{row.price.toLocaleString() || 0}</TableCell>
-                      <TableCell>{row.qty}</TableCell>
-                      <TableCell>
-                        {(row.price * row.qty).toLocaleString() || 0}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              ) : (
-                userBillZustand.map((row, index) => {
-                  const isSelected = selected.includes(row.id);
-                  return (
-                    <TableRow
-                      key={`${row.id}${index}`}
-                      onClick={() => handleSelect(row.id)}
-                      sx={{
-                        cursor: "pointer",
-                        backgroundColor: isSelected ? "#e3f2fd" : "transparent", // 🔷 highlight
-                      }}
-                    >
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          fontWeight: "bold",
+                        >
+                          <img
+                            src={row.MenuImgSRC}
+                            alt={row.menuNameENG}
+                            style={{
+                              width: 40,
+                              height: 40,
+                              objectFit: "cover",
+                              borderRadius: 4,
+                              marginRight: 10,
+                            }}
+                          />
+                          {row.menuNameENG}
+                        </TableCell>
+                        <TableCell sx={{ fontFamily: "Noto Sans Lao" }}>
+                          {row.sweet}
+                        </TableCell>
+                        <TableCell>
+                          {(row.price || 0).toLocaleString() || 0}
+                        </TableCell>
+                        <TableCell>{row.qty}</TableCell>
+                        <TableCell>
+                          {(row.price * row.qty || 0).toLocaleString() || 0}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                : customerInfo?.detail?.map((row, index) => {
+                    return (
+                      <TableRow
+                        key={row.added_id}
+                        sx={{
+                          cursor: "pointer",
+                          backgroundColor: "transparent", // 🔷 highlight
                         }}
                       >
-                        <img
-                          src={row.img}
-                          alt={row.menu}
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell
                           style={{
-                            width: 40,
-                            height: 40,
-                            objectFit: "cover",
-                            borderRadius: 4,
-                            marginRight: 10,
+                            display: "flex",
+                            alignItems: "center",
+                            fontWeight: "bold",
                           }}
-                        />
-                        {row.menu}
-                      </TableCell>
-                      <TableCell sx={{ fontFamily: 'Noto Sans Lao' }}>{row.sweet}</TableCell>
-                      <TableCell>{row.price.toLocaleString() || 0}</TableCell>
-                      <TableCell>{row.qty}</TableCell>
-                      <TableCell>
-                        {(row.price * row.qty).toLocaleString() || 0}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )
-
-              }
+                        >
+                          <img
+                            src={row.MenuImgSRC}
+                            alt={row.menuNameENG}
+                            style={{
+                              width: 40,
+                              height: 40,
+                              objectFit: "cover",
+                              borderRadius: 4,
+                              marginRight: 10,
+                            }}
+                          />
+                          {row.menuNameENG}
+                        </TableCell>
+                        <TableCell sx={{ fontFamily: "Noto Sans Lao" }}>
+                          {row.sweet}
+                        </TableCell>
+                        <TableCell>{row.price.toLocaleString() || 0}</TableCell>
+                        <TableCell>{row.qty}</TableCell>
+                        <TableCell>
+                          {(row.price * row.qty).toLocaleString() || 0}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
             </TableBody>
           </Table>
         </Paper>
@@ -470,7 +517,8 @@ const CustomerDisplay = () => {
                   CUSTOMER ID: {userinfo2?.id || 0}
                 </Typography>
                 <Typography fontSize={18}>
-                  BILL NO : #{userinfo2?.bill?.id || userInfoZustand?.bill?.id || 0} | TIME{" "}
+                  BILL NO : #
+                  {userinfo2?.bill?.id || userInfoZustand?.bill?.id || 0} | TIME{" "}
                   {new Date(userinfo2?.bill?.createAt).toLocaleString("en-GB", {
                     day: "2-digit",
                     month: "2-digit",
@@ -539,7 +587,9 @@ const CustomerDisplay = () => {
                               />
                               {row.menu}
                             </TableCell>
-                            <TableCell sx={{ fontFamily: 'Noto Sans Lao' }}>{row.sweet}</TableCell>
+                            <TableCell sx={{ fontFamily: "Noto Sans Lao" }}>
+                              {row.sweet}
+                            </TableCell>
                             <TableCell>
                               {row.price.toLocaleString() || 0}
                             </TableCell>
@@ -550,50 +600,55 @@ const CustomerDisplay = () => {
                           </TableRow>
                         );
                       })
-                    ) : userBillZustand ? userBillZustand.map((row, index) => {
-                      const isSelected = selected.includes(row.id);
-                      return (
-                        <TableRow
-                          key={`${row.id}-${index}`}
-                          onClick={() => handleSelect(row.id)}
-                          sx={{
-                            cursor: "pointer",
-                            backgroundColor: isSelected
-                              ? "#e3f2fd"
-                              : "transparent", // 🔷 highlight
-                          }}
-                        >
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              fontWeight: "bold",
+                    ) : customerInfo ? (
+                      customerInfo.detail.map((row, index) => {
+                        const isSelected = selected.includes(row.id);
+                        return (
+                          <TableRow
+                            key={`${row.id}-${index}`}
+                            onClick={() => handleSelect(row.id)}
+                            sx={{
+                              cursor: "pointer",
+                              backgroundColor: isSelected
+                                ? "#e3f2fd"
+                                : "transparent", // 🔷 highlight
                             }}
                           >
-                            <img
-                              src={row.img}
-                              alt={row.menu}
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell
                               style={{
-                                width: 40,
-                                height: 40,
-                                objectFit: "cover",
-                                borderRadius: 4,
-                                marginRight: 10,
+                                display: "flex",
+                                alignItems: "center",
+                                fontWeight: "bold",
                               }}
-                            />
-                            {row.menu}
-                          </TableCell>
-                          <TableCell sx={{ fontFamily: 'Noto Sans Lao' }}>{row.sweet}</TableCell>
-                          <TableCell>
-                            {row.price.toLocaleString() || 0}
-                          </TableCell>
-                          <TableCell>{row.qty}</TableCell>
-                          <TableCell>
-                            {(row.price * row.qty).toLocaleString() || 0}
-                          </TableCell>
-                        </TableRow>)
-                    }) : (
+                            >
+                              <img
+                                src={row.img}
+                                alt={row.menu}
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  objectFit: "cover",
+                                  borderRadius: 4,
+                                  marginRight: 10,
+                                }}
+                              />
+                              {row.menu}
+                            </TableCell>
+                            <TableCell sx={{ fontFamily: "Noto Sans Lao" }}>
+                              {row.sweet}
+                            </TableCell>
+                            <TableCell>
+                              {row.price.toLocaleString() || 0}
+                            </TableCell>
+                            <TableCell>{row.qty}</TableCell>
+                            <TableCell>
+                              {(row.price * row.qty).toLocaleString() || 0}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    ) : (
                       <TableRow>
                         <TableCell></TableCell>
                         <TableCell
@@ -639,7 +694,8 @@ const CustomerDisplay = () => {
               </Typography>
               <Typography sx={{ fontSize: 35, color: "rgb(59, 146, 37)" }}>
                 {paymentDetail > 0
-                  ? Math.max(paymentDetail - totalSum, 0).toLocaleString() + " KIP"
+                  ? Math.max(paymentDetail - totalSum, 0).toLocaleString() +
+                    " KIP"
                   : "0 KIP"}
               </Typography>
             </Box>
@@ -650,29 +706,22 @@ const CustomerDisplay = () => {
   );
   let content = null;
 
-  const shouldUseZustand =
-    userinfo2 === undefined; // Page just loaded or no message yet
+  const shouldUseZustand = userinfo2 === undefined; // Page just loaded or no message yet
 
-  const currentUser =
-    shouldUseZustand
-      ? userInfoZustand
-      : userinfo2; // If userinfo2 is null, use that (and skip Zustand)
+  const currentUser = shouldUseZustand ? customerInfo : userinfo2; // If userinfo2 is null, use that (and skip Zustand)
 
   // Now decide what to render
   if (paymentStatus === "done") {
     content = renderPayment();
   } else if (!currentUser || Object.keys(currentUser).length === 0) {
     content = renderWelcome(); // Show welcome if null or empty object
-  } else if (currentUser.bill) {
+  } else if (currentUser.bill_id) {
     content = renderUserWithBill();
   } else {
     content = renderUserInfoOnly();
   }
 
-
-
   return <div style={{ width: "100vw", height: "100vh" }}>{content}</div>;
 };
-
 
 export default CustomerDisplay;
