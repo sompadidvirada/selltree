@@ -10,8 +10,8 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const s3 = new S3Client({
   region: "ap-southeast-2",
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.SECREY_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECREY_AWS_SECRET_ACCESS_KEY,
   },
 });
 
@@ -24,7 +24,7 @@ router.get("/api/upload-url/:id", async (req, res) => {
     const key = `${id}.jpg`;
     
     const command = new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME, // make sure this is set in .env
+        Bucket: process.env.SECREY_AWS_BUCKET_NAME, // make sure this is set in .env
         Key: key,
         ContentType: "image/jpeg",
     });
