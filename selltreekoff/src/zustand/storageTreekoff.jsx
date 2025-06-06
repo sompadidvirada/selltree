@@ -12,6 +12,7 @@ const TreekoffStorage = (set, get) => ({
   session: null,
   menuForBranch: null,
   waitingNumbers: {},
+  orderOnline2: [],
   setUserBill: (billOrUpdater) => {
     set((state) => ({
       userBill:
@@ -95,20 +96,22 @@ const TreekoffStorage = (set, get) => ({
     set({ menuForBranch: newData });
   },
   getNextWaitNumber: (branchId) => {
-  const current = get().waitingNumbers[branchId] || 0;
-  const next = current >= 5 ? 1 : current + 1;
-  set((state) => ({
-    waitingNumbers: {
-      ...state.waitingNumbers,
-      [branchId]: next,
-    },
-  }));
-  return next;
-},
-
-  resetWaitNumbers: () => {
+    const current = get().waitingNumbers[branchId] || 0;
+    const next = current >= 5 ? 1 : current + 1;
+    set((state) => ({
+      waitingNumbers: {
+        ...state.waitingNumbers,
+        [branchId]: next,
+      },
+    }));
+    return next;
+  },
+ resetWaitNumbers: () => {
     set({ waitingNumbers: {} });
   },
+  setOrderOnline2: (newData) => {
+    set({ orderOnline2: newData})
+  }
 });
 
 const usePersist = {

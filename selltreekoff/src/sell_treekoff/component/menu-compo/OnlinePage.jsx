@@ -27,6 +27,7 @@ import { createBill, createWaitOrder } from "../../../api/sellTreekoff";
 
 const OnlinePage = () => {
   const orderOnline = useTreekoffStorage((s) => s.orderOnline);
+  const orderOnline2 = useTreekoffStorage((s)=>s.orderOnline2)
   const removeOrderOnline = useTreekoffStorage((s) => s.removeOrderOnline);
   const replaceOrderOnline = useTreekoffStorage((s) => s.replaceOrderOnline);
   const employeeInfo = useTreekoffStorage((s) => s.employeeInfo);
@@ -35,13 +36,6 @@ const OnlinePage = () => {
     : 0;
 
   const [searchTerm, setSearchTerm] = useState("");
-const filteredOrders = searchTerm
-  ? orderOnline.filter(
-      (order) =>
-        order.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.id.toString().includes(searchTerm)
-    )
-  : orderOnline;
 
   const handlePrintOrder = (row) => {
 
@@ -170,14 +164,14 @@ const filteredOrders = searchTerm
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredOrders?.map((row, index) => {
+                {orderOnline2?.map((row, index) => {
                   const textColor =
-                    row.orderStatus === "ລໍຖ້າຮັບ"
+                    row?.orderStatus === "ລໍຖ້າຮັບ"
                       ? "rgb(0, 0, 0)"
                       : "rgb(223, 223, 223)";
                   return (
                     <TableRow
-                      key={`${row.id}-${row.billNumber}-${index}`}
+                      key={`${row.customerID}-${index}`}
                       sx={{
                         background:
                           row.orderStatus === "ລໍຖ້າຮັບ"
@@ -206,7 +200,7 @@ const filteredOrders = searchTerm
                               gap={1}
                               alignContent={"center"}
                             >
-                              <Avatar src={row.image} />
+                              <Avatar src={""} />
                               <Typography
                                 sx={{
                                   fontFamily: "Noto Sans Lao",
@@ -214,7 +208,7 @@ const filteredOrders = searchTerm
                                   color: textColor,
                                 }}
                               >
-                                {row.id} | {row.username}{" "}
+                                {row.customerID} | {row.customerID}{" "}
                                 <CloseIcon sx={{ color: "red" }} />
                               </Typography>
                             </Box>
@@ -227,7 +221,7 @@ const filteredOrders = searchTerm
                                 }}
                               ></Typography>
                               <Typography fontFamily={"Noto Sans Lao"}>
-                                ສົ່ງຫາ {row.phonenumber}
+                                ສົ່ງຫາ {row.customerPhoneNumber}
                               </Typography>
                             </Box>
                           </Box>
@@ -257,7 +251,7 @@ const filteredOrders = searchTerm
                                   color: textColor,
                                 }}
                               >
-                                ເລກບິນ: {row.billNumber}
+                                ເລກບິນ: {row.id_bill}
                               </Typography>
                             </Box>
                             <Box display={"flex"} alignContent={"center"}>

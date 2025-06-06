@@ -7,38 +7,42 @@ import { useSocket } from "../socket-provider/SocketProvider";
 import useTreekoffStorage from "../zustand/storageTreekoff";
 import { onlineOrderData } from "./data/MockData";
 import { motion } from "framer-motion"; // NEW
-import { getMenuForBranch, getTypeMenu } from "../api/treekoff";
+import { getMenuForBranch, getOrderOnline, getTypeMenu } from "../api/treekoff";
 
 const SellTreekoff = () => {
+  const setOrderOnline2 = useTreekoffStorage((s)=>s.setOrderOnline2)
   const [selectOnline, setSelectOnline] = useState(false);
   const popupRef = useRef(null);
   const socket = useSocket();
-  const orderOnline = useTreekoffStorage((s) => s.orderOnline);
   const appendOrderOnline = useTreekoffStorage((s) => s.appendOrderOnline);
   const replaceOrderOnline = useTreekoffStorage((s) => s.replaceOrderOnline);
   const [showPanel, setShowPanel] = useState(true);
-  const staffInfo = useTreekoffStorage((state) => state.staffInfo)
-  const setMenuForBranch = useTreekoffStorage((state) => state.setMenuForBranch)
-  const menuForBranch = useTreekoffStorage((state) => state.menuForBranch)
-  const [typeMenu, setTypeMenu] = useState()
-  const [getMen, setGetMen] = useState()
+  const staffInfo = useTreekoffStorage((state) => state.staffInfo);
+  const setMenuForBranch = useTreekoffStorage(
+    (state) => state.setMenuForBranch
+  );
+  const menuForBranch = useTreekoffStorage((state) => state.menuForBranch);
+  const [typeMenu, setTypeMenu] = useState();
+  const [getMen, setGetMen] = useState();
 
   const fecthMenuBranch = async () => {
     const res = await getMenuForBranch(1);
     const menuData = res.data.data;
     const typeMenus = await getTypeMenu();
     const typeData = typeMenus.data.data;
-  
+
     // Step 1: Merge menu items with type info
-    const productWithType = menuData.map(menuItem => {
-      const matchType = typeData.find(type => type.id_type === menuItem.typeID);
+    const productWithType = menuData.map((menuItem) => {
+      const matchType = typeData.find(
+        (type) => type.id_type === menuItem.typeID
+      );
       return {
         ...menuItem,
         typeNameLao: matchType?.typeTitle || "",
-        typeNameEng: matchType?.typeTitleENG || ""
+        typeNameEng: matchType?.typeTitleENG || "",
       };
     });
-  
+
     // Step 2: Group by typeNameEng
     const groupedByType = productWithType.reduce((acc, item) => {
       const key = item.typeNameEng || "UNKNOWN";
@@ -48,18 +52,26 @@ const SellTreekoff = () => {
       acc[key].push(item);
       return acc;
     }, {});
-  
+
     // Save to Zustand or state
     setMenuForBranch(groupedByType);
   };
-  
-  
+
+  const fecthOrderOnline = async () => {
+    try {
+      const brnachID = 1; /** this much be id of staff */
+      const respone = await getOrderOnline(brnachID);
+      setOrderOnline2(respone.data.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
     replaceOrderOnline(onlineOrderData);
+    fecthOrderOnline();
     fecthMenuBranch();
   }, []);
-
 
   const openWindow = () => {
     if (!popupRef.current || popupRef.current.closed) {
@@ -71,7 +83,6 @@ const SellTreekoff = () => {
       popupRef.current = customerWindow;
     }
   };
-
 
   useEffect(() => {
     {
@@ -111,7 +122,11 @@ const SellTreekoff = () => {
           width={showPanel ? "20%" : "3.5%"}
           gap="15px"
         >
-          <EmployeeDetail showPanel={showPanel} setShowPanel={setShowPanel} handleSwicth={handleSwicth} />
+          <EmployeeDetail
+            showPanel={showPanel}
+            setShowPanel={setShowPanel}
+            handleSwicth={handleSwicth}
+          />
           <OnlineCustomer
             setSelectOnline={setSelectOnline}
             openWindow={openWindow}

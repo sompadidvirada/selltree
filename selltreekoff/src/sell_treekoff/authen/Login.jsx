@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Box,
     Button,
@@ -19,12 +19,18 @@ import { useNavigate } from "react-router-dom";
 import { checkBranch, checkStaffInfo, LoginStaff } from "../../api/treekoff";
 import { toast, ToastContainer } from "react-toastify";
 import useTreekoffStorage from "../../zustand/storageTreekoff";
+import { use } from "react";
 
 const Login = () => {
     const navigate = useNavigate();
     const setStaffInfo = useTreekoffStorage((s) => s.setStaffInfo)
     const setSession = useTreekoffStorage((state) => state.setSession)
+    const setCustomerInfo = useTreekoffStorage((s)=>s.setCustomerInfo)
 
+
+    useEffect(()=>{
+        setCustomerInfo({})
+    },[])
     const handleFormSubmit = async (values) => {
   
         try {
