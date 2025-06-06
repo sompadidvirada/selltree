@@ -31,6 +31,7 @@ const Login = () => {
 
             const identifyStaff = await LoginStaff(values.staffPhone, values.password)
             
+
             if (identifyStaff.data.status === "error") {
                 toast.error("ເບີໂທ ຫຼື ລະຫັດບໍ່ຖືກຕ້ອງ", {
                     style: {
@@ -40,8 +41,9 @@ const Login = () => {
                 return
             }
 
-            const staffID = identifyStaff.data.id_user
-
+            const staffID = identifyStaff.data?.id_user
+            
+            console.log(staffID)
             setSession(identifyStaff.data.session)
 
 
@@ -50,6 +52,8 @@ const Login = () => {
             const staffData = staffCheck.data.data[0]
 
             const branchDetail = await checkBranch(staffData.branch_id);
+
+            
 
             setStaffInfo(staffData);
 

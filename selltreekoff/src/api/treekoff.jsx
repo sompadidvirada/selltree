@@ -6,9 +6,9 @@ const token = btoa(`${Username}:${Password}`); // Base64 encode
 
 console.log(Username, Password, token)
 
-export const checkStaffInfo = (phone, password) => {
+export const checkStaffInfo = (phone) => {
   return axios.get(
-    `https://treekoff.com/_react/api.php?staff_login&phone_number=${phone}&password=${password}`);
+    `https://treekoff.com/_react/api.php?staff_info&id=${phone}`);
 };
 
 
