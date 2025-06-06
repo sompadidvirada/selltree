@@ -174,5 +174,16 @@ exports.orderOnline = (req, res) => {
     return res.status(500).json({ message: `server error.` });
   }
 };
+exports.testPost = async (req, res) => {
+  try {
+    const { api_id_user, api_session } = req.body;
+    console.log(api_id_user, api_session);
+
+    res.status(200).json({ api_id_user, api_session });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "error" });
+  }
+}
 
 
