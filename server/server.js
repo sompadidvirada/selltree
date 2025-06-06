@@ -20,15 +20,13 @@ const io = new Server(server, {
 });
 
 // Middleware
-app.use(express.json({ limit: "100mb" }));
+app.use(express.json({ limit: "500mb" }));
 app.use(morgan("dev"));
 app.use(express.static("public"));
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: '*', // allow all origins for dev, or put your frontend URL here
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+}));
 app.options("*", cors());
 
 // 🔌 Step 3: Handle socket events

@@ -232,7 +232,7 @@ const CheckBill = () => {
                             }}
                           >
                             <img
-                              src={row.MenuImgSRC}
+                              src={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${row.id_menu}.jpg`}
                               alt={row.menuNameENG}
                               style={{
                                 width: 40,

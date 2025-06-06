@@ -9,9 +9,9 @@ router.delete("/deletebill/:id", deleteBill)
 router.post("/createwaitorder", createWaitOrder)
 router.post("/createbrach", createBrach)
 
+
+
 {/** SOCKET IO ROUTE */}
-
-
 router.post("/orderonline", orderOnline)
 
 module.exports = router;

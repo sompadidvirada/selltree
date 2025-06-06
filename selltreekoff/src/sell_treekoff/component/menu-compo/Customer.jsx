@@ -75,9 +75,12 @@ const Customer = () => {
         branchId
       );
 
+      console.log(createBil)
+
       const updatedCustomerInfo = {
         ...customerInfo,
         bill_id: createBil.data.bill_id,
+        bill_create_date : createBil.data.createdDate,
         detail: [],
       };
 

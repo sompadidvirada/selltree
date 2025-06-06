@@ -86,37 +86,37 @@ const ProductDetail = () => {
     );
   };
 
-const handleDeleteSelected = async () => {
-  try {
-    const branchID = 1;
-    const idsToDelete = Array.isArray(selected) ? selected : [selected];
+  const handleDeleteSelected = async () => {
+    try {
+      const branchID = 1;
+      const idsToDelete = Array.isArray(selected) ? selected : [selected];
 
-    for (const addedId of idsToDelete) {
-      await deleteProductFromBill(addedId, staffInfo?.first_name, branchID);
+      for (const addedId of idsToDelete) {
+        await deleteProductFromBill(addedId, staffInfo?.first_name, branchID);
+      }
+
+      // Construct the new customerInfo manually
+      setCustomerInfo((prev) => {
+        const updatedDetail = (prev?.detail || []).filter(
+          (row) => !idsToDelete.includes(row.added_id)
+        );
+
+        const updatedCustomerInfo = {
+          ...prev,
+          detail: updatedDetail,
+        };
+
+        // ✅ Broadcast the updated info
+        DeleteMenu.postMessage(updatedCustomerInfo);
+
+        return updatedCustomerInfo;
+      });
+
+      setSelected([]);
+    } catch (error) {
+      console.log(error);
     }
-
-    // Construct the new customerInfo manually
-    setCustomerInfo((prev) => {
-      const updatedDetail = (prev?.detail || []).filter(
-        (row) => !idsToDelete.includes(row.added_id)
-      );
-
-      const updatedCustomerInfo = {
-        ...prev,
-        detail: updatedDetail,
-      };
-
-      // ✅ Broadcast the updated info
-      DeleteMenu.postMessage(updatedCustomerInfo);
-
-      return updatedCustomerInfo;
-    });
-
-    setSelected([]);
-  } catch (error) {
-    console.log(error);
-  }
-};
+  };
 
 
   const handleDeleteAll = async () => {
@@ -331,7 +331,7 @@ const handleDeleteSelected = async () => {
                         }}
                         component="img"
                         height="200"
-                        image={`https://treekoff.com/${item?.MenuImgSRC}`}
+                        image={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${item?.id_menu}.jpg`}
                         alt={item.name}
                       />
                       <CardContent
@@ -384,7 +384,7 @@ const handleDeleteSelected = async () => {
                     <CardMedia
                       component="img"
                       height="200"
-                      image={item.MenuImgSRC}
+                      image={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${item.id_menu}.jpg`}
                       alt={item.menuNameENG}
                       sx={{ cursor: "pointer" }}
                     />
@@ -442,16 +442,17 @@ const handleDeleteSelected = async () => {
               </Typography>
               <Typography variant="h5">
                 BILL NO : #{customerInfo?.bill_id} | TIME{" "}
-                {userInfo?.bill?.createAt
-                  ? new Date(userInfo?.bill?.createAt).toLocaleString("en-GB", {
+                {
+                  customerInfo?.bill_create_date
+                    ? new Date(customerInfo.bill_create_date * 1000).toLocaleString("en-GB", {
                       day: "2-digit",
                       month: "2-digit",
                       year: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
                     })
-                  : "UNKNOW"}
-                {userInfo?.bill?.billDate}
+                    : "UNKNOW"
+                }
               </Typography>
             </Box>
             {customerInfo?.detail?.length > 0 && (
@@ -465,7 +466,7 @@ const handleDeleteSelected = async () => {
                     }}
                     component="img"
                     height="200px"
-                    image={customerInfo?.detail[4]?.MenuImgSRC}
+                    image={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${customerInfo?.detail[0]?.id_menu}.jpg`}
                     alt={"hot americano"}
                   />
                 </Card>
@@ -558,7 +559,7 @@ const handleDeleteSelected = async () => {
                           }}
                         >
                           <img
-                            src={row.MenuImgSRC}
+                            src={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${row.id_menu}.jpg`}
                             alt={row.menuNameENG}
                             style={{
                               width: 40,
@@ -607,7 +608,7 @@ const handleDeleteSelected = async () => {
             onSubmit: handleSubmitDialog,
             sx: {
               width: "900px", // or '80vw'
-              height: "70vh", // or any other size like '700px'
+              height: "80vh", // or any other size like '700px'
               maxWidth: "none", // important to disable default maxWidth
             },
           },
@@ -619,7 +620,7 @@ const handleDeleteSelected = async () => {
             justifySelf={"center"}
             fontSize={25}
           >
-            ເລືອກເມນູເຂົ້າບິນລູກຄ້າ ID: {userInfo?.id}
+            ເລືອກເມນູເຂົ້າບິນລູກຄ້າ ID: {customerInfo?.id_list}
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ display: "flex" }}>
@@ -630,7 +631,7 @@ const handleDeleteSelected = async () => {
               }}
               component="img"
               height="400"
-              image={selectedItem?.MenuImgSRC}
+              image={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${selectedItem?.id_menu}.jpg`}
               alt={selectedItem?.menuNameENG}
             />
           </CardContent>
