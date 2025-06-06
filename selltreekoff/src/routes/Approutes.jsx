@@ -17,7 +17,6 @@ import TestQR from "../testqrcode/TestQR";
 import Success from "../testqrcode/Success";
 import Login from "../sell_treekoff/authen/Login";
 import Protect from "../middleware/Protect";
-import UploadImg from "../uploadimage/uploadImg";
 
 const router = createBrowserRouter([
   {
@@ -61,11 +60,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
-  },
-  {
-    path: "/uploadimage",
-    element: <UploadImg />,
-  },
+  }
 ]);
 
 const Approutes = () => {
