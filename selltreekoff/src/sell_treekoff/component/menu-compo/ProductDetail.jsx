@@ -22,7 +22,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import LocalAtmIcon from "@mui/icons-material/LocalAtm";
 import MonitorIcon from "@mui/icons-material/Monitor";
 import { useEffect, useState } from "react";
-import { products } from "../../data/MockData";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -31,7 +30,6 @@ import { useLocation } from "react-router-dom";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { createBill } from "../../../api/sellTreekoff";
 import {
   billUserChannel,
   DeleteMenu,
@@ -625,7 +623,7 @@ const ProductDetail = () => {
         </DialogTitle>
         <DialogContent sx={{ display: "flex" }}>
           <CardContent>
-            <CardMedia
+          <CardMedia
               sx={{
                 cursor: "pointer",
               }}

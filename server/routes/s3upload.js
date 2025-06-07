@@ -24,9 +24,10 @@ router.get("/api/upload-url/:id", async (req, res) => {
     const key = `${id}.jpg`;
     
     const command = new PutObjectCommand({
-        Bucket: process.env.SECREY_AWS_BUCKET_NAME, // make sure this is set in .env
-        Key: key,
-        ContentType: "image/jpeg",
+      Bucket: process.env.SECREY_AWS_BUCKET_NAME,
+      Key: key,
+      ContentType: "image/jpeg",
+      CacheControl: "public, max-age=31536000, immutable",
     });
     
     try {

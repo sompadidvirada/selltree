@@ -38,34 +38,38 @@ const UploadImg = () => {
 
     const handleUpload = async () => {
         if (!files.length) return alert("Please select some files");
-      
+
         try {
-          const jpgBlobs = await Promise.all(files.map(file => convertToJpg(file)));
-      
-          for (let i = 0; i < jpgBlobs.length; i++) {
-            const jpgBlob = jpgBlobs[i];
-            const originalFileName = files[i].name;
-      
-            // Remove original extension and prepend 'treekoff-menu-'
-            const fileNameWithoutExt = originalFileName.replace(/\.[^/.]+$/, ""); // Remove extension
-            const fileKey = `treekoff-menu-${fileNameWithoutExt}`; // Add prefix + .jpg
-      
-            // Request presigned URL for the file key
-            const response = await axios.get(`http://localhost:5520/api/upload-url/${encodeURIComponent(fileKey)}`);
-            const uploadUrl = response.data.uploadUrl;
-      
-            // Upload to S3
-            await axios.put(uploadUrl, jpgBlob, {
-              headers: { "Content-Type": "image/jpeg" },
-            });
-      
-            console.log(`Uploaded file ${fileKey} successfully!`);
-          }
+            const jpgBlobs = await Promise.all(files.map(file => convertToJpg(file)));
+
+            for (let i = 0; i < jpgBlobs.length; i++) {
+                const jpgBlob = jpgBlobs[i];
+                const originalFileName = files[i].name;
+
+                // Remove original extension and prepend 'treekoff-menu-'
+                const fileNameWithoutExt = originalFileName.replace(/\.[^/.]+$/, ""); // Remove extension
+                const fileKey = `treekoff-menu-${fileNameWithoutExt}`; // Add prefix + .jpg
+
+                // Request presigned URL for the file key
+                const response = await axios.get(`http://localhost:5520/api/upload-url/${encodeURIComponent(fileKey)}`);
+                const uploadUrl = response.data.uploadUrl;
+
+                // Upload to S3
+                await axios.put(uploadUrl, jpgBlob, {
+                    headers: {
+                        "Content-Type": "image/jpeg",
+                        "Cache-Control": "public, max-age=31536000, immutable"
+                    },
+                });
+
+
+                console.log(`Uploaded file ${fileKey} successfully!`);
+            }
         } catch (err) {
-          console.error("Error during conversion or upload", err);
+            console.error("Error during conversion or upload", err);
         }
-      };
-      
+    };
+
 
 
 
