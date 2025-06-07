@@ -33,13 +33,25 @@ import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PersonIcon from "@mui/icons-material/Person";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
-import { createBill, createWaitOrder } from "../../../api/sellTreekoff";
 import {
   accectOrderOnline,
   deleteBillOrderOnline,
   getOrderDetail,
 } from "../../../api/treekoff";
 import { toast, ToastContainer } from "react-toastify";
+
+function WhatsAppLink({ phoneNumber, message }) {
+  const encodedMessage = encodeURIComponent(message);
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=85620${phoneNumber}&text=${encodedMessage}`;
+
+  console.log("WhatsApp URL:", whatsappUrl);
+
+  return (
+    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+      {phoneNumber}
+    </a>
+  );
+}
 
 const OnlinePage = () => {
   const orderOnline = useTreekoffStorage((s) => s.orderOnline);
@@ -62,6 +74,12 @@ const OnlinePage = () => {
   const [selectedData, setSelectedData] = useState();
   const [selectedRider, setSelectedRider] = useState("");
   const waitNumber = useTreekoffStorage.getState().getNextWaitNumber(1);
+  const riderList = [
+    { id: "1", name: "ສົມສັກ" },
+    { id: "2", name: "ສຸລິນ" },
+    { id: "3", name: "ນະຄອນ" },
+  ];
+
   const handleClickOpen = (row) => {
     setSelectedData(row);
     setOpen(true);
@@ -72,43 +90,36 @@ const OnlinePage = () => {
     setSelectedData(null);
   };
 
-  const riderList = [
-    { id: "1", name: "ສົມສັກ" },
-    { id: "2", name: "ສຸລິນ" },
-    { id: "3", name: "ນະຄອນ" },
-  ];
-
   const handlePrintOrder = async (row) => {
-  try {
-    const getOrder = await getOrderDetail(row.id_bill);
+    try {
+      const getOrder = await getOrderDetail(row.id_bill);
 
-    if (getOrder.data.status !== "success") {
-      return toast.error("something went wrong !!");
+      if (getOrder.data.status !== "success") {
+        return toast.error("something went wrong !!");
+      }
+
+      const fetchedDetail = getOrder.data.data;
+
+      const CheckuserBill = {
+        billId: row?.id_bill,
+        createAt: row?.billDate,
+        userId: row?.customerID,
+        username: row?.customerID,
+        waitNumber: waitNumber,
+        menuDetail: fetchedDetail || [],
+        employeeName: row?.staffConfirmName || "",
+      };
+
+      setTimeout(() => {
+        sessionStorage.setItem("CheckuserBill2", JSON.stringify(CheckuserBill));
+
+        // Open new tab
+        window.open("/baristabill", "_blank");
+      }, 150);
+    } catch (err) {
+      console.log(err);
     }
-
-    const fetchedDetail = getOrder.data.data;
-
-    const CheckuserBill = {
-      billId: row?.id_bill,
-      createAt: row?.billDate,
-      userId: row?.customerID,
-      username: row?.customerID,
-      waitNumber: waitNumber,
-      menuDetail: fetchedDetail || [],
-      employeeName: row?.staffConfirmName || "",
-    };
-
-    setTimeout(() => {
-      sessionStorage.setItem("CheckuserBill2", JSON.stringify(CheckuserBill));
-
-      // Open new tab
-      window.open("/baristabill", "_blank");
-    }, 150);
-  } catch (err) {
-    console.log(err);
-  }
-};
-
+  };
 
   const handleGetOrder = async (billID) => {
     console.log(billID);
@@ -285,7 +296,13 @@ const OnlinePage = () => {
                                 }}
                               ></Typography>
                               <Typography fontFamily={"Noto Sans Lao"}>
-                                ສົ່ງຫາ {row.customerPhoneNumber}
+                                ສົ່ງຫາ{" "}
+                                {
+                                  <WhatsAppLink
+                                    phoneNumber={row.customerPhoneNumber} // international number without plus or spaces
+                                    message="Hello, I want to know more."
+                                  />
+                                }
                               </Typography>
                             </Box>
                           </Box>

@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   CardContent,
-  CardMedia,
   Typography,
 } from "@mui/material";
 import MonitorIcon from "@mui/icons-material/Monitor";
@@ -13,8 +12,6 @@ import useTreekoffStorage from "../../zustand/storageTreekoff";
 import CoffeeMakerIcon from "@mui/icons-material/CoffeeMaker";
 import ScreenshotMonitorIcon from "@mui/icons-material/ScreenshotMonitor";
 
-import { motion } from "framer-motion";
-
 const OnlineCustomer = ({
   setSelectOnline,
   openWindow,
@@ -23,19 +20,23 @@ const OnlineCustomer = ({
   const [getNoti, setGetNoti] = useState(0);
 
   const orderOnline = useTreekoffStorage((s) => s.orderOnline);
-  const prevLengthRef = useRef(orderOnline?.length || 0);
+  const orderOnline2 = useTreekoffStorage((s)=>s.orderOnline2)
+
+  const prevLengthRef = useRef(orderOnline2?.length || 0);
   // Count how many orders are waiting
   const waitingCount =
-    orderOnline?.filter((order) => order.orderStatus === "ລໍຖ້າຮັບ").length ||
+    orderOnline2?.filter((order) => order.isAcceptByStaff === "0").length ||
     0;
 
   useEffect(() => {
-    const currentLength = orderOnline?.length || 0;
+    const currentLength = orderOnline2?.length || 0;
     const prevLength = prevLengthRef.current;
 
     if (currentLength > prevLength) {
+      
       // Only play sound if new order(s) were added
       setGetNoti((prev) => prev + 1);
+
 
       const audio = new Audio("/noti.wav");
       audio.play().catch((e) => {
