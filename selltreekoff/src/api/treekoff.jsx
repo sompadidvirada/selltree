@@ -1,11 +1,5 @@
 import axios from "axios";
 
-const Username = import.meta.env.VITE_API_USER_ADMIN;
-const Password = import.meta.env.VITE_API_PASSWORD_ADMIN;
-const token = btoa(`${Username}:${Password}`); // Base64 encode
-
-console.log(Username, Password, token);
-
 export const checkStaffInfo = (phone) => {
   return axios.get(
     `https://treekoff.com/_react/api.php?staff_info&id=${phone}`
@@ -63,5 +57,21 @@ export const deleteProductFromBill = (id_bill_list, staff_name, branchID) => {
 export const getOrderOnline = (branchID) => {
   return axios.get(
     `https://treekoff.com/_react/api.php?show_online_bill_treekoff&branch_id=${branchID}`
+  );
+};
+export const accectOrderOnline = (billID) => {
+  return axios.get(
+    `https://treekoff.com/_react/api.php?accept_order_online_treekoff&id_bill=${billID}`
+  );
+};
+export const deleteBillOrderOnline = (billId) => {
+  return axios.get(
+    `https://treekoff.com/_react/api.php?remove_online_bill_treekoff&id_bill=${billId}`
+  );
+};
+
+export const getOrderDetail = (billId) => {
+  return axios.get(
+    `https://treekoff.com/_react/api.php?show_menu_by_bill_treekoff&id_bill=${billId}`
   );
 };

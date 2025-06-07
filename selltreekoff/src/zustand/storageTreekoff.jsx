@@ -106,12 +106,26 @@ const TreekoffStorage = (set, get) => ({
     }));
     return next;
   },
- resetWaitNumbers: () => {
+  resetWaitNumbers: () => {
     set({ waitingNumbers: {} });
   },
   setOrderOnline2: (newData) => {
-    set({ orderOnline2: newData})
-  }
+    set({ orderOnline2: newData });
+  },
+  updateOrderOnline2Item: (id_bill, newFields) => {
+    console.log(id_bill,newFields)
+    set((state) => ({
+      orderOnline2: state.orderOnline2.map((order) =>
+        order.id_bill.toString() === id_bill.toString() ? { ...order, ...newFields } : order
+      ),
+    }));
+  },
+  removeOrderOnline2Item: (id_bill) =>
+    set((state) => ({
+      orderOnline2: state.orderOnline2.filter(
+        (order) => order.id_bill !== id_bill
+      ),
+    })),
 });
 
 const usePersist = {
