@@ -50,9 +50,10 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 function WhatsAppLink({ phoneNumber, message }) {
   const encodedMessage = encodeURIComponent(message);
-  const whatsappUrl = `https://api.whatsapp.com/send?phone=85620${phoneNumber}&text=${encodedMessage}`;
+  const whatsappUrl = `https://wa.me/85620${phoneNumber}?text=${encodedMessage}`;
 
-  console.log("WhatsApp URL:", whatsappUrl);
+  console.log(whatsappUrl);
+
 
   return (
     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
@@ -62,21 +63,14 @@ function WhatsAppLink({ phoneNumber, message }) {
 }
 
 const OnlinePage = () => {
-  const orderOnline = useTreekoffStorage((s) => s.orderOnline);
   const orderOnline2 = useTreekoffStorage((s) => s.orderOnline2);
   const staffInfo = useTreekoffStorage((s) => s.staffInfo)
   const removeOrderOnline2Item = useTreekoffStorage(
     (s) => s.removeOrderOnline2Item
   );
-  const removeOrderOnline = useTreekoffStorage((s) => s.removeOrderOnline);
-  const replaceOrderOnline = useTreekoffStorage((s) => s.replaceOrderOnline);
-  const employeeInfo = useTreekoffStorage((s) => s.employeeInfo);
   const updateOrderOnline2Item = useTreekoffStorage(
     (s) => s.updateOrderOnline2Item
   );
-  const totalPrice = orderOnline
-    ? orderOnline.billDetail?.reduce((acc, row) => acc + row.price * row.qty, 0)
-    : 0;
 
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
@@ -334,9 +328,9 @@ const OnlinePage = () => {
                             ? "rgba(188, 245, 71, 0.58)"
                             : row.isAcceptByStaff === "1" && row.isPaid === "0"
                               ? "rgba(71, 159, 245, 0.58)"
-                              : row.isAcceptByStaff === "1" && row.isPaid === "1" 
-                              ? "rgba(46, 237, 49, 0.58)"
-                              : "rgba(188, 245, 71, 0.58)",
+                              : row.isAcceptByStaff === "1" && row.isPaid === "1"
+                                ? "rgba(46, 237, 49, 0.58)"
+                                : "rgba(188, 245, 71, 0.58)",
                         color:
                           row.isAcceptByStaff === "0"
                             ? "rgb(0, 0, 0)"
@@ -383,7 +377,7 @@ const OnlinePage = () => {
                                 {
                                   <WhatsAppLink
                                     phoneNumber={row.customerPhoneNumber} // international number without plus or spaces
-                                    message="Hello, I want to know more."
+                                    message="Hello"
                                   />
                                 }
                               </Typography>
@@ -430,7 +424,7 @@ const OnlinePage = () => {
                               </Typography>
                             </Box>
                             <Box display={"flex"} alignContent={"center"}>
-                              <Typography
+                              <Box
                                 sx={{
                                   fontFamily: "Noto Sans Lao",
                                   color: textColor,
@@ -447,10 +441,7 @@ const OnlinePage = () => {
                                     </Typography>
                                   </Box>
                                 ) : (
-                                  <Box
-                                    display={"flex"}
-                                    flexDirection={"column"}
-                                  >
+                                  <Box display={"flex"} flexDirection={"column"}>
                                     <Box display={"flex"} gap={1}>
                                       <DeliveryDiningIcon />
                                       <Typography fontFamily={"Noto Sans Lao"}>
@@ -463,16 +454,15 @@ const OnlinePage = () => {
                                     {row.isSetRider === "1" && (
                                       <Box display={"flex"} gap={1}>
                                         <PersonIcon />
-                                        <Typography
-                                          fontFamily={"Noto Sans Lao"}
-                                        >
+                                        <Typography fontFamily={"Noto Sans Lao"}>
                                           {row.riderName}
                                         </Typography>
                                       </Box>
                                     )}
                                   </Box>
                                 )}
-                              </Typography>
+                              </Box>
+
                             </Box>
                           </Box>
                         }
@@ -539,7 +529,8 @@ const OnlinePage = () => {
                             <Button
                               variant="contained"
                               color="success"
-                              onClick={()=>handleClickOpenCheckout(row)}
+                              onClick={() => handleClickOpenCheckout(row)}
+                              disabled={row.isPaid === "1" ? true : false}
                               sx={{
                                 fontFamily: "Noto Sans Lao",
                                 height: "50%",
@@ -555,7 +546,7 @@ const OnlinePage = () => {
                             variant="contained"
                             color="error"
                             sx={{ height: "50%", alignSelf: "center" }}
-                            disabled={row.orderStatus === "ສຳເລັດ"}
+                            disabled={row.isPaid === "1" ? true : false}
                             onClick={() => handleDeleteOrder(row.id_bill)}
                           >
                             <DeleteIcon />
@@ -706,8 +697,15 @@ const OnlinePage = () => {
       >
         <DialogTitle sx={{ fontFamily: "Noto Sans Lao", fontSize: 35 }}>{"ເລືອກຊ່ອງທາງການຊຳລະ"}</DialogTitle>
         <DialogActions sx={{ display: 'flex', gap: 3 }}>
-          <Button variant="contained" onClick={()=>handleCheckout("CASH")} color="success" sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}>ຈ່າຍເງີນສົດ</Button>
-          <Button variant="contained" onClick={()=>handleCheckout("BCL ONE PAY")} sx={{ fontFamily: "Noto Sans Lao", gap: 1, fontSize: 30 }}>{<img src="/assests/bcel.png" style={{ width: 35 }} />}BCEL ONEPAY</Button>
+          <Button variant="contained" onClick={() => handleCheckout("CASH")} color="success" sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}>ຈ່າຍເງີນສົດ</Button>
+          <Button
+            variant="contained"
+            onClick={() => handleCheckout("BCL ONE PAY")}
+            startIcon={<img src="/assests/bcel.png" width={35} />}
+            sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}
+          >
+            BCEL ONEPAY
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
