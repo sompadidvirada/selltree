@@ -335,7 +335,7 @@ const Customer = () => {
                   }}
                 >
                   <Avatar
-                    src={`https://treekoff.com/${customerInfo?.profile_img}`}
+                    src={`https://treekoff.com/bigtree_admin/${customerInfo?.profile_img}`}
                     sx={{ width: 180, height: 180, alignSelf: "center" }}
                   />
                   <Box
