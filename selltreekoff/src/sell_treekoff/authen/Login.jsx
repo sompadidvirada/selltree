@@ -162,14 +162,16 @@ const Login = () => {
           )}
         </Formik>
       </Paper>
-      <Typography
+      <Box sx={{width:'100%', height:'30%', alignContent:'center'}}>
+        <Typography
         sx={{
-          mt: 50,
-          color: "rgb(100, 100, 100)",
+          color: "rgb(100, 100, 100)"
         }}
       >
         Copyright © 2025 BigTree Trading. All rights reserved.
       </Typography>
+      </Box>
+      
       <ToastContainer position="top-center" />
     </Container>
   );

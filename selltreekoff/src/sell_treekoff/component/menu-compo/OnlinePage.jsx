@@ -32,13 +32,21 @@ import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PersonIcon from "@mui/icons-material/Person";
+import Slide from '@mui/material/Slide';
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import {
   accectOrderOnline,
+  checkOutOrder,
   deleteBillOrderOnline,
   getOrderDetail,
 } from "../../../api/treekoff";
 import { toast, ToastContainer } from "react-toastify";
+
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
 
 function WhatsAppLink({ phoneNumber, message }) {
   const encodedMessage = encodeURIComponent(message);
@@ -56,6 +64,7 @@ function WhatsAppLink({ phoneNumber, message }) {
 const OnlinePage = () => {
   const orderOnline = useTreekoffStorage((s) => s.orderOnline);
   const orderOnline2 = useTreekoffStorage((s) => s.orderOnline2);
+  const staffInfo = useTreekoffStorage((s) => s.staffInfo)
   const removeOrderOnline2Item = useTreekoffStorage(
     (s) => s.removeOrderOnline2Item
   );
@@ -73,12 +82,23 @@ const OnlinePage = () => {
   const [open, setOpen] = useState(false);
   const [selectedData, setSelectedData] = useState();
   const [selectedRider, setSelectedRider] = useState("");
+  const [selecDataCheckout, setSelecDataCheckout] = useState()
   const waitNumber = useTreekoffStorage.getState().getNextWaitNumber(1);
   const riderList = [
     { id: "1", name: "ສົມສັກ" },
     { id: "2", name: "ສຸລິນ" },
     { id: "3", name: "ນະຄອນ" },
   ];
+  const [openCheckout, setOpenCheckout] = React.useState(false);
+
+  const handleClickOpenCheckout = (row) => {
+    setSelecDataCheckout(row)
+    setOpenCheckout(true);
+  };
+
+  const handleCloseCheckout = () => {
+    setOpenCheckout(false);
+  };
 
   const handleClickOpen = (row) => {
     setSelectedData(row);
@@ -107,7 +127,7 @@ const OnlinePage = () => {
         username: row?.customerID,
         waitNumber: waitNumber,
         menuDetail: fetchedDetail || [],
-        employeeName: row?.staffConfirmName || "",
+        employeeName: staffInfo?.first_name || "",
       };
 
       setTimeout(() => {
@@ -151,6 +171,67 @@ const OnlinePage = () => {
       }
     }
   };
+
+  const handleCheckout = async (pay) => {
+
+    const branchID = 1
+    const billID = selecDataCheckout?.id_bill
+    const cash = Number(selecDataCheckout?.total_balance_kip) + 1000
+    const totalSum = selecDataCheckout?.total_balance_kip
+    const mobliePay = pay === "BCL ONE PAY" ? 1 : 0
+
+    try {
+      const respones = await checkOutOrder(billID, cash, totalSum, staffInfo.id_user, mobliePay, branchID, staffInfo.first_name)
+      console.log(respones)
+      if (respones.data.status !== "success") {
+        return toast.error("Something went wrong !!!")
+      }
+
+      const menu = await getOrderDetail(billID)
+
+      if (menu.data.status !== "success") {
+        return toast.error("something went wrong !")
+      }
+
+      updateOrderOnline2Item(billID, {
+        isPaid: "1",
+      });
+      const detail = menu?.data?.data
+
+
+      const waitNumber = useTreekoffStorage.getState().getNextWaitNumber(1);
+
+      const CheckuserBill = {
+        billId: billID,
+        createAt: selecDataCheckout?.billDate,
+        userId: selecDataCheckout?.customerID,
+        username: selecDataCheckout?.customerFullName,
+        point: 0,
+        waitNumber,
+        payment: pay,
+        menuDetail: detail || [],
+        totalPrice: totalSum || 0,
+        cash: cash || 0,
+        employeeName: staffInfo?.first_name || "",
+      };
+
+
+
+      setTimeout(() => {
+        sessionStorage.setItem("CheckuserBill", JSON.stringify(CheckuserBill));
+
+        window.open("/customerbill", "_blank");
+      }, 150);
+
+      setOpenCheckout(false)
+
+    } catch (err) {
+      console.log(err)
+      return
+    }
+
+  };
+
 
   return (
     <Box>
@@ -242,18 +323,20 @@ const OnlinePage = () => {
                 {orderOnline2?.map((row, index) => {
                   const textColor =
                     row?.isAcceptByStaff === "0"
-                      ? "rgb(0, 0, 0)"
-                      : "rgb(223, 223, 223)";
+                      ? "rgba(1,1,1,1)"
+                      : "rgba(1,1,1,1)";
                   return (
                     <TableRow
                       key={`${row.customerID}-${index}`}
                       sx={{
                         background:
                           row.isAcceptByStaff === "0"
-                            ? "rgb(202, 189, 0)"
-                            : row.isAcceptByStaff === "1"
-                            ? "rgb(0, 104, 9)"
-                            : "rgb(202, 189, 0)",
+                            ? "rgba(188, 245, 71, 0.58)"
+                            : row.isAcceptByStaff === "1" && row.isPaid === "0"
+                              ? "rgba(71, 159, 245, 0.58)"
+                              : row.isAcceptByStaff === "1" && row.isPaid === "1" 
+                              ? "rgba(46, 237, 49, 0.58)"
+                              : "rgba(188, 245, 71, 0.58)",
                         color:
                           row.isAcceptByStaff === "0"
                             ? "rgb(0, 0, 0)"
@@ -283,7 +366,7 @@ const OnlinePage = () => {
                                   color: textColor,
                                 }}
                               >
-                                {row.customerID} | {row.customerID}{" "}
+                                {row.customerID} | {row.customerFullName}{" "}
                                 <CloseIcon sx={{ color: "red" }} />
                               </Typography>
                             </Box>
@@ -327,14 +410,14 @@ const OnlinePage = () => {
                                 ເວລາ:{" "}
                                 {row?.billDate
                                   ? new Date(
-                                      row?.billDate * 1000
-                                    ).toLocaleString("en-GB", {
-                                      day: "2-digit",
-                                      month: "2-digit",
-                                      year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })
+                                    row?.billDate * 1000
+                                  ).toLocaleString("en-GB", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
                                   : "UNKNOW"}
                               </Typography>
                               <Typography
@@ -456,6 +539,7 @@ const OnlinePage = () => {
                             <Button
                               variant="contained"
                               color="success"
+                              onClick={()=>handleClickOpenCheckout(row)}
                               sx={{
                                 fontFamily: "Noto Sans Lao",
                                 height: "50%",
@@ -605,6 +689,25 @@ const OnlinePage = () => {
           >
             ຈັດອໍເດີ
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/**DIALOG CHECK OUT */}
+
+
+      <Dialog
+        open={openCheckout}
+        slots={{
+          transition: Transition,
+        }}
+        keepMounted
+        onClose={handleCloseCheckout}
+        aria-describedby="alert-dialog-slide-description"
+      >
+        <DialogTitle sx={{ fontFamily: "Noto Sans Lao", fontSize: 35 }}>{"ເລືອກຊ່ອງທາງການຊຳລະ"}</DialogTitle>
+        <DialogActions sx={{ display: 'flex', gap: 3 }}>
+          <Button variant="contained" onClick={()=>handleCheckout("CASH")} color="success" sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}>ຈ່າຍເງີນສົດ</Button>
+          <Button variant="contained" onClick={()=>handleCheckout("BCL ONE PAY")} sx={{ fontFamily: "Noto Sans Lao", gap: 1, fontSize: 30 }}>{<img src="/assests/bcel.png" style={{ width: 35 }} />}BCEL ONEPAY</Button>
         </DialogActions>
       </Dialog>
     </Box>

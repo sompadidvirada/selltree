@@ -75,3 +75,6 @@ export const getOrderDetail = (billId) => {
     `https://treekoff.com/_react/api.php?show_menu_by_bill_treekoff&id_bill=${billId}`
   );
 };
+export const checkOutOrder = (billID, moneyReciept, totalBill, staffID, mobliePayment, branchID, staffName) => {
+  return axios.get(`https://treekoff.com/_react/api.php?checkout_bill_treekoff&id_bill=${billID}&receive_money_kip=${moneyReciept}&total_bill_amount_kip=${totalBill}&id_staff=${staffID}&isMobilePayment=${mobliePayment}&branch_id=${branchID}&staff_name=${staffName}`)
+}

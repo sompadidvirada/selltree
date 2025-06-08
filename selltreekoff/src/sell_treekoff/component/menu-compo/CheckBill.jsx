@@ -20,13 +20,14 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import DeleteIcon from "@mui/icons-material/Delete";
 import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useNavigate } from "react-router-dom";
+import Slide from '@mui/material/Slide';
 import { createWaitOrder, deleteBill } from "../../../api/sellTreekoff";
 import { toast, ToastContainer } from "react-toastify";
 import {
   numberPayment,
   paymentMethod,
 } from "../../../broadcast-channel/broadcast";
-import { deleteProductFromBill } from "../../../api/treekoff";
+import { checkOutOrder, deleteProductFromBill } from "../../../api/treekoff";
 
 const CheckBill = () => {
   const brachId = 1;
@@ -59,7 +60,7 @@ const CheckBill = () => {
   };
 
   const totalSum = customerInfo?.detail?.reduce(
-    (acc, row) => acc + row.price * row.qty,
+    (acc, row) => acc + row.menuPriceKIP * row.QTY,
     0
   );
 
@@ -77,12 +78,31 @@ const CheckBill = () => {
   };
 
   const handleCheckout = async (pay) => {
-    if (Number(rawCash) < totalSum || rawCash === "" || !rawCash) {
+
+    const branchID = 1
+    const mobliePay = pay === "BCL ONE PAY" ? 1 : 0
+    const cash = pay === "BCL ONE PAY" ? totalSum + 1000 : rawCash
+
+    console.log(cash)
+    if (Number(cash) < totalSum || cash === "" || !cash) {
       toast.error("ເງີນທີ່ຮັບຈາກລູກຄ້າ ບໍ່ຖືກຕ້ອງ !!", {
         style: { fontFamily: "'Noto Sans Lao', sans-serif" },
       });
       return;
     }
+
+
+    try {
+      const respones = await checkOutOrder(customerInfo.bill_id, cash, totalSum, staffInfo.id_user, mobliePay, branchID, staffInfo.first_name)
+      console.log(respones)
+      if (respones.data.status !== "success") {
+        return toast.error("Something went wrong !!!")
+      }
+    } catch (err) {
+      console.log(err)
+      return
+    }
+
     const waitNumber = useTreekoffStorage.getState().getNextWaitNumber(1);
 
     const CheckuserBill = {
@@ -95,34 +115,24 @@ const CheckBill = () => {
       payment: pay,
       menuDetail: customerInfo?.detail || [],
       totalPrice: totalSum || 0,
-      cash: rawCash || 0,
+      cash: cash || 0,
       employeeName: staffInfo?.first_name || "",
     };
 
-    setTimeout( async () => {
+    setTimeout(() => {
       sessionStorage.setItem("CheckuserBill", JSON.stringify(CheckuserBill));
 
-          const branchID = 1;
-      
-          const detailList = customerInfo?.detail || [];
-      
-          try {
-            for (const item of detailList) {
-              await deleteProductFromBill(item.added_id, staffInfo, branchID);
-            }
-          } catch(err) {
-            console.log(err)
-            return
-          }
-      
-        resetCustomerInfo({});
+      const branchID = 1;
 
-        numberPayment.postMessage(0)
+      const detailList = customerInfo?.detail || [];
+      resetCustomerInfo({});
 
-        navigate("/sellpage");
-        // Open new tab
+      numberPayment.postMessage(0)
 
-        
+      navigate("/sellpage");
+      // Open new tab
+
+
       window.open("/customerbill", "_blank");
     }, 150);
   };
@@ -175,15 +185,15 @@ const CheckBill = () => {
                   BILL NO : #{customerInfo?.bill_id || 0} | TIME{" "}
                   {userInfo?.bill?.createAt
                     ? new Date(userInfo?.bill?.createAt).toLocaleString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }
+                    )
                     : "UNKNOW"}
                 </Typography>
                 <Typography
@@ -247,10 +257,10 @@ const CheckBill = () => {
                           <TableCell sx={{ fontFamily: "Noto Sans Lao" }}>
                             {row.sweet}
                           </TableCell>
-                          <TableCell>{row.price.toLocaleString()}</TableCell>
-                          <TableCell>{row.qty}</TableCell>
+                          <TableCell>{row.menuPriceKIP.toLocaleString()}</TableCell>
+                          <TableCell>{row.QTY}</TableCell>
                           <TableCell>
-                            {(row.price * row.qty).toLocaleString()}
+                            {(row.menuPriceKIP * row.QTY).toLocaleString()}
                           </TableCell>
                         </TableRow>
                       );

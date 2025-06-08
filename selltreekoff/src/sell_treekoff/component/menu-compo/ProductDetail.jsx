@@ -56,7 +56,7 @@ const ProductDetail = () => {
   const setCustomerInfo = useTreekoffStorage((s) => s.setCustomerInfo);
   const customerInfo = useTreekoffStorage((s) => s.customerInfo);
   const totalSum =
-    customerInfo?.detail?.reduce((acc, row) => acc + row.price * row.qty, 0) ||
+    customerInfo?.detail?.reduce((acc, row) => acc + row.menuPriceKIP * row.QTY, 0) ||
     0;
 
   const [selectedValue, setSelectedValue] = useState("ທຳມະດາ");
@@ -154,11 +154,11 @@ const ProductDetail = () => {
     const newBill = {
       id_menu: selectedItem?.id_menu,
       menuNameENG: selectedItem?.menuNameENG || "",
-      price: price,
-      qty: quantity,
+      menuPriceKIP: price,
+      QTY: quantity,
       cupSize: selectedItem?.cupSize,
       MenuImgSRC: selectedItem?.MenuImgSRC || null,
-      sweet: selectedValue || "ທຳມະດາ",
+      extraOption: selectedValue || "ທຳມະດາ",
     };
 
     const branchID = 1;
@@ -167,10 +167,12 @@ const ProductDetail = () => {
       const addProduct = await addProductToBill(
         newBill?.id_menu,
         customerInfo.bill_id,
-        newBill?.qty,
-        newBill?.sweet,
+        newBill?.QTY,
+        newBill?.extraOption,
         branchID
       );
+
+      console.log(addProduct)
 
       const added_id = addProduct?.data?.data?.added_id;
 
@@ -479,8 +481,8 @@ const ProductDetail = () => {
                     justifySelf: "end",
                   }}
                 >
-                  {customerInfo?.detail[0]?.price?.toLocaleString() || 0} KIP X{" "}
-                  {customerInfo?.detail[0]?.qty} UNIT
+                  {customerInfo?.detail[0]?.menuPriceKIP?.toLocaleString() || 0} KIP X{" "}
+                  {customerInfo?.detail[0]?.QTY} UNIT
                 </Typography>
                 <Typography
                   sx={{
@@ -491,8 +493,8 @@ const ProductDetail = () => {
                   }}
                 >
                   {(
-                    customerInfo?.detail[0]?.price *
-                    customerInfo?.detail[0]?.qty
+                    customerInfo?.detail[0]?.menuPriceKIP *
+                    customerInfo?.detail[0]?.QTY
                   ).toLocaleString() || 0}{" "}
                   KIP
                 </Typography>
@@ -572,10 +574,10 @@ const ProductDetail = () => {
                         <TableCell sx={{ fontFamily: "Noto Sans Lao" }}>
                           {row.sweet}
                         </TableCell>
-                        <TableCell>{row.price?.toLocaleString()}</TableCell>
-                        <TableCell>{row.qty}</TableCell>
+                        <TableCell>{row.menuPriceKIP?.toLocaleString()}</TableCell>
+                        <TableCell>{row.QTY}</TableCell>
                         <TableCell>
-                          {(row?.price * row?.qty).toLocaleString()}
+                          {(row?.menuPriceKIP * row?.QTY).toLocaleString()}
                         </TableCell>
                       </TableRow>
                     );

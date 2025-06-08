@@ -1,13 +1,13 @@
 import React from 'react'
 
-const CustomerBill = ({priceBeforeTax, CheckuserBill}) => {
+const CustomerBill = ({ priceBeforeTax, CheckuserBill }) => {
   return (
     <div
       style={{
         width: "95%",
         fontFamily: "'Noto Sans Lao', sans-serif",
         fontSize: "12px",
-        padding:"25px"
+        padding: "25px"
       }}
     >
       <div style={{ textAlign: "center" }}>
@@ -15,12 +15,12 @@ const CustomerBill = ({priceBeforeTax, CheckuserBill}) => {
         <h3>ບິນລູກຄ້າເລກທິ່ {CheckuserBill?.billId}</h3>
         <p>
           <strong>BILL NO</strong> #{CheckuserBill?.billId} | {new Date(CheckuserBill?.createAt).toLocaleString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </p>
       </div>
 
@@ -50,29 +50,30 @@ const CustomerBill = ({priceBeforeTax, CheckuserBill}) => {
       <div>
         {CheckuserBill
           ? CheckuserBill?.menuDetail?.map((item, index) => {
-              return (
-                <p
-                  key={item.added_id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontFamily: "Noto Sans Lao",
-                  }}
-                >
-                  <span>
-                    {index + 1}&nbsp;&nbsp;&nbsp; [{item.cupSize}
-                    ]&nbsp;&nbsp;&nbsp; {item.menuNameENG} &nbsp;&nbsp;&nbsp;:
-                    &nbsp;&nbsp;&nbsp;
-                    {item.sweet}&nbsp;&nbsp;&nbsp; x &nbsp;&nbsp;&nbsp;{" "}
-                    {item.price.toLocaleString()} x {item.qty}
-                    &nbsp;&nbsp;&nbsp; =
-                  </span>
-                  <strong>
-                    {(item.price * item.qty).toLocaleString()} ກີບ
-                  </strong>{" "}
-                </p>
-              );
-            })
+            return (
+              <p
+                key={item.added_id || item.id_bill_list}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontFamily: "Noto Sans Lao",
+                }}
+              >
+                <span>
+                  {index + 1}&nbsp;&nbsp;&nbsp; [{item.cupSize}
+                  ]&nbsp;&nbsp;&nbsp; {item.menuNameENG} &nbsp;&nbsp;&nbsp;:
+                  &nbsp;&nbsp;&nbsp;
+                  {item.extraOption
+                  }&nbsp;&nbsp;&nbsp; x &nbsp;&nbsp;&nbsp;{" "}
+                  {(item.menuPriceKIP || 0).toLocaleString()} x {item.QTY}
+                  &nbsp;&nbsp;&nbsp; =
+                </span>
+                <strong>
+                  {(Number(item.menuPriceKIP) * Number(item.QTY)).toLocaleString()} ກີບ
+                </strong>{" "}
+              </p>
+            );
+          })
           : ""}
       </div>
 
@@ -89,7 +90,7 @@ const CustomerBill = ({priceBeforeTax, CheckuserBill}) => {
         </p>
         <p style={{ display: "flex", justifyContent: "space-between" }}>
           <strong>GRAND TOTAL:</strong>{" "}
-          {CheckuserBill?.totalPrice.toLocaleString()} ກີບ
+          {Number(CheckuserBill?.totalPrice).toLocaleString()} ກີບ
         </p>
         <p style={{ display: "flex", justifyContent: "space-between" }}>
           <strong>CASH:</strong> {Number(CheckuserBill?.cash).toLocaleString()}{" "}

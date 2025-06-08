@@ -40,7 +40,7 @@ const BarestarBill = ({ CheckuserBill }) => {
             <strong>BILL NO</strong> #
             {CheckuserBill?.billId || CheckuserBill2?.billId} |{" "}
             {new Date(
-              CheckuserBill?.createAt * 1000 || CheckuserBill2?.createAt * 1000
+              CheckuserBill?.createAt * 1000 || CheckuserBill2?.createAt * 1000 || 0
             ).toLocaleString("en-GB", {
               day: "2-digit",
               month: "2-digit",
@@ -89,11 +89,11 @@ const BarestarBill = ({ CheckuserBill }) => {
                     {index + 1}&nbsp;&nbsp;&nbsp; [{item.cupSize}
                     ]&nbsp;&nbsp;&nbsp; {item.menuNameENG} &nbsp;&nbsp;&nbsp;:
                     &nbsp;&nbsp;&nbsp;
-                    {item.sweet}&nbsp;&nbsp;&nbsp; x &nbsp;&nbsp;&nbsp;{" "}
-                    {item.price.toLocaleString()}
+                    {item?.extraOption}&nbsp;&nbsp;&nbsp; x &nbsp;&nbsp;&nbsp;{" "}
+                    {(item?.menuPriceKIP || 0).toLocaleString()}
                     &nbsp;&nbsp;&nbsp; =
                   </span>
-                  <strong>x{item.qty}</strong>{" "}
+                  <strong>x{item.QTY}</strong>{" "}
                 </p>
               );
             })
