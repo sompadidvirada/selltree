@@ -501,9 +501,11 @@ const OnlinePage = () => {
                                 <Button
                                   variant="contained"
                                   onClick={() => handleClickOpen(row)}
+                                  
                                   sx={{
                                     fontFamily: "Noto Sans Lao",
                                     color: textColor,
+                                    display: row.isPaid === "1" ? "none" : "block"
                                   }}
                                 >
                                   <SportsMotorsportsIcon />
