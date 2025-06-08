@@ -104,6 +104,8 @@ const OnlineCustomer = ({
           <CardContent
             sx={{
               display: "flex",
+              alignContent: "center",
+              justifyContent: "center",
               borderBottom: "1px solid black",
               width: "90%",
               p: 0,
@@ -114,7 +116,7 @@ const OnlineCustomer = ({
               onClick={() => openWindow()}
               style={{
                 display: "flex",
-                justifyContent:"flex-start",
+                justifyContent:showPanel ? 'flex-start' : 'center',
                 gap: 2,
                 color: "black",
                 width: "100%",
@@ -146,7 +148,7 @@ const OnlineCustomer = ({
             <Button
               style={{
                 display: "flex",
-                justifyContent: "flex-start",
+                justifyContent:showPanel ? 'flex-start' : 'center',
                 gap: 2,
                 color: "black",
                 width: "100%",
@@ -154,7 +156,7 @@ const OnlineCustomer = ({
               }}
               onClick={() => setSelectOnline(false)}
             >
-              <CoffeeMakerIcon sx={{ alignSelf: "center" }} />
+              <CoffeeMakerIcon sx={{ alignSelf:'center' }} />
               <Typography
                 fontSize={23}
                 display={showPanel ? "block" : "none"}

@@ -49,9 +49,7 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
               borderRadius: "50%",
               marginTop: 2,
             }}
-            image={
-              "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000d72c991b69390fcab978295d198d"
-            }
+            image={staffInfo?.profile_picture || ""}
             title="profile picture"
           />
           <CardContent
@@ -80,7 +78,7 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
                 fontSize: 12,
               }}
             >
-              {emplyyeeInfo?.position || "EMTY"}
+              {staffInfo?.staff_position || "EMTY"}
             </Typography>
           </CardContent>
           <CardContent

@@ -21,7 +21,7 @@ import {
   orderChannel,
   paymentMethod,
 } from "../../../broadcast-channel/broadcast";
-import { createBillWithUser, searchCus } from "../../../api/treekoff";
+import { createBillWithUser, getUserBtPhone, searchCus } from "../../../api/treekoff";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Stack from "@mui/material/Stack";
@@ -80,7 +80,7 @@ const Customer = () => {
       const updatedCustomerInfo = {
         ...customerInfo,
         bill_id: createBil.data.bill_id,
-        bill_create_date : createBil.data.createdDate,
+        bill_create_date: createBil.data.createdDate,
         detail: [],
       };
 
@@ -134,14 +134,22 @@ const Customer = () => {
 
   const handleSearch = async (value) => {
     setAlertError(false);
+  
     if (!value || value === "") {
       return;
     }
-
+  
     setLoading(true); // Show loading
-
+  
     try {
-      const customerSeacrh = await searchCus(value);
+      let customerSeacrh;
+  
+      if (value.length >= 8) {
+        customerSeacrh = await getUserBtPhone(value);
+      } else {
+        customerSeacrh = await searchCus(value);
+      }
+  
       if (
         customerSeacrh?.data === "" ||
         customerSeacrh?.data?.status === "error"
@@ -152,17 +160,16 @@ const Customer = () => {
         setAlertError(true);
         return;
       }
-
+  
       const responeData = customerSeacrh.data.data;
-
+  
       const meachData = {
         ...responeData[0],
         ...responeData[1],
       };
+  
       setCustomerInfo(meachData);
-
       orderChannel.postMessage(meachData);
-
       setSearchCustomer("");
     } catch (err) {
       console.log(err);
@@ -170,6 +177,7 @@ const Customer = () => {
       setLoading(false); // Hide loading
     }
   };
+  
 
   useEffect(() => {
     if (userInfo) {
@@ -327,7 +335,7 @@ const Customer = () => {
                   }}
                 >
                   <Avatar
-                    src="https://historyguild.org/wp-content/uploads/2021/05/Napoleon.jpg"
+                    src={`https://treekoff.com/${customerInfo?.profile_img}`}
                     sx={{ width: 180, height: 180, alignSelf: "center" }}
                   />
                   <Box
@@ -500,15 +508,15 @@ const Customer = () => {
                       <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
                         {customerInfo?.start_work_time
                           ? new Date(
-                              customerInfo.start_work_time * 1000
-                            ).toLocaleString("en-GB", {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: false, // set to true if you want 12-hour format
-                            })
+                            customerInfo.start_work_time * 1000
+                          ).toLocaleString("en-GB", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false, // set to true if you want 12-hour format
+                          })
                           : "UNKNOW"}
                       </Typography>
                     </Box>

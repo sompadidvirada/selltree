@@ -331,7 +331,7 @@ const ProductDetail = () => {
                         }}
                         component="img"
                         height="200"
-                        image={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${item?.id_menu}.jpg`}
+                        image={`https://treekoff.com/bigtree_admin/${item?.MenuImgSRC}` || ""}
                         alt={item.name}
                       />
                       <CardContent
@@ -466,7 +466,7 @@ const ProductDetail = () => {
                     }}
                     component="img"
                     height="200px"
-                    image={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${customerInfo?.detail[0]?.id_menu}.jpg`}
+                    image={`https://treekoff.com/bigtree_admin/${customerInfo?.detail[0]?.MenuImgSRC}`}
                     alt={"hot americano"}
                   />
                 </Card>
@@ -559,7 +559,7 @@ const ProductDetail = () => {
                           }}
                         >
                           <img
-                            src={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${row.id_menu}.jpg`}
+                            src={`https://treekoff.com/bigtree_admin/${row.MenuImgSRC}`}
                             alt={row.menuNameENG}
                             style={{
                               width: 40,

@@ -78,3 +78,6 @@ export const getOrderDetail = (billId) => {
 export const checkOutOrder = (billID, moneyReciept, totalBill, staffID, mobliePayment, branchID, staffName) => {
   return axios.get(`https://treekoff.com/_react/api.php?checkout_bill_treekoff&id_bill=${billID}&receive_money_kip=${moneyReciept}&total_bill_amount_kip=${totalBill}&id_staff=${staffID}&isMobilePayment=${mobliePayment}&branch_id=${branchID}&staff_name=${staffName}`)
 }
+export const getUserBtPhone = (phonenumber) => {
+  return axios.get(`https://treekoff.com/_react/api.php?customer_info_by_phone&phone=${phonenumber}`)
+}

@@ -119,7 +119,7 @@ const SellTreekoff = () => {
         <Box
           display="flex"
           flexDirection="column"
-          width={showPanel ? "20%" : "3.5%"}
+          width={showPanel ? "25%" : "3.5%"}
           gap="15px"
         >
           <EmployeeDetail
