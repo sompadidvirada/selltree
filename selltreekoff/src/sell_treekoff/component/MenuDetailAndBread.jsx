@@ -10,11 +10,10 @@ import { useEffect } from "react";
 import OnlinePage from "./menu-compo/OnlinePage";
 import { toast } from "react-toastify";
 
-
 const MenuDetailAndBread = ({ selectOnline }) => {
   const location = useLocation();
   const userInfo = useTreekoffStorage((s) => s.userInfo);
-  const customerInfo = useTreekoffStorage((s)=>s.customerInfo)
+  const customerInfo = useTreekoffStorage((s) => s.customerInfo);
 
   const refreshCus = () => {
     orderChannel.postMessage(userInfo);
@@ -77,10 +76,10 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  backgroundColor: isActive ? "green" : "transparent",
-                  padding: 8,
+                  backgroundColor: isActive ? "rgb(71, 37, 21)" : "transparent",
+                  padding: 15,
                   borderRadius: 5,
-                  color: "inherit",
+                  color: isActive ? "rgb(255, 255, 255)" : "inherit",
                   textDecoration: "none",
                 })}
               >
@@ -101,10 +100,14 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  backgroundColor: isActive ? "green" : "transparent",
+                  backgroundColor: isActive ? "rgb(71, 37, 21)" : "transparent",
                   padding: 8,
                   borderRadius: 5,
-                  color: !customerInfo?.bill_id ? "gray" : "inherit",
+                  color: !customerInfo?.bill_id
+                    ? "gray"
+                    : isActive
+                    ? "white"
+                    : "inherit",
                   textDecoration: "none",
                   pointerEvents: !customerInfo?.bill_id ? "none" : "auto",
                   opacity: !customerInfo?.bill_id ? 0.6 : 1,
@@ -127,16 +130,22 @@ const MenuDetailAndBread = ({ selectOnline }) => {
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  backgroundColor: isActive ? "green" : "transparent",
+                  backgroundColor: isActive ? "rgb(71, 37, 21)" : "transparent",
                   padding: 8,
                   borderRadius: 5,
                   color:
-                    !customerInfo?.detail || !customerInfo || customerInfo?.detail?.length === 0
+                    !customerInfo?.detail ||
+                    !customerInfo ||
+                    customerInfo?.detail?.length === 0
                       ? "gray"
+                      : isActive
+                      ? "white"
                       : "inherit",
                   textDecoration: "none",
                   pointerEvents:
-                    !customerInfo?.detail || !customerInfo || customerInfo?.detail?.length === 0
+                    !customerInfo?.detail ||
+                    !customerInfo ||
+                    customerInfo?.detail?.length === 0
                       ? "none"
                       : "auto",
                   opacity: !customerInfo?.detail ? 0.6 : 1,
@@ -151,7 +160,6 @@ const MenuDetailAndBread = ({ selectOnline }) => {
             </CardContent>
           </Card>
         )}
-
       </Box>
     </Box>
   );

@@ -14,6 +14,7 @@ import useTreekoffStorage from "../../../zustand/storageTreekoff";
 import { useEffect, useRef, useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { createBill, registerUser } from "../../../api/sellTreekoff";
 import { ToastContainer } from "react-toastify";
 import {
@@ -21,7 +22,11 @@ import {
   orderChannel,
   paymentMethod,
 } from "../../../broadcast-channel/broadcast";
-import { createBillWithUser, getUserBtPhone, searchCus } from "../../../api/treekoff";
+import {
+  createBillWithUser,
+  getUserBtPhone,
+  searchCus,
+} from "../../../api/treekoff";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import Stack from "@mui/material/Stack";
@@ -75,7 +80,6 @@ const Customer = () => {
         branchId
       );
 
-
       const updatedCustomerInfo = {
         ...customerInfo,
         bill_id: createBil.data.bill_id,
@@ -86,7 +90,6 @@ const Customer = () => {
       setCustomerInfo(updatedCustomerInfo);
 
       billUserChannel.postMessage(updatedCustomerInfo);
-
     } catch (err) {
       console.log(err);
     }
@@ -133,22 +136,22 @@ const Customer = () => {
 
   const handleSearch = async (value) => {
     setAlertError(false);
-  
+
     if (!value || value === "") {
       return;
     }
-  
+
     setLoading(true); // Show loading
-  
+
     try {
       let customerSeacrh;
-  
+
       if (value.length >= 8) {
         customerSeacrh = await getUserBtPhone(value);
       } else {
         customerSeacrh = await searchCus(value);
       }
-  
+
       if (
         customerSeacrh?.data === "" ||
         customerSeacrh?.data?.status === "error"
@@ -159,14 +162,14 @@ const Customer = () => {
         setAlertError(true);
         return;
       }
-  
+
       const responeData = customerSeacrh.data.data;
-  
+
       const meachData = {
         ...responeData[0],
         ...responeData[1],
       };
-  
+
       setCustomerInfo(meachData);
       orderChannel.postMessage(meachData);
       setSearchCustomer("");
@@ -176,8 +179,6 @@ const Customer = () => {
       setLoading(false); // Hide loading
     }
   };
-  
-
 
   useEffect(() => {
     paymentMethod.postMessage(null);
@@ -259,6 +260,14 @@ const Customer = () => {
                 ສ້າງບິນໃຫ່ມບໍ່ມີໄອດີ
               </Typography>
             </Button>
+
+            <Button
+              variant="contained"
+              sx={{ fontFamily: "Noto Sans Lao", fontSize: 25, height: 50 }}
+              onClick={handleClickOpen}
+            >
+              ສະໝັກສະມາຊິກ
+            </Button>
           </Box>
           {/** Alert MESSAGE */}
           {alertError && (
@@ -327,55 +336,8 @@ const Customer = () => {
                 >
                   <Avatar
                     src={`https://treekoff.com/bigtree_admin/${customerInfo?.profile_img}`}
-                    sx={{ width: 180, height: 180, alignSelf: "center" }}
+                    sx={{ width: "80%", height: "80%", alignSelf: "center" }}
                   />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      width: "90%",
-                      mt: 5,
-                    }}
-                  >
-                    <Box sx={{ width: "30%" }}>
-                      <Typography
-                        fontFamily={"Noto Sans Lao"}
-                        fontSize={30}
-                        fontWeight={"bold"}
-                      >
-                        ຊື່ລູກຄ້າ
-                      </Typography>
-                    </Box>
-                    <Box sx={{ width: "70%" }}>
-                      <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
-                        {customerInfo.full_name}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      width: "90%",
-                      mt: 2,
-                    }}
-                  >
-                    <Box sx={{ width: "30%" }}>
-                      <Typography
-                        fontFamily={"Noto Sans Lao"}
-                        fontSize={30}
-                        fontWeight={"bold"}
-                      >
-                        ໄອດີ
-                      </Typography>
-                    </Box>
-                    <Box sx={{ width: "70%" }}>
-                      <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
-                        {customerInfo.id_list}
-                      </Typography>
-                    </Box>
-                  </Box>
                 </CardContent>
 
                 <CardContent
@@ -392,7 +354,6 @@ const Customer = () => {
                     component="div"
                     fontFamily={"Noto Sans Lao"}
                     width={"50%"}
-                    textAlign={"center"}
                   >
                     ຂໍ້ມູນລູກຄ້າ
                   </Typography>
@@ -407,6 +368,7 @@ const Customer = () => {
                         fontFamily={"Noto Sans Lao"}
                         fontSize={25}
                         fontWeight={"bold"}
+                        color="rgba(1, 1, 1, 0.33)"
                       >
                         ຊື່ ນາມສະກຸນ
                       </Typography>
@@ -427,6 +389,7 @@ const Customer = () => {
                         fontFamily={"Noto Sans Lao"}
                         fontSize={25}
                         fontWeight={"bold"}
+                        color="rgba(1, 1, 1, 0.33)"
                       >
                         ເບີໂທ
                       </Typography>
@@ -447,6 +410,7 @@ const Customer = () => {
                         fontFamily={"Noto Sans Lao"}
                         fontSize={25}
                         fontWeight={"bold"}
+                        color="rgba(1, 1, 1, 0.33)"
                       >
                         ແຕ້ມສະສົມ
                       </Typography>
@@ -468,6 +432,7 @@ const Customer = () => {
                         fontFamily={"Noto Sans Lao"}
                         fontSize={25}
                         fontWeight={"bold"}
+                        color="rgba(1, 1, 1, 0.33)"
                       >
                         ມູນຄ່າໃຊ້ຈ່າຍ
                       </Typography>
@@ -491,6 +456,7 @@ const Customer = () => {
                         fontFamily={"Noto Sans Lao"}
                         fontSize={25}
                         fontWeight={"bold"}
+                        color="rgba(1, 1, 1, 0.33)"
                       >
                         ວັນທີ່ເຂົ້າຮ່ວມ
                       </Typography>
@@ -499,15 +465,15 @@ const Customer = () => {
                       <Typography fontFamily={"Noto Sans Lao"} fontSize={25}>
                         {customerInfo?.start_work_time
                           ? new Date(
-                            customerInfo.start_work_time * 1000
-                          ).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: false, // set to true if you want 12-hour format
-                          })
+                              customerInfo.start_work_time * 1000
+                            ).toLocaleString("en-GB", {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false, // set to true if you want 12-hour format
+                            })
                           : "UNKNOW"}
                       </Typography>
                     </Box>
@@ -517,9 +483,10 @@ const Customer = () => {
                     <Button
                       variant="contained"
                       color="success"
-                      sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}
+                      sx={{ fontFamily: "Noto Sans Lao", fontSize: 25, gap:1 }}
                       onClick={createWithUser}
                     >
+                      <AddCircleOutlineIcon/>
                       ສ້າງບິນໃຫ່ມ
                     </Button>
                   </CardActions>
@@ -527,25 +494,6 @@ const Customer = () => {
               </Card>
             </motion.div>
           )}
-        </Box>
-
-        {/* Register for new Customer. */}
-
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignContent: "flex-end",
-          }}
-        >
-          <Button
-            variant="contained"
-            sx={{ fontFamily: "Noto Sans Lao", p: 2, fontSize: 25 }}
-            onClick={handleClickOpen}
-          >
-            ສະໝັກສະມາຊິກ
-          </Button>
         </Box>
       </Box>
       <ToastContainer position="top-center" />
@@ -648,20 +596,20 @@ const Customer = () => {
                   }}
                 >
                   <Button
-                    sx={{ fontFamily: "Noto Sans Lao", fontSize: 20, p: 2 }}
-                    variant="contained"
-                    color="error"
-                    onClick={handleClose}
-                  >
-                    ຍົກເລີກ
-                  </Button>
-                  <Button
                     sx={{ fontFamily: "Noto Sans Lao", fontSize: 20 }}
                     variant="contained"
                     color="success"
                     type="submit"
                   >
                     ສະໝັກ
+                  </Button>
+                  <Button
+                    sx={{ fontFamily: "Noto Sans Lao", fontSize: 20, p: 2 }}
+                    variant="contained"
+                    color="error"
+                    onClick={handleClose}
+                  >
+                    ຍົກເລີກ
                   </Button>
                 </Box>
               </Form>

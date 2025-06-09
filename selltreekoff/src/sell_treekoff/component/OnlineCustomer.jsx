@@ -1,10 +1,4 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import MonitorIcon from "@mui/icons-material/Monitor";
 import PhoneAndroidIcon from "@mui/icons-material/PhoneAndroid";
 import { useEffect, useRef, useState } from "react";
@@ -12,31 +6,24 @@ import useTreekoffStorage from "../../zustand/storageTreekoff";
 import CoffeeMakerIcon from "@mui/icons-material/CoffeeMaker";
 import ScreenshotMonitorIcon from "@mui/icons-material/ScreenshotMonitor";
 
-const OnlineCustomer = ({
-  setSelectOnline,
-  openWindow,
-  showPanel
-}) => {
+const OnlineCustomer = ({ setSelectOnline, openWindow, showPanel }) => {
   const [getNoti, setGetNoti] = useState(0);
 
   const orderOnline = useTreekoffStorage((s) => s.orderOnline);
-  const orderOnline2 = useTreekoffStorage((s)=>s.orderOnline2)
+  const orderOnline2 = useTreekoffStorage((s) => s.orderOnline2);
 
   const prevLengthRef = useRef(orderOnline2?.length || 0);
   // Count how many orders are waiting
   const waitingCount =
-    orderOnline2?.filter((order) => order.isAcceptByStaff === "0").length ||
-    0;
+    orderOnline2?.filter((order) => order.isAcceptByStaff === "0").length || 0;
 
   useEffect(() => {
     const currentLength = orderOnline2?.length || 0;
     const prevLength = prevLengthRef.current;
 
     if (currentLength > prevLength) {
-      
       // Only play sound if new order(s) were added
       setGetNoti((prev) => prev + 1);
-
 
       const audio = new Audio("/noti.wav");
       audio.play().catch((e) => {
@@ -81,21 +68,21 @@ const OnlineCustomer = ({
               borderBottom: "1px solid black",
               width: "90%",
               height: "10%",
-              p: 0,
+              p: 2,
             }}
           >
             <MonitorIcon
               sx={{
                 alignSelf: "center",
                 marginRight: 1,
-                fontSize:15,
-                color:'gray',
-                display: showPanel ? "block" : "none"
+                fontSize: 15,
+                color: "gray",
+                display: showPanel ? "block" : "none",
               }}
             />
             <Typography
               fontFamily={"Noto Sans Lao"}
-              sx={{ fontSize: 15, color:'gray', alignSelf:'center' }}
+              sx={{ fontSize: 15, color: "gray", alignSelf: "center" }}
               display={showPanel ? "block" : "none"}
             >
               ເລືອກໜ້າຕ່າງການຂາຍ
@@ -116,7 +103,7 @@ const OnlineCustomer = ({
               onClick={() => openWindow()}
               style={{
                 display: "flex",
-                justifyContent:showPanel ? 'flex-start' : 'center',
+                justifyContent: showPanel ? "flex-start" : "center",
                 gap: 2,
                 color: "black",
                 width: "100%",
@@ -148,7 +135,7 @@ const OnlineCustomer = ({
             <Button
               style={{
                 display: "flex",
-                justifyContent:showPanel ? 'flex-start' : 'center',
+                justifyContent: showPanel ? "flex-start" : "center",
                 gap: 2,
                 color: "black",
                 width: "100%",
@@ -156,7 +143,7 @@ const OnlineCustomer = ({
               }}
               onClick={() => setSelectOnline(false)}
             >
-              <CoffeeMakerIcon sx={{ alignSelf:'center' }} />
+              <CoffeeMakerIcon sx={{ alignSelf: "center" }} />
               <Typography
                 fontSize={23}
                 display={showPanel ? "block" : "none"}

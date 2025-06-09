@@ -120,6 +120,7 @@ const SellTreekoff = () => {
           display="flex"
           flexDirection="column"
           width={showPanel ? "25%" : "3.5%"}
+          minWidth={showPanel ? "300px" : "3.5%"}
           gap="15px"
         >
           <EmployeeDetail

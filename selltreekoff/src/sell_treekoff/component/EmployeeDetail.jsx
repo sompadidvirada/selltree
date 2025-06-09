@@ -2,7 +2,7 @@ import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import LocationCityIcon from "@mui/icons-material/LocationCity";
 import useTreekoffStorage from "../../zustand/storageTreekoff";
-
+import ComputerIcon from '@mui/icons-material/Computer';
 import { motion } from "framer-motion";
 
 const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
@@ -86,11 +86,12 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
           >
             <Typography
               fontFamily={"Noto Sans Lao"}
-              color="rgb(71, 71, 71)"
+              color="rgb(56, 55, 55)"
               display="flex"
               fontWeight={"bold"}
+              gap={2}
             >
-              <LocationCityIcon sx={{ color: "gray" }} />
+              <ComputerIcon sx={{ color: "gray" }} />
               {staffInfo?.branch?.branch_name || "EMTY"}
             </Typography>
           </CardContent>
