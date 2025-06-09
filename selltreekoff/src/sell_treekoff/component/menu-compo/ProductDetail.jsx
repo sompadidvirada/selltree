@@ -319,7 +319,7 @@ const ProductDetail = () => {
                         }}
                         component="img"
                         height="200"
-                        image={`https://treekoff.com/bigtree_admin/${item?.MenuImgSRC}` || ""}
+                        image={`https://treekoff.com/${item?.MenuImgSRC}` || ""}
                         alt={item.name}
                       />
                       <CardContent
