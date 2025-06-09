@@ -75,7 +75,6 @@ const Customer = () => {
         branchId
       );
 
-      console.log(createBil)
 
       const updatedCustomerInfo = {
         ...customerInfo,
@@ -179,14 +178,6 @@ const Customer = () => {
   };
   
 
-  useEffect(() => {
-    if (userInfo) {
-      orderChannel.postMessage(userInfo);
-    }
-    if (userBill?.length === 0) {
-      billUserChannel.postMessage(null);
-    }
-  }, [userBill, userInfo]);
 
   useEffect(() => {
     paymentMethod.postMessage(null);

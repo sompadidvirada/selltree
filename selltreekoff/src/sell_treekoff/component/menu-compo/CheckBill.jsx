@@ -36,7 +36,6 @@ const CheckBill = () => {
   const [moneyReceived, setMoneyReciept] = useState("");
   const [openConfirm, setOpenConfirm] = useState(false);
   const userInfo = useTreekoffStorage((s) => s.userInfo);
-  const userBill = useTreekoffStorage((s) => s.userBill);
   const resetBill = useTreekoffStorage((s) => s.resetBill);
   const employeeInfo = useTreekoffStorage((s) => s.employeeInfo);
   const [rawCash, setRawCash] = useState();

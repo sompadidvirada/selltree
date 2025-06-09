@@ -8,14 +8,11 @@ import useTreekoffStorage from "../../zustand/storageTreekoff";
 import { orderChannel } from "../../broadcast-channel/broadcast";
 import { useEffect } from "react";
 import OnlinePage from "./menu-compo/OnlinePage";
-
-import { motion } from "framer-motion"; // NEW
 import { toast } from "react-toastify";
 
 
 const MenuDetailAndBread = ({ selectOnline }) => {
   const location = useLocation();
-  const userBill = useTreekoffStorage((s) => s.userBill);
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const customerInfo = useTreekoffStorage((s)=>s.customerInfo)
 
@@ -38,7 +35,6 @@ const MenuDetailAndBread = ({ selectOnline }) => {
         sx={{
           width: "100%",
           height: "100%",
-          bgcolor: "yellow",
         }}
       >
         {selectOnline ? (
@@ -155,6 +151,7 @@ const MenuDetailAndBread = ({ selectOnline }) => {
             </CardContent>
           </Card>
         )}
+
       </Box>
     </Box>
   );

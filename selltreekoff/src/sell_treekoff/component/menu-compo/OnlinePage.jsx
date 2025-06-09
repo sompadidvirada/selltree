@@ -52,9 +52,6 @@ function WhatsAppLink({ phoneNumber, message }) {
   const encodedMessage = encodeURIComponent(message);
   const whatsappUrl = `https://wa.me/85620${phoneNumber}?text=${encodedMessage}`;
 
-  console.log(whatsappUrl);
-
-
   return (
     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
       {phoneNumber}

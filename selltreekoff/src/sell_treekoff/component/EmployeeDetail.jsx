@@ -1,19 +1,12 @@
 import { Box, Card, CardContent, CardMedia, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import LocationCityIcon from "@mui/icons-material/LocationCity";
-import { EmployeeInfo } from "../data/MockData";
 import useTreekoffStorage from "../../zustand/storageTreekoff";
 
 import { motion } from "framer-motion";
 
 const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
-  const emplyyeeInfo = useTreekoffStorage((state) => state.employeeInfo);
-  const setEmployeeInfo = useTreekoffStorage((state) => state.setEmplyeeInfo);
   const staffInfo = useTreekoffStorage((state) => state.staffInfo);
-
-  useEffect(() => {
-    setEmployeeInfo(EmployeeInfo);
-  }, [EmployeeInfo]);
 
   return (
     <Box
@@ -41,11 +34,12 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
           }}
         >
           <CardMedia
+            component="img"
             onClick={handleSwicth}
             sx={{
               height: showPanel ? "80px" : "40px",
               width: showPanel ? "80px" : "40px",
-              cursor: 'pointer',
+              cursor: "pointer",
               borderRadius: "50%",
               marginTop: 2,
             }}
@@ -87,7 +81,7 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
               width: "90%",
               paddingLeft: "0",
               paddingRight: "0",
-              justifyContent:"center"
+              justifyContent: "center",
             }}
           >
             <Typography
@@ -96,7 +90,7 @@ const EmployeeDetail = ({ showPanel, setShowPanel, handleSwicth }) => {
               display="flex"
               fontWeight={"bold"}
             >
-              <LocationCityIcon sx={{color:"gray"}}/>
+              <LocationCityIcon sx={{ color: "gray" }} />
               {staffInfo?.branch?.branch_name || "EMTY"}
             </Typography>
           </CardContent>

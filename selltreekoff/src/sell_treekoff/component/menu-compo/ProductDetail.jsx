@@ -43,9 +43,6 @@ const ProductDetail = () => {
   const staffInfo = useTreekoffStorage((state) => state.staffInfo);
   const menuForBranch = useTreekoffStorage((state) => state.menuForBranch);
   const navigate = useNavigate();
-  const userBill = useTreekoffStorage((state) => state.userBill);
-  const setUserBill = useTreekoffStorage((s) => s.setUserBill);
-  const replaceUserBill = useTreekoffStorage((s) => s.replaceUserBill);
   const userInfo = useTreekoffStorage((s) => s.userInfo);
   const setUserInfo = useTreekoffStorage((s) => s.setUserInfo);
   const [searchText, setSearchText] = useState("");
@@ -139,12 +136,6 @@ const ProductDetail = () => {
     }
   };
 
-  useEffect(() => {
-    if (userBill?.length > 0) {
-      orderChannel.postMessage(userInfo);
-      billUserChannel.postMessage(userBill);
-    }
-  }, []);
 
   const handleSubmitDialog = async (e) => {
     e.preventDefault();
@@ -171,9 +162,6 @@ const ProductDetail = () => {
         newBill?.extraOption,
         branchID
       );
-
-      console.log(addProduct)
-
       const added_id = addProduct?.data?.data?.added_id;
 
       if (added_id) {

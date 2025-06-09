@@ -2,64 +2,12 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 const TreekoffStorage = (set, get) => ({
-  userBill: [],
-  employeeInfo: null,
-  userInfo: null,
-  screenControl: null,
-  orderOnline: [],
   staffInfo: null,
   customerInfo: null,
   session: null,
   menuForBranch: null,
   waitingNumbers: {},
   orderOnline2: [],
-  setUserBill: (billOrUpdater) => {
-    set((state) => ({
-      userBill:
-        typeof billOrUpdater === "function"
-          ? billOrUpdater(state.userBill)
-          : [billOrUpdater, ...state.userBill],
-    }));
-  },
-  replaceUserBill: (newArray) => {
-    set({ userBill: newArray }); // overwrite entire array
-  },
-  setEmplyeeInfo: (newData) => {
-    set({ employeeInfo: newData });
-  },
-  setUserInfo: (newData) => {
-    set({ userInfo: newData });
-  },
-  resetBill: () => {
-    set({
-      userBill: [],
-      userInfo: null,
-      screenControl: null,
-    });
-  },
-  setScreenControll: (newData) => {
-    set({ screenControl: newData });
-  },
-  // Append a new order to the front
-  appendOrderOnline: (newOrder) => {
-    set((state) => ({
-      orderOnline: [newOrder, ...state.orderOnline],
-    }));
-  },
-  // Replace all online orders (e.g. after fetch)
-  replaceOrderOnline: (newOrders) => {
-    set({
-      orderOnline: newOrders,
-    });
-  },
-  // Remove an order by ID
-  removeOrderOnline: (billNumberToRemove) => {
-    set((state) => ({
-      orderOnline: state.orderOnline.filter(
-        (order) => order.billNumber !== billNumberToRemove
-      ),
-    }));
-  },
   setStaffInfo: (newData) => {
     set((state) => ({
       staffInfo: {
@@ -113,10 +61,12 @@ const TreekoffStorage = (set, get) => ({
     set({ orderOnline2: newData });
   },
   updateOrderOnline2Item: (id_bill, newFields) => {
-    console.log(id_bill,newFields)
+    console.log(id_bill, newFields);
     set((state) => ({
       orderOnline2: state.orderOnline2.map((order) =>
-        order.id_bill.toString() === id_bill.toString() ? { ...order, ...newFields } : order
+        order.id_bill.toString() === id_bill.toString()
+          ? { ...order, ...newFields }
+          : order
       ),
     }));
   },
@@ -126,6 +76,18 @@ const TreekoffStorage = (set, get) => ({
         (order) => order.id_bill !== id_bill
       ),
     })),
+  logout: () => {
+    set({
+      userBill: [],
+      userInfo: null,
+      staffInfo: null,
+      customerInfo: null,
+      session: null,
+      menuForBranch: null,
+      waitingNumbers: {},
+      orderOnline2: [],
+    });
+  },
 });
 
 const usePersist = {

@@ -3,17 +3,10 @@ import {
   Box,
   Button,
   Typography,
-  useTheme,
   Container,
   Paper,
-  Avatar,
   TextField,
-  Grid2,
-  Card,
-  Link,
-  CardMedia,
 } from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { Link as RouterLink } from "react-router-dom";
@@ -21,7 +14,6 @@ import { useNavigate } from "react-router-dom";
 import { checkBranch, checkStaffInfo, LoginStaff } from "../../api/treekoff";
 import { toast, ToastContainer } from "react-toastify";
 import useTreekoffStorage from "../../zustand/storageTreekoff";
-import { use } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -50,7 +42,6 @@ const Login = () => {
 
       const staffID = identifyStaff.data?.id_user;
 
-      console.log(staffID);
       setSession(identifyStaff.data.session);
 
       const staffCheck = await checkStaffInfo(staffID);
@@ -71,9 +62,10 @@ const Login = () => {
     }
   };
 
+
   return (
     <Container maxWidth="xs">
-      <Paper elevation={10} sx={{ margin: 8, padding: 2, width: 300 }}>
+      <Paper elevation={10} sx={{ margin: 8, padding: 2, width: 300, justifySelf:'center' }}>
         <img
           src="/assests/TK.png"
           alt="Logo"

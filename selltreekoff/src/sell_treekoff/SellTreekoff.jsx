@@ -1,21 +1,20 @@
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import EmployeeDetail from "./component/EmployeeDetail";
 import OnlineCustomer from "./component/OnlineCustomer";
 import MenuDetailAndBread from "./component/MenuDetailAndBread";
 import { useSocket } from "../socket-provider/SocketProvider";
 import useTreekoffStorage from "../zustand/storageTreekoff";
-import { onlineOrderData } from "./data/MockData";
-import { motion } from "framer-motion"; // NEW
 import { getMenuForBranch, getOrderOnline, getTypeMenu } from "../api/treekoff";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { Dialog, DialogTitle, DialogActions } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const SellTreekoff = () => {
-  const setOrderOnline2 = useTreekoffStorage((s)=>s.setOrderOnline2)
+  const setOrderOnline2 = useTreekoffStorage((s) => s.setOrderOnline2);
   const [selectOnline, setSelectOnline] = useState(false);
   const popupRef = useRef(null);
   const socket = useSocket();
-  const appendOrderOnline = useTreekoffStorage((s) => s.appendOrderOnline);
-  const replaceOrderOnline = useTreekoffStorage((s) => s.replaceOrderOnline);
   const [showPanel, setShowPanel] = useState(true);
   const staffInfo = useTreekoffStorage((state) => state.staffInfo);
   const setMenuForBranch = useTreekoffStorage(
@@ -24,6 +23,8 @@ const SellTreekoff = () => {
   const menuForBranch = useTreekoffStorage((state) => state.menuForBranch);
   const [typeMenu, setTypeMenu] = useState();
   const [getMen, setGetMen] = useState();
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const fecthMenuBranch = async () => {
     const res = await getMenuForBranch(1);
@@ -68,7 +69,6 @@ const SellTreekoff = () => {
   };
 
   useEffect(() => {
-    replaceOrderOnline(onlineOrderData);
     fecthOrderOnline();
     fecthMenuBranch();
   }, []);
@@ -90,20 +90,20 @@ const SellTreekoff = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("online-order", (data) => {
-      appendOrderOnline(data);
-    });
-
-    return () => {
-      socket.off("online-order");
-    };
-  }, [socket]);
 
   const handleSwicth = () => {
     setShowPanel((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    setOpen(true); // open custom confirm modal
+  };
+
+  const confirmLogout = () => {
+    navigate("/");
+    useTreekoffStorage.getState().logout();
+    localStorage.removeItem("sellTreekoff-storege2");
+    setOpen(false);
   };
 
   return (
@@ -133,6 +133,19 @@ const SellTreekoff = () => {
             showPanel={showPanel}
             setShowPanel={setShowPanel}
           />
+          <Box sx={{ alignSelf: "center", mt: 2 }}>
+            <Button
+              variant="contained"
+              onClick={handleLogout}
+              color="error"
+              sx={{ display: "flex", gap: 1, p: 2 }}
+            >
+              <LogoutIcon />
+              <Typography sx={{ fontFamily: "Noto Sans Lao", fontSize: 20 }}>
+                ອອກຈາກລະບົບ
+              </Typography>
+            </Button>
+          </Box>
         </Box>
         <MenuDetailAndBread
           selectOnline={selectOnline}
@@ -140,6 +153,41 @@ const SellTreekoff = () => {
           setShowPanel={setShowPanel}
         />
       </Box>
+
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        PaperProps={{
+          sx: {
+            width: "30%",
+            height: "200px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontFamily: "Noto Sans Lao", fontSize:35, alignSelf:'center' }}>
+          ຕ້ອງການອອກຈາກລະບົບແທ້ບໍ່ ??
+        </DialogTitle>
+        <DialogActions sx={{ alignSelf: "center", display: "flex", gap: 5 }}>
+          <Button
+            sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}
+            variant="contained"
+            onClick={() => setOpen(false)}
+          >
+            ຍົກເລີກ
+          </Button>
+          <Button
+            sx={{ fontFamily: "Noto Sans Lao", fontSize: 30 }}
+            variant="contained"
+            onClick={confirmLogout}
+            color="error"
+          >
+            ຕົກລົງ
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
