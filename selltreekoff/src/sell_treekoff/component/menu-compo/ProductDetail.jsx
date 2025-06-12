@@ -319,7 +319,7 @@ const ProductDetail = () => {
                         }}
                         component="img"
                         height="200"
-                        image={`https://treekoff.com/${item?.MenuImgSRC}` || ""}
+                        image={`https://treekoff.com/_react/img_show.php?menu_id=${item.id_menu}` || ""}
                         alt={item.name}
                       />
                       <CardContent
@@ -372,7 +372,7 @@ const ProductDetail = () => {
                     <CardMedia
                       component="img"
                       height="200"
-                      image={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${item.id_menu}.jpg`}
+                      image={`https://treekoff.com/_react/img_show.php?menu_id=${item.id_menu}`}
                       alt={item.menuNameENG}
                       sx={{ cursor: "pointer" }}
                     />
@@ -454,7 +454,7 @@ const ProductDetail = () => {
                     }}
                     component="img"
                     height="200px"
-                    image={`https://treekoff.com/bigtree_admin/${customerInfo?.detail[0]?.MenuImgSRC}`}
+                    image={`https://treekoff.com/_react/img_show.php?menu_id=${customerInfo?.detail[0]?.id_menu}`}
                     alt={"hot americano"}
                   />
                 </Card>
@@ -547,7 +547,7 @@ const ProductDetail = () => {
                           }}
                         >
                           <img
-                            src={`https://treekoff.com/bigtree_admin/${row.MenuImgSRC}`}
+                            src={`https://treekoff.com/_react/img_show.php?menu_id=${row.id_menu}`}
                             alt={row.menuNameENG}
                             style={{
                               width: 40,
@@ -619,7 +619,7 @@ const ProductDetail = () => {
               }}
               component="img"
               height="400"
-              image={`https://s3-treekoff-store.s3.ap-southeast-2.amazonaws.com/treekoff-menu-${selectedItem?.id_menu}.jpg`}
+              image={`https://treekoff.com/_react/img_show.php?menu_id=${selectedItem?.id_menu}`}
               alt={selectedItem?.menuNameENG}
             />
           </CardContent>
